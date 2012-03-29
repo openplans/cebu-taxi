@@ -164,11 +164,6 @@
     </dependency>
     <dependency>
       <groupId>org.opentripplanner</groupId>
-      <artifactId>opentripplanner-web-utils</artifactId>
-      <version>${otp.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>org.opentripplanner</groupId>
       <artifactId>opentripplanner-routing</artifactId>
       <version>${otp.version}</version>
     </dependency>
@@ -202,6 +197,21 @@
     	<artifactId>slf4j-log4j12</artifactId>
     	<version>1.5.8</version>
     </dependency>
+    <dependency>
+       <groupId>gov.sandia.foundry</groupId>
+        <artifactId>gov-sandia-cognition-common-core</artifactId>
+        <version>3.3.2</version>
+    </dependency> 
+    <dependency>
+      <groupId>gov.sandia.foundry</groupId>
+      <artifactId>gov-sandia-cognition-learning-core</artifactId>
+      <version>3.3.2</version>
+    </dependency>
+    <dependency>
+			<groupId>net.sf.opencsv</groupId>
+			<artifactId>opencsv</artifactId>
+			<version>2.0</version>
+	  </dependency>
   </dependencies>
 
   <dependencyManagement>
@@ -243,6 +253,7 @@
         <scope>test</scope>
       </dependency>
     </dependencies>
+
   </dependencyManagement>
 
   <properties>
