@@ -11,6 +11,7 @@ import gov.sandia.cognition.statistics.distribution.MultivariateGaussian;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -24,8 +25,10 @@ import org.geotools.referencing.CRS;
 import org.geotools.referencing.crs.DefaultEngineeringCRS;
 import org.geotools.referencing.crs.DefaultGeocentricCRS;
 import org.geotools.referencing.crs.DefaultGeographicCRS;
+import org.geotools.referencing.cs.DefaultAffineCS;
 import org.opengis.geometry.MismatchedDimensionException;
 import org.opengis.referencing.FactoryException;
+import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
@@ -51,6 +54,7 @@ public class GraphTest {
   public static void main(String[] args) {
     GraphServiceImpl gs = new GraphServiceImpl();
     GraphBundle bundle = new GraphBundle(new File("src/main/resources/org/openplans/cebutaxi/"));
+    
     gs.setBundle(bundle);
     gs.refreshGraph();
     Graph graph = gs.getGraph();
@@ -90,9 +94,27 @@ public class GraphTest {
     MultivariateGaussian belief = null;
     
     final CSVReader gps_reader;
+    final FileWriter test_output;
     try {
-      MathTransform transform = CRS.findMathTransform(DefaultGeographicCRS.WGS84, 
-          DefaultGeocentricCRS.CARTESIAN);
+      String googleWebMercatorCode = "EPSG:4326";
+      
+      String cartesianCode = "EPSG:4499";
+       
+      CRSAuthorityFactory crsAuthorityFactory = CRS.getAuthorityFactory(true);
+       
+      CoordinateReferenceSystem mapCRS = crsAuthorityFactory.createCoordinateReferenceSystem(googleWebMercatorCode);
+       
+      CoordinateReferenceSystem dataCRS = crsAuthorityFactory.createCoordinateReferenceSystem(cartesianCode);
+                             
+      boolean lenient = true; // allow for some error due to different datums
+      MathTransform transform = CRS.findMathTransform(mapCRS, dataCRS, lenient);
+      
+      test_output = new FileWriter("src/main/resources/org/openplans/cebutaxi/test_data/test_output.txt"); 
+      test_output.write("time,original_lat,original_lon,kf_lat,kf_lon,graph_segment_id\n");
+      
+      
+//      MathTransform transform = CRS.findMathTransform(DefaultGeographicCRS.WGS84, 
+//          DefaultGeocentricCRS.CARTESIAN);
       gps_reader = new CSVReader(
           new FileReader("src/main/resources/org/openplans/cebutaxi/test_data/Cebu-Taxi-GPS/Day4-Taxi-1410-2101.txt"), '\t');
       String[] nextLine;
@@ -100,17 +122,31 @@ public class GraphTest {
       log.info("processing gps data");
   
       while ((nextLine = gps_reader.readNext()) != null) {
+        
+        StringBuilder sb = new StringBuilder();
+        
         Date datetime = sdf.parse(nextLine[0] + " " + nextLine[1]);
+        
         log.info("processing record time " + datetime.toString());
+        
         double lat = Double.parseDouble(nextLine[2]);
         double lon = Double.parseDouble(nextLine[3]);
         
+        sb.append(datetime.getTime()).append(",");
+        sb.append(lat).append(",").append(lon).append(",");
+        
+        /*
+         * Transform gps observation to cartesian coordinates
+         */
         Coordinate obsCoords = new Coordinate(lon, lat);
         Coordinate obsPoint = new Coordinate();
         JTS.transform(obsCoords, obsPoint, transform);
         
         Vector xyPoint = VectorFactory.getDefault().createVector2D(obsPoint.x, obsPoint.y);
         
+        /*
+         * Initialize or update the kalman filter
+         */
         if (belief == null) {
           belief = filter.createInitialLearnedObject();
           belief.setMean(xyPoint.stack(VectorFactory.getDefault().createVector2D(1.5, 1.5)));
@@ -118,18 +154,31 @@ public class GraphTest {
           filter.update(belief, xyPoint);
         }
         
+        /*
+         * Transform state mean position coordinates to lat, lon
+         */
+        Coordinate kfPoint = new Coordinate(belief.getMean().getElement(0), belief.getMean().getElement(1));
+        Coordinate kfCoords= new Coordinate();
+        JTS.transform(kfPoint, kfCoords, transform.inverse());
+        sb.append(kfCoords.y).append(",").append(kfCoords.x).append(",");
+        
         log.info("filter belief=" + belief.toString());
         
-        
-        log.info("attempting snap to graph for point " + obsPoint.toString());
-        
-        
-        Vertex snappedVertex =  indexService.getClosestVertex(obsPoint, null, options);
+        log.info("attempting snap to graph for point " + obsCoords.toString());
+        /*
+         * Snap to graph
+         */
+        Vertex snappedVertex =  indexService.getClosestVertex(obsCoords, null, options);
         if (snappedVertex != null) {
-          double dist = snappedVertex.distance(obsPoint);
+          double dist = snappedVertex.distance(obsCoords);
           log.info("distance to graph: " + dist);
           log.info("vertexLabel=" + snappedVertex.getLabel());
+          sb.append(snappedVertex.getName());
+        } else {
+          sb.append("NA");
         }
+        
+        test_output.write(sb.toString() + "\n");
       }
     } catch (FileNotFoundException e) {
       e.printStackTrace();
