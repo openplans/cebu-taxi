@@ -16,7 +16,10 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.geotools.geometry.jts.JTS;
@@ -32,15 +35,24 @@ import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 import org.opengis.referencing.operation.TransformException;
+import org.opentripplanner.graph_builder.impl.map.StreetMatcher;
 import org.opentripplanner.model.GraphBundle;
 import org.opentripplanner.routing.core.TraverseMode;
 import org.opentripplanner.routing.core.TraverseOptions;
+import org.opentripplanner.routing.edgetype.StreetEdge;
+import org.opentripplanner.routing.graph.Edge;
 import org.opentripplanner.routing.graph.Graph;
 import org.opentripplanner.routing.graph.Vertex;
 import org.opentripplanner.routing.impl.GraphServiceImpl;
 import org.opentripplanner.routing.impl.StreetVertexIndexServiceImpl;
+import org.opentripplanner.routing.location.StreetLocation;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.CoordinateSequence;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
@@ -58,14 +70,14 @@ public class GraphTest {
     gs.setBundle(bundle);
     gs.refreshGraph();
     Graph graph = gs.getGraph();
+    StreetMatcher streetMatcher = new StreetMatcher(graph);
     
     StreetVertexIndexServiceImpl indexService = new StreetVertexIndexServiceImpl(graph);
     indexService.setup();
     
     TraverseOptions options = new TraverseOptions(TraverseMode.CAR);
     
-    SimpleDateFormat sdf = new SimpleDateFormat("d/F/y H:m:s");
-    
+    SimpleDateFormat sdf = new SimpleDateFormat("F/d/y H:m:s");
     
     /*
      * State transition matrix
@@ -77,12 +89,15 @@ public class GraphTest {
     /*
      * State covariance
      */
-    Matrix A = MatrixFactory.getDefault().createIdentity(4, 4).scale(1d/4d);
+    Matrix A = MatrixFactory.getDefault().createIdentity(4, 4);
+    
+    A.setElement(0, 0, 1d/4d);
+    A.setElement(1, 1, 1d/4d);
     A.setElement(0, 2, 1d/2d);
     A.setElement(1, 3, 1d/2d);
     A.setElement(2, 0, 1d/2d);
     A.setElement(3, 1, 1d/2d);
-    A.scale(20d);
+    A = A.scale(20d);
     
     Matrix O = MatrixFactory.getDefault().createIdentity(2, 4);
     
@@ -116,16 +131,24 @@ public class GraphTest {
 //      MathTransform transform = CRS.findMathTransform(DefaultGeographicCRS.WGS84, 
 //          DefaultGeocentricCRS.CARTESIAN);
       gps_reader = new CSVReader(
-          new FileReader("src/main/resources/org/openplans/cebutaxi/test_data/Cebu-Taxi-GPS/Day4-Taxi-1410-2101.txt"), '\t');
+//          new FileReader("src/main/resources/org/openplans/cebutaxi/test_data/Cebu-Taxi-GPS/Day4-Taxi-1410-2101.txt"), '\t');
+          new FileReader("src/main/resources/org/openplans/cebutaxi/test_data/Cebu-Taxi-GPS/0726.csv"), ',');
       String[] nextLine;
       gps_reader.readNext();
       log.info("processing gps data");
+      
+      long prevTime = 0;
   
+      Coordinate prevObsCoords = null;
+      
       while ((nextLine = gps_reader.readNext()) != null) {
         
         StringBuilder sb = new StringBuilder();
         
-        Date datetime = sdf.parse(nextLine[0] + " " + nextLine[1]);
+//        Date datetime = sdf.parse(nextLine[0] + " " + nextLine[1]);
+        Date datetime = sdf.parse(nextLine[0]);
+        long timeDiff = datetime.getTime() - prevTime;
+        prevTime = datetime.getTime();
         
         log.info("processing record time " + datetime.toString());
         
@@ -145,21 +168,16 @@ public class GraphTest {
         Vector xyPoint = VectorFactory.getDefault().createVector2D(obsPoint.x, obsPoint.y);
         
         /*
-         * Initialize or update the kalman filter
+         * Update the motion filter
          */
-        if (belief == null) {
-          belief = filter.createInitialLearnedObject();
-          belief.setMean(xyPoint.stack(VectorFactory.getDefault().createVector2D(1.5, 1.5)));
-        } else {
-          filter.update(belief, xyPoint);
-        }
+        belief = updateFilter(timeDiff, xyPoint, filter, belief);
         
         /*
          * Transform state mean position coordinates to lat, lon
          */
-        Coordinate kfPoint = new Coordinate(belief.getMean().getElement(0), belief.getMean().getElement(1));
+        Coordinate kfMeanPoint = new Coordinate(belief.getMean().getElement(0), belief.getMean().getElement(1));
         Coordinate kfCoords= new Coordinate();
-        JTS.transform(kfPoint, kfCoords, transform.inverse());
+        JTS.transform(kfMeanPoint, kfCoords, transform.inverse());
         sb.append(kfCoords.y).append(",").append(kfCoords.x).append(",");
         
         log.info("filter belief=" + belief.toString());
@@ -169,15 +187,46 @@ public class GraphTest {
          * Snap to graph
          */
         Vertex snappedVertex =  indexService.getClosestVertex(obsCoords, null, options);
-        if (snappedVertex != null) {
+        if (snappedVertex != null
+            && (snappedVertex instanceof StreetLocation)) {
+          StreetLocation snappedStreetLocation =  (StreetLocation)snappedVertex;
           double dist = snappedVertex.distance(obsCoords);
+          
           log.info("distance to graph: " + dist);
           log.info("vertexLabel=" + snappedVertex.getLabel());
-          sb.append(snappedVertex.getName());
+          log.info("streetLocationName=" + snappedStreetLocation.getName());
+          
+//          List<StreetEdge> edges = Objects.firstNonNull(snappedStreetLocation.getSourceEdges(),
+//              ImmutableList.<StreetEdge>of());
+          
+          Set<Integer> ids = Sets.newHashSet();
+          if (prevObsCoords != null && !prevObsCoords.equals2D(obsCoords)) {
+            CoordinateSequence movementSeq = JTSFactoryFinder.getGeometryFactory().getCoordinateSequenceFactory()
+                .create(new Coordinate[] {prevObsCoords, obsCoords});
+            Geometry movementGeometry = JTSFactoryFinder.getGeometryFactory().createLineString(movementSeq);
+            List<Edge> minimumConnectingEdges = streetMatcher.match(movementGeometry);
+                
+            for (Edge edge : Objects.firstNonNull(minimumConnectingEdges, ImmutableList.<Edge>of())) {
+              Integer edgeId = graph.getIdForEdge(edge);
+              if (edgeId != null)
+                ids.add(edgeId);
+            }
+          } else {
+            
+            for (Edge edge : Objects.firstNonNull(snappedStreetLocation.getOutgoingStreetEdges(), 
+                ImmutableList.<Edge>of())) {
+              Integer edgeId = graph.getIdForEdge(edge);
+              if (edgeId != null)
+                ids.add(edgeId);
+            }
+            
+          }
+          sb.append(ids.toString());
         } else {
           sb.append("NA");
         }
         
+        prevObsCoords = obsCoords;
         test_output.write(sb.toString() + "\n");
       }
     } catch (FileNotFoundException e) {
@@ -197,6 +246,45 @@ public class GraphTest {
     
 
 
+  }
+
+  private static MultivariateGaussian updateFilter(long timeDiff, Vector xyPoint, 
+      KalmanFilter filter, MultivariateGaussian belief) {
+    /*
+     * Initialize or update the kalman filter
+     */
+    if (belief == null) {
+      belief = filter.createInitialLearnedObject();
+      belief.setMean(xyPoint.stack(VectorFactory.getDefault().createVector2D(1.5, 1.5)));
+    } else {
+      
+      /*
+       * We need to update the time-dependent components of this linear system
+       * when time differences are non-constant.
+       */
+      long secsDiff = timeDiff / 1000;
+      
+      Matrix A = filter.getModel().getB();
+      A.setElement(0, 0, 1d/4d * Math.pow(secsDiff, 4));
+      A.setElement(1, 1, 1d/4d * Math.pow(secsDiff, 4));
+      A.setElement(2, 2, 1d * Math.pow(secsDiff, 2));
+      A.setElement(3, 3, 1d * Math.pow(secsDiff, 2));
+      A.setElement(0, 2, 1d/2d * Math.pow(secsDiff, 3));
+      A.setElement(1, 3, 1d/2d * Math.pow(secsDiff, 3));
+      A.setElement(2, 0, 1d/2d * Math.pow(secsDiff, 3));
+      A.setElement(3, 1, 1d/2d * Math.pow(secsDiff, 3));
+      A = A.scale(20d);
+      filter.getModel().setB(A);
+      
+      Matrix G = filter.getModel().getA();
+      G.setElement(0, 2, 1 * secsDiff);
+      G.setElement(1, 3, 1 * secsDiff);
+      filter.getModel().setA(G);
+      
+      filter.update(belief, xyPoint);
+    }
+    
+    return belief;
   }
 
 }

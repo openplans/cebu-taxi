@@ -168,6 +168,11 @@
       <version>${otp.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.opentripplanner</groupId>
+      <artifactId>opentripplanner-graph-builder</artifactId>
+      <version>${otp.version}</version>
+    </dependency>
+    <dependency>
     	<groupId>javax.ws.rs</groupId>
     	<artifactId>jsr311-api</artifactId>
       <version>1.1.1</version>
@@ -196,6 +201,11 @@
     	<groupId>org.slf4j</groupId>
     	<artifactId>slf4j-log4j12</artifactId>
     	<version>1.5.8</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>11.0.1</version>
     </dependency>
     <dependency>
        <groupId>gov.sandia.foundry</groupId>
@@ -259,8 +269,8 @@
   <properties>
     <geotools.version>8.0-M4</geotools.version>
     <spring.version>3.0.5.RELEASE</spring.version>
-    <otp.version>0.5.3</otp.version>
-<!--     <otp.version>0.6.0-SNAPSHOT</otp.version> -->
+<!--     <otp.version>0.5.3</otp.version> -->
+    <otp.version>0.6.0-SNAPSHOT</otp.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <distribution_id>opengeo</distribution_id>
     <distribution_name>OpenGeo Maven Repository</distribution_name>
