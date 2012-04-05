@@ -62,6 +62,8 @@ import au.com.bytecode.opencsv.CSVReader;
 public class GraphTest {
 
   private static final org.apache.log4j.Logger log = Logger .getLogger(GraphTest.class);
+  private static final double gVariance = 40d;
+  private static final double aVariance = 10d;
 
   public static void main(String[] args) {
     GraphServiceImpl gs = new GraphServiceImpl();
@@ -97,14 +99,16 @@ public class GraphTest {
     A.setElement(1, 3, 1d/2d);
     A.setElement(2, 0, 1d/2d);
     A.setElement(3, 1, 1d/2d);
-    A = A.scale(20d);
+    A.scaleEquals(aVariance);
     
     Matrix O = MatrixFactory.getDefault().createIdentity(2, 4);
     
-    Matrix measurementCovariance = MatrixFactory.getDefault().createIdentity(2, 2).scale(20.0);
-    Matrix modelCovariance = MatrixFactory.getDefault().createIdentity(4, 4).scale(50.0);
+    Matrix measurementCovariance = MatrixFactory.getDefault().createIdentity(2, 2).scale(gVariance);
+    Matrix modelCovariance = A;
     
-    LinearDynamicalSystem model = new LinearDynamicalSystem(G, A, O);
+    LinearDynamicalSystem model = new LinearDynamicalSystem(0, 4);
+    model.setA(G);
+    model.setC(O);
     KalmanFilter filter = new KalmanFilter(model, modelCovariance, measurementCovariance);
     MultivariateGaussian belief = null;
     
@@ -255,7 +259,7 @@ public class GraphTest {
      */
     if (belief == null) {
       belief = filter.createInitialLearnedObject();
-      belief.setMean(xyPoint.stack(VectorFactory.getDefault().createVector2D(1.5, 1.5)));
+      belief.setMean(xyPoint.stack(VectorFactory.getDefault().createVector2D(0d, 0d)));
     } else {
       
       /*
@@ -264,7 +268,7 @@ public class GraphTest {
        */
       long secsDiff = timeDiff / 1000;
       
-      Matrix A = filter.getModel().getB();
+      Matrix A = filter.getModelCovariance();
       A.setElement(0, 0, 1d/4d * Math.pow(secsDiff, 4));
       A.setElement(1, 1, 1d/4d * Math.pow(secsDiff, 4));
       A.setElement(2, 2, 1d * Math.pow(secsDiff, 2));
@@ -273,8 +277,8 @@ public class GraphTest {
       A.setElement(1, 3, 1d/2d * Math.pow(secsDiff, 3));
       A.setElement(2, 0, 1d/2d * Math.pow(secsDiff, 3));
       A.setElement(3, 1, 1d/2d * Math.pow(secsDiff, 3));
-      A = A.scale(20d);
-      filter.getModel().setB(A);
+      A.scaleEquals(20d);
+      filter.setModelCovariance(A);
       
       Matrix G = filter.getModel().getA();
       G.setElement(0, 2, 1 * secsDiff);
