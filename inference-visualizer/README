@@ -1,0 +1,3 @@
+A simple leaflet front-end for visualizing OTP graph internals 
+
+Assumes a recent version of opentripplanner-api-webapp running on http://localhost:8080 (this can be changed at the top of visualizer.js)

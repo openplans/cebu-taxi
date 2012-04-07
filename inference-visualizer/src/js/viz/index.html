@@ -1,0 +1,42 @@
+<html>
+
+<head>
+<title>OTP Visualizer</title>
+
+<!-- leaflet -->
+<script src="../lib/leaflet/dist/leaflet.js"></script>
+<link rel="stylesheet" href="../lib/leaflet/dist/leaflet.css" />
+
+<!-- jquery -->
+<link type="text/css" href="../lib/jquery/ui-lightness/jquery-ui-1.8.18.custom.css" rel="stylesheet" />	
+<script type="text/javascript" src="../lib/jquery/jquery-1.7.1.min.js"></script>
+<script type="text/javascript" src="../lib/jquery/jquery-ui-1.8.18.custom.min.js"></script>
+
+
+<script src="visualizer.js"></script>
+<link rel="stylesheet" href="style.css" />
+
+</head>	
+
+<body>
+
+<div id="top_bar">
+
+<div id="loadData" class="jqlink">load data</div>
+<div id="controls">
+	<div id="slider" style="width: 250px; float: left;"></div>
+	<div>
+	 &nbsp;&nbsp; <span id="prev" class="jqlink">&laquo;</span> | <span id="next" class="jqlink">&raquo;</span> | <span id="play" class="jqlink">play</span><span id="pause" class="jqlink">pause</span>
+	</div>
+</div>
+
+
+
+<div id="count_display"></div>
+
+</div>
+
+<div id="map"></div>
+
+</body>
+</html>
