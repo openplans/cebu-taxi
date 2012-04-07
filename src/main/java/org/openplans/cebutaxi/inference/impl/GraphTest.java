@@ -4,6 +4,9 @@ import gov.sandia.cognition.math.matrix.Matrix;
 import gov.sandia.cognition.math.matrix.MatrixFactory;
 import gov.sandia.cognition.math.matrix.Vector;
 import gov.sandia.cognition.math.matrix.VectorFactory;
+import gov.sandia.cognition.math.matrix.mtj.DenseMatrix;
+import gov.sandia.cognition.math.matrix.mtj.decomposition.EigenDecompositionRightMTJ;
+import gov.sandia.cognition.math.matrix.mtj.decomposition.SingularValueDecompositionMTJ;
 import gov.sandia.cognition.math.signals.LinearDynamicalSystem;
 import gov.sandia.cognition.statistics.bayesian.KalmanFilter;
 import gov.sandia.cognition.statistics.distribution.MultivariateGaussian;
@@ -62,10 +65,13 @@ import au.com.bytecode.opencsv.CSVReader;
 public class GraphTest {
 
   private static final org.apache.log4j.Logger log = Logger .getLogger(GraphTest.class);
-  private static final double gVariance = 40d;
-  private static final double aVariance = 10d;
+  private static final double gVariance = 10d;
+  private static final double aVariance = 5d;
+  private static final long avgSecsDiff = 30;
+  private static final double initialAngularRate = Math.PI/2d *1d/60d;
 
   public static void main(String[] args) {
+    System.setProperty("org.geotools.referencing.forceXY", "true");
     GraphServiceImpl gs = new GraphServiceImpl();
     GraphBundle bundle = new GraphBundle(new File("src/main/resources/org/openplans/cebutaxi/"));
     
@@ -81,34 +87,28 @@ public class GraphTest {
     
     SimpleDateFormat sdf = new SimpleDateFormat("F/d/y H:m:s");
     
-    /*
-     * State transition matrix
-     */
-    Matrix G = MatrixFactory.getDefault().createIdentity(4, 4);
-    G.setElement(0, 2, 1);
-    G.setElement(1, 3, 1);
     
     /*
      * State covariance
      */
-    Matrix A = MatrixFactory.getDefault().createIdentity(4, 4);
-    
-    A.setElement(0, 0, 1d/4d);
-    A.setElement(1, 1, 1d/4d);
-    A.setElement(0, 2, 1d/2d);
-    A.setElement(1, 3, 1d/2d);
-    A.setElement(2, 0, 1d/2d);
-    A.setElement(3, 1, 1d/2d);
-    A.scaleEquals(aVariance);
-    
-    Matrix O = MatrixFactory.getDefault().createIdentity(2, 4);
+    Matrix O = MatrixFactory.getDefault().createMatrix(2, 5);
+    O.setElement(0, 0, 1);
+    O.setElement(1, 2, 1);
     
     Matrix measurementCovariance = MatrixFactory.getDefault().createIdentity(2, 2).scale(gVariance);
-    Matrix modelCovariance = A;
+    Matrix modelCovariance = createStateCovariance(avgSecsDiff);
     
-    LinearDynamicalSystem model = new LinearDynamicalSystem(0, 4);
-    model.setA(G);
+    LinearDynamicalSystem model = new LinearDynamicalSystem(0, 5);
     model.setC(O);
+    /*
+     * State transition matrix.  Using coordinated turn model (with
+     * extreme approximations)
+     */
+    Matrix Gct = createCtMatrix(initialAngularRate, avgSecsDiff);
+    Matrix G = MatrixFactory.getDefault().createIdentity(5, 5);
+    G.setSubMatrix(0, 0, Gct);
+    model.setA(G);
+    
     KalmanFilter filter = new KalmanFilter(model, modelCovariance, measurementCovariance);
     MultivariateGaussian belief = null;
     
@@ -129,11 +129,9 @@ public class GraphTest {
       MathTransform transform = CRS.findMathTransform(mapCRS, dataCRS, lenient);
       
       test_output = new FileWriter("src/main/resources/org/openplans/cebutaxi/test_data/test_output.txt"); 
-      test_output.write("time,original_lat,original_lon,kf_lat,kf_lon,graph_segment_id\n");
+      test_output.write("time,original_lat,original_lon,kfMean_lat,kfMean_lon,kfMajor_lat,kfMajor_lon,kfMinor_lat,kfMinor_lon,graph_segment_id\n");
       
       
-//      MathTransform transform = CRS.findMathTransform(DefaultGeographicCRS.WGS84, 
-//          DefaultGeocentricCRS.CARTESIAN);
       gps_reader = new CSVReader(
 //          new FileReader("src/main/resources/org/openplans/cebutaxi/test_data/Cebu-Taxi-GPS/Day4-Taxi-1410-2101.txt"), '\t');
           new FileReader("src/main/resources/org/openplans/cebutaxi/test_data/Cebu-Taxi-GPS/0726.csv"), ',');
@@ -144,6 +142,7 @@ public class GraphTest {
       long prevTime = 0;
   
       Coordinate prevObsCoords = null;
+//      Matrix posProj = MatrixFactory.getDefault().createDiagonal(VectorFactory.getDefault().copyArray(new double[]{1,0,1,0,0}));
       
       while ((nextLine = gps_reader.readNext()) != null) {
         
@@ -151,7 +150,7 @@ public class GraphTest {
         
 //        Date datetime = sdf.parse(nextLine[0] + " " + nextLine[1]);
         Date datetime = sdf.parse(nextLine[0]);
-        long timeDiff = datetime.getTime() - prevTime;
+        long timeDiff = prevTime == 0 ? 0 : (datetime.getTime() - prevTime)/1000;
         prevTime = datetime.getTime();
         
         log.info("processing record time " + datetime.toString());
@@ -174,16 +173,44 @@ public class GraphTest {
         /*
          * Update the motion filter
          */
-        belief = updateFilter(timeDiff, xyPoint, filter, belief);
+        final DenseMatrix covar;
+        final Vector infMean;
+//        belief = updateFilter(timeDiff, xyPoint, filter, belief);
+        belief = updateFilter(avgSecsDiff, xyPoint, filter, belief);
+        if (timeDiff > 0) {
+          
+          
+          filter.measure(belief, xyPoint);
+          filter.predict(belief);
+          
+          infMean = O.times(belief.getMean().clone());
+          covar = (DenseMatrix) O.times(belief.getCovariance().times(O.transpose()));
+        } else {
+          covar = (DenseMatrix) O.times(belief.getCovariance().times(O.transpose()));
+          infMean = O.times(belief.getMean());
+        }
+        
+        
+        final EigenDecompositionRightMTJ decomp = EigenDecompositionRightMTJ.create(covar);
+        Matrix Shalf = MatrixFactory.getDefault().createIdentity(2, 2);
+        Shalf.setElement(0, 0, Math.sqrt(decomp.getEigenValue(0).getRealPart()));
+        Shalf.setElement(1, 1, Math.sqrt(decomp.getEigenValue(1).getRealPart()));
+        Vector majorAxis = infMean.plus(decomp.getEigenVectorsRealPart().times(Shalf).scale(1.98).getColumn(0));
+        Vector minorAxis = infMean.plus(decomp.getEigenVectorsRealPart().times(Shalf).scale(1.98).getColumn(1));
         
         /*
          * Transform state mean position coordinates to lat, lon
          */
-        Coordinate kfMeanPoint = new Coordinate(belief.getMean().getElement(0), belief.getMean().getElement(1));
-        Coordinate kfCoords= new Coordinate();
-        JTS.transform(kfMeanPoint, kfCoords, transform.inverse());
-        sb.append(kfCoords.y).append(",").append(kfCoords.x).append(",");
-        
+        Coordinate kfMean= new Coordinate();
+        JTS.transform(new Coordinate(infMean.getElement(0), infMean.getElement(1)), kfMean, transform.inverse());
+        sb.append(kfMean.y).append(",").append(kfMean.x).append(",");
+        Coordinate kfMajor = new Coordinate();
+        JTS.transform(new Coordinate(majorAxis.getElement(0), majorAxis.getElement(1)), kfMajor, transform.inverse());
+        sb.append(kfMajor.y).append(",").append(kfMajor.x).append(",");
+        Coordinate kfMinor = new Coordinate();
+        JTS.transform(new Coordinate(minorAxis.getElement(0), minorAxis.getElement(1)), kfMinor, transform.inverse());
+        sb.append(kfMinor.y).append(",").append(kfMinor.x).append(",");
+
         log.info("filter belief=" + belief.toString());
         
         log.info("attempting snap to graph for point " + obsCoords.toString());
@@ -225,7 +252,7 @@ public class GraphTest {
             }
             
           }
-          sb.append(ids.toString());
+          sb.append("\"" + ids.toString() + "\"");
         } else {
           sb.append("NA");
         }
@@ -246,11 +273,35 @@ public class GraphTest {
     } catch (TransformException e) {
       e.printStackTrace();
     }
-    
-    
-
-
   }
+
+  private static Matrix createStateCovariance(double timeDiff) {
+    Matrix A_half = MatrixFactory.getDefault().createIdentity(5, 5);
+    A_half.setElement(0, 0, Math.pow(timeDiff, 2)/2d);
+    A_half.setElement(1, 1, timeDiff);
+    A_half.setElement(2, 2, Math.pow(timeDiff, 2)/2d);
+    A_half.setElement(3, 3, timeDiff);
+    Matrix A = A_half.times(A_half.transpose());
+    A.scaleEquals(aVariance);
+    return A;
+  }
+
+  private static Matrix createCtMatrix(double angularRate,
+      double timeDiff) {
+    
+    Matrix Gct = MatrixFactory.getDefault().createIdentity(4, 4);
+    Gct.setElement(0, 1, timeDiff);
+    Gct.setElement(0, 3, -angularRate * Math.pow(timeDiff, 2)/2d);
+    Gct.setElement(1, 1, 1 - Math.pow(angularRate * timeDiff, 2)/2d);
+    Gct.setElement(1, 3, - angularRate * timeDiff);
+    Gct.setElement(2, 1, -angularRate * Math.pow(timeDiff, 2)/2d);
+    Gct.setElement(2, 3, timeDiff);
+    Gct.setElement(3, 1, - angularRate * timeDiff);
+    Gct.setElement(3, 3, 1 - Math.pow(angularRate * timeDiff, 2)/2d);
+    
+    return Gct;
+  }
+  
 
   private static MultivariateGaussian updateFilter(long timeDiff, Vector xyPoint, 
       KalmanFilter filter, MultivariateGaussian belief) {
@@ -259,35 +310,26 @@ public class GraphTest {
      */
     if (belief == null) {
       belief = filter.createInitialLearnedObject();
-      belief.setMean(xyPoint.stack(VectorFactory.getDefault().createVector2D(0d, 0d)));
+      belief.setMean(VectorFactory.getDefault().copyArray(new double[]{xyPoint.getElement(0), 0d,
+          xyPoint.getElement(1), 0d, initialAngularRate}));
     } else {
       
       /*
        * We need to update the time-dependent components of this linear system
        * when time differences are non-constant.
        */
-      long secsDiff = timeDiff / 1000;
+      log.info("timeDiff (s)=" + timeDiff);
       
-      Matrix A = filter.getModelCovariance();
-      A.setElement(0, 0, 1d/4d * Math.pow(secsDiff, 4));
-      A.setElement(1, 1, 1d/4d * Math.pow(secsDiff, 4));
-      A.setElement(2, 2, 1d * Math.pow(secsDiff, 2));
-      A.setElement(3, 3, 1d * Math.pow(secsDiff, 2));
-      A.setElement(0, 2, 1d/2d * Math.pow(secsDiff, 3));
-      A.setElement(1, 3, 1d/2d * Math.pow(secsDiff, 3));
-      A.setElement(2, 0, 1d/2d * Math.pow(secsDiff, 3));
-      A.setElement(3, 1, 1d/2d * Math.pow(secsDiff, 3));
-      A.scaleEquals(20d);
-      filter.setModelCovariance(A);
+//      Matrix modelCovariance = createStateCovariance(timeDiff);
+//      filter.setModelCovariance(modelCovariance);      
+//      
+//      final double angularRate = belief.getMean().getElement(4);
+//      Matrix Gct = createCtMatrix(angularRate, avgSecsDiff);
+//      Matrix G = MatrixFactory.getDefault().createIdentity(5, 5);
+//      G.setSubMatrix(0, 0, Gct);
+//      filter.getModel().setA(G);
       
-      Matrix G = filter.getModel().getA();
-      G.setElement(0, 2, 1 * secsDiff);
-      G.setElement(1, 3, 1 * secsDiff);
-      filter.getModel().setA(G);
-      
-      filter.update(belief, xyPoint);
     }
-    
     return belief;
   }
 
