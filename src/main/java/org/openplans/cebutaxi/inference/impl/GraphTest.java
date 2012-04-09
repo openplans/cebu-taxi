@@ -87,7 +87,7 @@ public class GraphTest {
     
     SimpleDateFormat sdf = new SimpleDateFormat("F/d/y H:m:s");
     
-    StandardTrackingFilter filter = new StandardTrackingFilter(aVariance, gVariance);
+    StandardTrackingFilter filter = new StandardTrackingFilter(gVariance, aVariance);
     MultivariateGaussian belief = null;
     
     final CSVReader gps_reader;
