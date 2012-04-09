@@ -65,10 +65,10 @@ import au.com.bytecode.opencsv.CSVReader;
 public class GraphTest {
 
   private static final org.apache.log4j.Logger log = Logger .getLogger(GraphTest.class);
-  private static final double gVariance = 10d;
-  private static final double aVariance = 5d;
-  private static final long avgSecsDiff = 30;
-  private static final double initialAngularRate = Math.PI/2d *1d/60d;
+  private static final double gVariance = 50d;
+  private static final double aVariance = 25d;
+  private static final long avgTimeDiff = 1;
+  private static final double initialAngularRate = Math.PI/2d;
 
   public static void main(String[] args) {
     System.setProperty("org.geotools.referencing.forceXY", "true");
@@ -96,7 +96,7 @@ public class GraphTest {
     O.setElement(1, 2, 1);
     
     Matrix measurementCovariance = MatrixFactory.getDefault().createIdentity(2, 2).scale(gVariance);
-    Matrix modelCovariance = createStateCovariance(avgSecsDiff);
+    Matrix modelCovariance = createStateCovariance(avgTimeDiff);
     
     LinearDynamicalSystem model = new LinearDynamicalSystem(0, 5);
     model.setC(O);
@@ -104,7 +104,7 @@ public class GraphTest {
      * State transition matrix.  Using coordinated turn model (with
      * extreme approximations)
      */
-    Matrix Gct = createCtMatrix(initialAngularRate, avgSecsDiff);
+    Matrix Gct = createCtMatrix(initialAngularRate, avgTimeDiff);
     Matrix G = MatrixFactory.getDefault().createIdentity(5, 5);
     G.setSubMatrix(0, 0, Gct);
     model.setA(G);
@@ -175,13 +175,14 @@ public class GraphTest {
          */
         final DenseMatrix covar;
         final Vector infMean;
-//        belief = updateFilter(timeDiff, xyPoint, filter, belief);
-        belief = updateFilter(avgSecsDiff, xyPoint, filter, belief);
+        belief = updateFilter(timeDiff, xyPoint, filter, belief);
+//      belief = updateFilter(avgTimeDiff, xyPoint, filter, belief);
         if (timeDiff > 0) {
           
           
-          filter.measure(belief, xyPoint);
-          filter.predict(belief);
+//          filter.measure(belief, xyPoint);
+//          filter.predict(belief);
+          filter.update(belief, xyPoint);
           
           infMean = O.times(belief.getMean().clone());
           covar = (DenseMatrix) O.times(belief.getCovariance().times(O.transpose()));
