@@ -64,7 +64,7 @@ import au.com.bytecode.opencsv.CSVReader;
 
 public class GraphTest {
 
-  private static final org.apache.log4j.Logger log = Logger .getLogger(GraphTest.class);
+  private static final org.apache.log4j.Logger log = Logger.getLogger(GraphTest.class);
   private static final double gVariance = 50d;
   private static final double aVariance = 25d;
   private static final long avgTimeDiff = 1;
@@ -87,29 +87,7 @@ public class GraphTest {
     
     SimpleDateFormat sdf = new SimpleDateFormat("F/d/y H:m:s");
     
-    
-    /*
-     * State covariance
-     */
-    Matrix O = MatrixFactory.getDefault().createMatrix(2, 5);
-    O.setElement(0, 0, 1);
-    O.setElement(1, 2, 1);
-    
-    Matrix measurementCovariance = MatrixFactory.getDefault().createIdentity(2, 2).scale(gVariance);
-    Matrix modelCovariance = createStateCovariance(avgTimeDiff);
-    
-    LinearDynamicalSystem model = new LinearDynamicalSystem(0, 5);
-    model.setC(O);
-    /*
-     * State transition matrix.  Using coordinated turn model (with
-     * extreme approximations)
-     */
-    Matrix Gct = createCtMatrix(initialAngularRate, avgTimeDiff);
-    Matrix G = MatrixFactory.getDefault().createIdentity(5, 5);
-    G.setSubMatrix(0, 0, Gct);
-    model.setA(G);
-    
-    KalmanFilter filter = new KalmanFilter(model, modelCovariance, measurementCovariance);
+    StandardTrackingFilter filter = new StandardTrackingFilter(aVariance, gVariance);
     MultivariateGaussian belief = null;
     
     final CSVReader gps_reader;
@@ -142,7 +120,7 @@ public class GraphTest {
       long prevTime = 0;
   
       Coordinate prevObsCoords = null;
-//      Matrix posProj = MatrixFactory.getDefault().createDiagonal(VectorFactory.getDefault().copyArray(new double[]{1,0,1,0,0}));
+      Matrix O = StandardTrackingFilter.getObservationMatrix();
       
       while ((nextLine = gps_reader.readNext()) != null) {
         
@@ -175,14 +153,13 @@ public class GraphTest {
          */
         final DenseMatrix covar;
         final Vector infMean;
+        
         belief = updateFilter(timeDiff, xyPoint, filter, belief);
-//      belief = updateFilter(avgTimeDiff, xyPoint, filter, belief);
         if (timeDiff > 0) {
-          
-          
 //          filter.measure(belief, xyPoint);
 //          filter.predict(belief);
           filter.update(belief, xyPoint);
+          
           
           infMean = O.times(belief.getMean().clone());
           covar = (DenseMatrix) O.times(belief.getCovariance().times(O.transpose()));
@@ -276,56 +253,27 @@ public class GraphTest {
     }
   }
 
-  private static Matrix createStateCovariance(double timeDiff) {
-    Matrix A_half = MatrixFactory.getDefault().createIdentity(5, 5);
-    A_half.setElement(0, 0, Math.pow(timeDiff, 2)/2d);
-    A_half.setElement(1, 1, timeDiff);
-    A_half.setElement(2, 2, Math.pow(timeDiff, 2)/2d);
-    A_half.setElement(3, 3, timeDiff);
-    Matrix A = A_half.times(A_half.transpose());
-    A.scaleEquals(aVariance);
-    return A;
-  }
-
-  private static Matrix createCtMatrix(double angularRate,
-      double timeDiff) {
-    
-    Matrix Gct = MatrixFactory.getDefault().createIdentity(4, 4);
-    Gct.setElement(0, 1, timeDiff);
-    Gct.setElement(0, 3, -angularRate * Math.pow(timeDiff, 2)/2d);
-    Gct.setElement(1, 1, 1 - Math.pow(angularRate * timeDiff, 2)/2d);
-    Gct.setElement(1, 3, - angularRate * timeDiff);
-    Gct.setElement(2, 1, -angularRate * Math.pow(timeDiff, 2)/2d);
-    Gct.setElement(2, 3, timeDiff);
-    Gct.setElement(3, 1, - angularRate * timeDiff);
-    Gct.setElement(3, 3, 1 - Math.pow(angularRate * timeDiff, 2)/2d);
-    
-    return Gct;
-  }
-  
-
   private static MultivariateGaussian updateFilter(long timeDiff, Vector xyPoint, 
-      KalmanFilter filter, MultivariateGaussian belief) {
+      StandardTrackingFilter filter, MultivariateGaussian belief) {
     /*
      * Initialize or update the kalman filter
      */
     if (belief == null) {
       belief = filter.createInitialLearnedObject();
       belief.setMean(VectorFactory.getDefault().copyArray(new double[]{xyPoint.getElement(0), 0d,
-          xyPoint.getElement(1), 0d, initialAngularRate}));
+          xyPoint.getElement(1), 0d}));
     } else {
       
       /*
        * We need to update the time-dependent components of this linear system
        * when time differences are non-constant.
        */
-      log.info("timeDiff (s)=" + timeDiff);
-      
-//      Matrix modelCovariance = createStateCovariance(timeDiff);
+//      log.info("timeDiff (s)=" + timeDiff);
+//      
+//      Matrix modelCovariance = createStateCovariance(timeDiff/60d);
 //      filter.setModelCovariance(modelCovariance);      
 //      
-//      final double angularRate = belief.getMean().getElement(4);
-//      Matrix Gct = createCtMatrix(angularRate, avgSecsDiff);
+//      Matrix Gct = createStateTransitionMatrix(belief, timeDiff/60d);
 //      Matrix G = MatrixFactory.getDefault().createIdentity(5, 5);
 //      G.setSubMatrix(0, 0, Gct);
 //      filter.getModel().setA(G);
