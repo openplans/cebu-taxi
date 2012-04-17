@@ -110,6 +110,32 @@
                 </pluginExecution>
               </pluginExecutions>
             </lifecycleMappingMetadata>
+<!-- 	          <taglets> -->
+<!-- 	            <taglet> -->
+<!-- 	              <tagletClass>net.sf.latextaglet.LaTeXBlockEquationTaglet</tagletClass> -->
+<!-- 	              <tagletArtifact> -->
+<!-- 							    <groupId>net.sf.latextaglet</groupId> -->
+<!-- 							    <artifactId>latextaglet</artifactId> -->
+<!-- 							    <version>0.1.1</version> -->
+<!-- 	              </tagletArtifact> -->
+<!-- 	            </taglet> -->
+<!-- 	            <taglet> -->
+<!-- 	              <tagletClass>net.sf.latextaglet.LaTeXEquationTaglet</tagletClass> -->
+<!-- 	              <tagletArtifact> -->
+<!-- 							    <groupId>net.sf.latextaglet</groupId> -->
+<!-- 							    <artifactId>latextaglet</artifactId> -->
+<!-- 							    <version>0.1.1</version> -->
+<!-- 	              </tagletArtifact> -->
+<!-- 	            </taglet> -->
+<!-- 	            <taglet> -->
+<!-- 	              <tagletClass>net.sf.latextaglet.LaTeXInlineTaglet</tagletClass> -->
+<!-- 	              <tagletArtifact> -->
+<!-- 							    <groupId>net.sf.latextaglet</groupId> -->
+<!-- 							    <artifactId>latextaglet</artifactId> -->
+<!-- 							    <version>0.1.1</version> -->
+<!-- 	              </tagletArtifact> -->
+<!-- 	            </taglet> -->
+<!-- 	          </taglets>             -->
           </configuration>
         </plugin>
       </plugins>
@@ -152,6 +178,12 @@
   </repositories>
 
   <dependencies>
+<!--     <dependency> -->
+<!--       <groupId>net.sf.latextaglet</groupId> -->
+<!--       <artifactId>latextaglet</artifactId> -->
+<!--       <scope>provided</scope> -->
+<!--       <version>0.1.1</version> -->
+<!--     </dependency>   -->
     <dependency>
       <groupId>org.geotools</groupId>
       <artifactId>gt-geojson</artifactId>
