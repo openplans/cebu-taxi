@@ -1,0 +1,13 @@
+<html>
+<body>
+@helper.form(action = routes.Application.uploadHandler, 'enctype -> "multipart/form-data") {
+    
+    <input type="file" name="csv">
+    
+    <p>
+        <input type="submit">
+    </p>
+    
+}
+</body>
+</html>
