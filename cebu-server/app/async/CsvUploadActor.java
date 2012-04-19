@@ -3,6 +3,8 @@ package async;
 import java.io.File;
 import java.io.FileReader;
 
+import controllers.Api;
+
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -22,6 +24,8 @@ public class CsvUploadActor extends UntypedActor {
           log.info("processing gps data");
           
           while ((nextLine = gps_reader.readNext()) != null) {
+        	  
+        	 Api.location(((File)csvFile).getName(), nextLine[0], nextLine[2], nextLine[3], nextLine[4], null, null);      	  
         	  
           }
     }

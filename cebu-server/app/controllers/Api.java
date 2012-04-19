@@ -17,7 +17,7 @@ public class Api extends Controller {
   
   public static Result location(String vehicleId, String timestamp, String lat, String lon, String velocity, String heading, String accuracy) {
 	  
-	  SimpleDateFormat sdf = new SimpleDateFormat("F/d/y H:m:s");
+	  SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - hh:mm:ss");
 	  ActorRef locationActor = Akka.system().actorOf(new Props(LocationActor.class));
 	  
 	  try	{
@@ -27,9 +27,9 @@ public class Api extends Controller {
 		  location.timestamp = sdf.parse(timestamp);
 		  location.lat = Double.parseDouble(lat);
 		  location.lon = Double.parseDouble(lon);
-		  location.velocity = velocity == null ? Double.parseDouble(velocity) : null;
-		  location.heading = heading == null ? Double.parseDouble(heading) : null;
-		  location.accuracy = accuracy == null ? Double.parseDouble(accuracy) : null;
+		  location.velocity = velocity != null ? Double.parseDouble(velocity) : null;
+		  location.heading = heading != null ? Double.parseDouble(heading) : null;
+		  location.accuracy = accuracy != null ? Double.parseDouble(accuracy) : null;
 		  
 		  locationActor.tell(location);
 		  
