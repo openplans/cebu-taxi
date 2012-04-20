@@ -4,7 +4,7 @@
   <groupId>org.openplans</groupId>
   <artifactId>cebu-taxi</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <packaging>pom</packaging>
+  <packaging>war</packaging>
 
   <name>Cebu Taxi</name>
   <url>http://openplans.org/</url>
