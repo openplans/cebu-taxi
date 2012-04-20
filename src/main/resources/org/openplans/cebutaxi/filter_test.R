@@ -45,7 +45,7 @@ filter = dlm(m0 = m0, C0 = Ct,
              FF = O, V = gVariance*diag(c(1,1)),
              GG = Ft, W = QQ)
 
-data_window = window(proj_data, end=400)
+data_window = window(proj_data, end=5000)
 res = dlmFilter(data_window, filter)
 str(res, max.level=1)
 str(res$f, max.level=1)
@@ -54,8 +54,8 @@ str(res$f, max.level=1)
 sdev = residuals(res)$sd
 lwr = res$f + qnorm(0.025)*sdev
 upr = res$f - qnorm(0.025)*sdev
-p1 = xyplot(cbind(data_window,res$f, lwr, upr), type='n', 
-            screens=c(1,2,1,2,1,2,1,2))
+p1 = xyplot(cbind(data_window,res$f[,c(1,3)], lwr, upr), type='n', 
+            screens=c(1,2,1,2,1,2,1,2), main="predictive positions (x then y)")
 p1 = p1 + xyplot(data_window[,1], type='l', col="black", screens=1)
 p1 = p1 + xyplot(data_window[,2], type='l', col="black", screens=2)
 
@@ -68,3 +68,16 @@ p1 = p1 + xyplot(res$f[,2], type='l', col="red", screens=2)
 p1 = p1 + xyplot(upr[,2], type='l', col="red", lty=2, screens=2)
 plot(p1)
 
+p2 = xyplot(cbind(res$f[,c(2,4)], lwr, upr), type='n', 
+            screens=c(1,2,1,2,1,2,1,2), main="predictive positions (x then y)")
+p2 = p2 + xyplot(res$f[,2], type='l', col="black", screens=1)
+p2 = p2 + xyplot(res$f[,4], type='l', col="black", screens=2)
+      
+p2 = p2 + xyplot(lwr[,2], type='l', col="red", lty=2, screens=1)
+p2 = p2 + xyplot(res$f[,2], type='l', col="red", screens=1)
+p2 = p2 + xyplot(upr[,2], type='l', col="red", lty=2, screens=1)
+      
+p2 = p2 + xyplot(lwr[,4], type='l', col="red", lty=2, screens=2)
+p2 = p2 + xyplot(res$f[,4], type='l', col="red", screens=2)
+p2 = p2 + xyplot(upr[,4], type='l', col="red", lty=2, screens=2)
+plot(p2)

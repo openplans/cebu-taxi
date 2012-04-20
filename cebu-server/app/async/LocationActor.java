@@ -10,10 +10,10 @@ public class LocationActor extends UntypedActor {
   // instantiate inference engine here
  
   public void onReceive(Object location) throws Exception {
-    if(location instanceof Location) {
+    if(location instanceof LocationRecord) {
     	
     	// inference ingest here 
-    	log.info("Message received:  " + ((Location)location).timestamp.toString());
+    	log.info("Message received:  " + ((LocationRecord)location).getTimestamp().toString());
     	
     }
    
