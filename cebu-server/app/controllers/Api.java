@@ -1,8 +1,5 @@
 package controllers;
 
-import gov.sandia.cognition.math.matrix.Vector;
-import gov.sandia.cognition.math.matrix.VectorFactory;
-
 import java.text.SimpleDateFormat;
 
 import org.geotools.geometry.jts.JTS;
@@ -22,13 +19,20 @@ import async.LocationActor;
 import async.LocationRecord;
 
 public class Api extends Controller {
+  
+  private static MathTransform transform;
+  private static final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - hh:mm:ss");
+  
+  public static MathTransform getTransform() {
+    return transform;
+  }
 
-  public static Result location(String vehicleId, String timestamp, String latStr,
-      String lonStr, String velocity, String heading, String accuracy) {
+  public static SimpleDateFormat getSdf() {
+    return sdf;
+  }
 
-    final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy - hh:mm:ss");
-    final ActorRef locationActor = Akka.system().actorOf(
-        new Props(LocationActor.class));
+  public Api() {
+    System.setProperty("org.geotools.referencing.forceXY", "true");
 
     try {
 
@@ -43,7 +47,19 @@ public class Api extends Controller {
       CoordinateReferenceSystem dataCRS = crsAuthorityFactory.createCoordinateReferenceSystem(cartesianCode);
                              
       boolean lenient = true; // allow for some error due to different datums
-      MathTransform transform = CRS.findMathTransform(mapCRS, dataCRS, lenient);
+      transform = CRS.findMathTransform(mapCRS, dataCRS, lenient);
+    } catch (final Exception e) {
+      e.printStackTrace();
+    }
+  }
+
+  public static Result location(String vehicleId, String timestamp, String latStr,
+      String lonStr, String velocity, String heading, String accuracy) {
+    
+    final ActorRef locationActor = Akka.system().actorOf(
+        new Props(LocationActor.class));
+    
+    try {
       
       final double lat = Double.parseDouble(latStr);
       final double lon = Double.parseDouble(lonStr);
@@ -51,7 +67,6 @@ public class Api extends Controller {
       Coordinate obsPoint = new Coordinate();
       JTS.transform(obsCoords, obsPoint, transform);
       
-//      Vector xyPoint = VectorFactory.getDefault().createVector2D(obsPoint.x, obsPoint.y);
       
       final LocationRecord location = new LocationRecord(vehicleId, sdf.parse(timestamp), 
           lat, lon, obsPoint.x, obsPoint.y,
@@ -62,9 +77,7 @@ public class Api extends Controller {
       locationActor.tell(location);
 
       return ok();
-    }
-
-    catch (final Exception e) {
+    } catch (final Exception e) {
       return badRequest();
     }
   }
