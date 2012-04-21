@@ -7,6 +7,8 @@ import java.text.SimpleDateFormat;
 
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
+import org.geotools.referencing.crs.DefaultEngineeringCRS;
+import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;

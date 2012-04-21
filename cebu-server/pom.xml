@@ -85,8 +85,37 @@
         <sourceDirectory>app</sourceDirectory>
         <testSourceDirectory>test</testSourceDirectory>
 
-        <plugins>
 
+<pluginManagement>
+	<plugins>
+		<plugin>
+			<groupId>org.eclipse.m2e</groupId>
+				<artifactId>lifecycle-mapping</artifactId>
+				<version>1.0.0</version>
+				<configuration>
+					<lifecycleMappingMetadata>
+						<pluginExecutions>
+							<pluginExecution>
+								<pluginExecutionFilter>
+									<groupId>org.apache.maven.plugins</groupId>
+									<artifactId>maven-dependency-plugin</artifactId>
+									<versionRange>[1.0.0,)</versionRange>
+									<goals>
+										<goal>copy-dependencies</goal>
+									</goals>
+								</pluginExecutionFilter>
+								<action>
+									<ignore />
+								</action>
+							</pluginExecution>
+						</pluginExecutions>
+					</lifecycleMappingMetadata>
+				</configuration>
+			</plugin>
+		</plugins>
+	</pluginManagement>
+
+        <plugins>
             <plugin>
                 <groupId>de.akquinet.innovation.play2</groupId>
                 <artifactId>play2-maven-plugin</artifactId>
@@ -119,7 +148,7 @@
                         <configuration>
                             <sources>
                                 <source>
-                                ${project.build.directory}/scala-2.9.1/src_managed/main
+                                ${basedir}/target/scala-2.9.1/src_managed/main
                                 </source>
                             </sources>
                         </configuration>
