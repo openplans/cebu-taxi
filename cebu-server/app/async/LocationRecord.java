@@ -1,5 +1,8 @@
 package async;
 
+import gov.sandia.cognition.math.matrix.Vector;
+import gov.sandia.cognition.math.matrix.VectorFactory;
+
 import java.util.Date;
 
 public class LocationRecord {
@@ -10,6 +13,7 @@ public class LocationRecord {
   private final double lon;
   private final double x;
   private final double y;
+  private final Vector projPoint;
   private final Double velocity;
   private final Double heading;
   private final Double accuracy;
@@ -27,8 +31,13 @@ public class LocationRecord {
     this.velocity = velocity;
     this.heading = heading;
     this.accuracy = accuracy;
+    this.projPoint = VectorFactory.getDefault().createVector2D(x, y);
   }
 
+  public Vector getProjPoint() {
+    return projPoint;
+  }
+  
   public String getVehicleId() {
     return vehicleId;
   }
