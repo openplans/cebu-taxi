@@ -6,16 +6,18 @@ import gov.sandia.cognition.math.matrix.Vector;
 import gov.sandia.cognition.math.matrix.mtj.DenseMatrix;
 import gov.sandia.cognition.math.matrix.mtj.decomposition.EigenDecompositionRightMTJ;
 import gov.sandia.cognition.statistics.distribution.MultivariateGaussian;
+import inference.InferenceInstance;
 
 import java.text.SimpleDateFormat;
+import java.util.Map;
 
 import org.geotools.geometry.jts.JTS;
-import org.openplans.cebutaxi.inference.impl.StandardTrackingFilter;
 
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 
+import com.google.common.collect.Maps;
 import com.vividsolutions.jts.geom.Coordinate;
 
 import controllers.Api;
@@ -24,11 +26,10 @@ public class LocationActor extends UntypedActor {
   LoggingAdapter log = Logging.getLogger(getContext().system(), this);
 
   // instantiate inference engine here
-  private static final double gVariance = 50d;
-  private static final double aVariance = 25d;
-  private static final long avgTimeDiff = 1;
-  private static final double initialAngularRate = Math.PI / 2d;
   private final SimpleDateFormat sdf = new SimpleDateFormat("F/d/y H:m:s");
+
+  private final Map<String, InferenceInstance> vehicleToInstance = Maps
+      .newConcurrentMap();
 
   public LocationActor() {
 
@@ -37,39 +38,29 @@ public class LocationActor extends UntypedActor {
   @Override
   public void onReceive(Object location) throws Exception {
     if (location instanceof LocationRecord) {
+
+      final LocationRecord locationRecord = (LocationRecord) location;
+
+      InferenceInstance ie = vehicleToInstance.get(locationRecord
+          .getVehicleId());
+
+      if (ie == null) {
+        ie = new InferenceInstance(locationRecord.getVehicleId());
+        vehicleToInstance.put(locationRecord.getVehicleId(), ie);
+      }
+
+      ie.update(locationRecord);
+
       /*
        * Update the motion filter
        */
-      final DenseMatrix covar;
-      final Vector infMean;
 
-      final long prevTime = 0;
-      
-      final long timeDiff = 0;
+      final MultivariateGaussian belief = ie.getBelief();
+      final Matrix O = ie.getObservationMatrix();
 
-      final StandardTrackingFilter filter = new StandardTrackingFilter(
-          gVariance, aVariance);
-      MultivariateGaussian belief = null;
-
-      final Coordinate prevObsCoords = null;
-      final Matrix O = StandardTrackingFilter.getObservationMatrix();
-      
-      Vector xyPoint = ((LocationRecord) location).getProjPoint();
-
-//      belief = updateFilter(timeDiff, xyPoint, filter, belief);
-      if (timeDiff > 0) {
-        // filter.measure(belief, xyPoint);
-        // filter.predict(belief);
-        filter.update(belief, xyPoint);
-
-        infMean = O.times(belief.getMean().clone());
-        covar = (DenseMatrix) O.times(belief.getCovariance().times(
-            O.transpose()));
-      } else {
-        covar = (DenseMatrix) O.times(belief.getCovariance().times(
-            O.transpose()));
-        infMean = O.times(belief.getMean());
-      }
+      final Vector infMean = O.times(belief.getMean().clone());
+      final DenseMatrix covar = (DenseMatrix) O.times(belief.getCovariance()
+          .times(O.transpose()));
 
       final EigenDecompositionRightMTJ decomp = EigenDecompositionRightMTJ
           .create(covar);
@@ -97,9 +88,7 @@ public class LocationActor extends UntypedActor {
           new Coordinate(minorAxis.getElement(0), minorAxis.getElement(1)),
           kfMinor, Api.getTransform().inverse());
 
-      // inference ingest here
-      log.info("Message received:  "
-          + ((LocationRecord) location).getTimestamp().toString());
+      log.info("Message received:  " + locationRecord.getTimestamp().toString());
 
     }
 

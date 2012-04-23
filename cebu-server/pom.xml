@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">	<modelVersion>4.0.0</modelVersion>
   <prerequisites>
       <maven>>=3.0.3</maven>
   </prerequisites>
@@ -76,6 +75,21 @@
     			<artifactId>opencsv</artifactId>
     			<version>2.0</version>
     	  </dependency>
+        <dependency>
+         <groupId>org.openplans</groupId>
+         <artifactId>cebu-taxi</artifactId>
+         <version>0.0.1-SNAPSHOT</version> 
+          <exclusions>
+          	<exclusion>
+          		<artifactId>slf4j-api</artifactId>
+          		<groupId>org.slf4j</groupId>
+          	</exclusion>
+          	<exclusion>
+          		<artifactId>slf4j-log4j12</artifactId>
+          		<groupId>org.slf4j</groupId>
+          	</exclusion>
+          </exclusions>
+    	  </dependency>
     </dependencies>
 
     <groupId>org.openplans</groupId>
@@ -85,7 +99,7 @@
     <build>
         <!-- Play source directory -->
         <sourceDirectory>app</sourceDirectory>
-        <testSourceDirectory>test</testSourceDirectory>
+<!--         <testSourceDirectory>test</testSourceDirectory> -->
 
         <plugins>
 
@@ -95,7 +109,7 @@
                 <version>1.1.0</version>
                 <extensions>true</extensions>
                 <configuration>
-					        <play2Home>/opt/play-2.0</play2Home>
+					        <play2Home>${play2HomeDir}</play2Home>
 					      </configuration>
             </plugin>
 
@@ -132,6 +146,7 @@
 
     </build>
     <properties>
+      <play2HomeDir>/opt/play-2.0</play2HomeDir>
       <geotools.version>8.0-M4</geotools.version>
     </properties>
 
