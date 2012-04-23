@@ -32,7 +32,7 @@ public class Api extends Controller {
     return sdf;
   }
 
-  public Api() {
+  static {
     System.setProperty("org.geotools.referencing.forceXY", "true");
 
     try {
@@ -83,7 +83,7 @@ public class Api extends Controller {
 
       return ok();
     } catch (final Exception e) {
-      return badRequest();
+      return badRequest(e.getMessage());
     }
   }
 
