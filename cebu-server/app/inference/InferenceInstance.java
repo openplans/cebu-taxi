@@ -1,14 +1,24 @@
 package inference;
 
+import java.util.List;
+
+import gov.sandia.cognition.math.UnivariateStatisticsUtil;
 import gov.sandia.cognition.math.matrix.Matrix;
 import gov.sandia.cognition.math.matrix.Vector;
 import gov.sandia.cognition.math.matrix.VectorFactory;
 import gov.sandia.cognition.statistics.distribution.MultivariateGaussian;
 
 import org.openplans.cebutaxi.inference.impl.StandardTrackingFilter;
+import org.opentripplanner.routing.graph.Edge;
+
+import utils.EdgeInformation;
+import utils.OtpGraph;
+import utils.SnappedEdges;
 
 import async.LocationRecord;
 
+import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import com.vividsolutions.jts.geom.Coordinate;
 
 /**
@@ -27,56 +37,14 @@ public class InferenceInstance {
   final private String vehicleId;
   final private StandardTrackingFilter filter;
 
-  public static double getInitialangularrate() {
-    return initialAngularRate;
-  }
-
-  public long getPrevTime() {
-    return prevTime;
-  }
-
-  public Coordinate getPrevObsCoords() {
-    return prevObsCoords;
-  }
-
-  public Matrix getObservationMatrix() {
-    return observationMatrix;
-  }
-
   private long prevTime = 0;
+
   private final Coordinate prevObsCoords = null;
+
   final Matrix observationMatrix = StandardTrackingFilter
       .getObservationMatrix();
 
-  public static double getGvariance() {
-    return gVariance;
-  }
-
-  public static double getAvariance() {
-    return aVariance;
-  }
-
-  public static long getAvgTimeDiff() {
-    return avgTimeDiff;
-  }
-
-  public static double getInitialAngularRate() {
-    return initialAngularRate;
-  }
-
-  public StandardTrackingFilter getFilter() {
-    return filter;
-  }
-
-  public MultivariateGaussian getBelief() {
-    return belief;
-  }
-
   private MultivariateGaussian belief;
-
-  public String getVehicleId() {
-    return vehicleId;
-  }
 
   public InferenceInstance(String vehicleId) {
 
@@ -84,7 +52,64 @@ public class InferenceInstance {
     this.filter = new StandardTrackingFilter(gVariance, aVariance);
   }
 
+  public MultivariateGaussian getBelief() {
+    return belief;
+  }
+
+  public StandardTrackingFilter getFilter() {
+    return filter;
+  }
+
+  public Matrix getObservationMatrix() {
+    return observationMatrix;
+  }
+
+  public Coordinate getPrevObsCoords() {
+    return prevObsCoords;
+  }
+
+  public long getPrevTime() {
+    return prevTime;
+  }
+
+  public String getVehicleId() {
+    return vehicleId;
+  }
+
+
   public void update(LocationRecord record) {
+    // FIXME XXX TODO how do we get the graph?
+    OtpGraph graph = null;//getOtpGraph();
+    SnappedEdges snappedEdges = null;
+    if (graph != null) {
+      snappedEdges = graph.snapToGraph(record);
+    }
+    
+    updateFilter(record, snappedEdges);
+    
+    if (snappedEdges.getPathTraversed() != null) {
+      for (Edge edge : snappedEdges.getPathTraversed()) {
+        EdgeInformation edgeInfo = graph.getEdgeInformation(edge);
+        // FIXME simply a hack for now
+        edgeInfo.updateVelocity(UnivariateStatisticsUtil.computeMean(
+            Lists.newArrayList(new Double[] {belief.getMean().getElement(1), belief.getMean().getElement(3)})
+            ));
+      }
+      
+    }
+    
+  }
+
+  /**
+   * Update the tracking filter for the given pathTraversed.
+   * 
+   * @param record
+   * @param snappedEdges
+   */
+  public void updateFilter(LocationRecord record, SnappedEdges snappedEdges) {
+    
+    // FIXME XXX TODO need to use path traversed
+    
     final Vector xyPoint = record.getProjPoint();
     final double timeDiff = prevTime == 0 ? 0 : (record.getTimestamp()
         .getTime() - prevTime) / 1000;
@@ -97,13 +122,33 @@ public class InferenceInstance {
               new double[] { xyPoint.getElement(0), 0d, xyPoint.getElement(1),
                   0d }));
     }
-    
+
     if (timeDiff > 0) {
       // filter.measure(belief, xyPoint);
       // filter.predict(belief);
       filter.update(belief, xyPoint);
     }
 
+  }
+
+  public static double getAvariance() {
+    return aVariance;
+  }
+
+  public static long getAvgTimeDiff() {
+    return avgTimeDiff;
+  }
+
+  public static double getGvariance() {
+    return gVariance;
+  }
+
+  public static double getInitialangularrate() {
+    return initialAngularRate;
+  }
+
+  public static double getInitialAngularRate() {
+    return initialAngularRate;
   }
 
 }

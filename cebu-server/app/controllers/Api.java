@@ -2,6 +2,7 @@ package controllers;
 
 
 import java.text.SimpleDateFormat;
+import java.util.Map;
 
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
@@ -21,6 +22,7 @@ import akka.actor.Props;
 import async.LocationActor;
 import async.LocationRecord;
 
+import com.google.common.collect.Maps;
 import com.vividsolutions.jts.geom.Coordinate;
 
 public class Api extends Controller {
@@ -85,9 +87,10 @@ public class Api extends Controller {
   
   static {
     System.setProperty("org.geotools.referencing.forceXY", "true");
-
   }
 
+  private static Map<String, LocationRecord> vehiclesToRecords = Maps.newConcurrentMap();
+  
   public static Result location(String vehicleId, String timestamp,
       String latStr, String lonStr, String velocity, String heading,
       String accuracy) {
@@ -103,12 +106,17 @@ public class Api extends Controller {
       final Coordinate obsPoint = new Coordinate();
       JTS.transform(obsCoords, obsPoint, transform.get());
 
+      final LocationRecord prevLocation = vehiclesToRecords.get(vehicleId);
+      
       final LocationRecord location = new LocationRecord(vehicleId,
-          sdf.parse(timestamp), lat, lon, obsPoint.x, obsPoint.y,
+          sdf.parse(timestamp), obsCoords, obsPoint,
           velocity != null ? Double.parseDouble(velocity) : null,
           heading != null ? Double.parseDouble(heading) : null,
-          accuracy != null ? Double.parseDouble(accuracy) : null);
+          accuracy != null ? Double.parseDouble(accuracy) : null,
+          prevLocation);
 
+      vehiclesToRecords.put(vehicleId, location);
+      
       locationActor.tell(location);
 
       return ok();

@@ -5,94 +5,40 @@ import gov.sandia.cognition.math.matrix.VectorFactory;
 
 import java.util.Date;
 
+import com.vividsolutions.jts.geom.Coordinate;
+
 public class LocationRecord {
 
   private final String vehicleId;
   private final Date timestamp;
-  private final double lat;
-  private final double lon;
-  private final double x;
-  private final double y;
+  private final Coordinate obsCoords;
+  private final Coordinate obsPoint;
+  // private final double lat;
+  // private final double lon;
+  // private final double x;
+  // private final double y;
   private final Vector projPoint;
+
   private final Double velocity;
+
   private final Double heading;
   private final Double accuracy;
+  private final LocationRecord prevLoc;
 
-  public LocationRecord(String vehicleId, Date timestamp, double lat,
-      double lon, double x, double y, Double velocity, Double heading,
-      Double accuracy) {
+  public LocationRecord(String vehicleId, Date timestamp, Coordinate obsCoords,
+    Coordinate obsPoint, Double velocity, Double heading, Double accuracy, 
+    LocationRecord prevLoc) {
     super();
     this.vehicleId = vehicleId;
     this.timestamp = timestamp;
-    this.lat = lat;
-    this.lon = lon;
-    this.x = x;
-    this.y = y;
+    this.obsCoords = obsCoords;
+    this.obsPoint = obsPoint;
     this.velocity = velocity;
     this.heading = heading;
     this.accuracy = accuracy;
-    this.projPoint = VectorFactory.getDefault().createVector2D(x, y);
-  }
-
-  public Vector getProjPoint() {
-    return projPoint;
-  }
-  
-  public String getVehicleId() {
-    return vehicleId;
-  }
-
-  public Date getTimestamp() {
-    return timestamp;
-  }
-
-  public double getLat() {
-    return lat;
-  }
-
-  public double getLon() {
-    return lon;
-  }
-
-  public double getX() {
-    return x;
-  }
-
-  public double getY() {
-    return y;
-  }
-
-  public Double getVelocity() {
-    return velocity;
-  }
-
-  public Double getHeading() {
-    return heading;
-  }
-
-  public Double getAccuracy() {
-    return accuracy;
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = 1;
-    result = prime * result + ((accuracy == null) ? 0 : accuracy.hashCode());
-    result = prime * result + ((heading == null) ? 0 : heading.hashCode());
-    long temp;
-    temp = Double.doubleToLongBits(lat);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(lon);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
-    result = prime * result + ((vehicleId == null) ? 0 : vehicleId.hashCode());
-    result = prime * result + ((velocity == null) ? 0 : velocity.hashCode());
-    temp = Double.doubleToLongBits(x);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(y);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    return result;
+    this.projPoint = VectorFactory.getDefault().createVector2D(obsPoint.x,
+        obsPoint.y);
+    this.prevLoc = prevLoc;
   }
 
   @Override
@@ -121,10 +67,25 @@ public class LocationRecord {
     } else if (!heading.equals(other.heading)) {
       return false;
     }
-    if (Double.doubleToLongBits(lat) != Double.doubleToLongBits(other.lat)) {
+    if (obsCoords == null) {
+      if (other.obsCoords != null) {
+        return false;
+      }
+    } else if (!obsCoords.equals(other.obsCoords)) {
       return false;
     }
-    if (Double.doubleToLongBits(lon) != Double.doubleToLongBits(other.lon)) {
+    if (obsPoint == null) {
+      if (other.obsPoint != null) {
+        return false;
+      }
+    } else if (!obsPoint.equals(other.obsPoint)) {
+      return false;
+    }
+    if (projPoint == null) {
+      if (other.projPoint != null) {
+        return false;
+      }
+    } else if (!projPoint.equals(other.projPoint)) {
       return false;
     }
     if (timestamp == null) {
@@ -148,13 +109,58 @@ public class LocationRecord {
     } else if (!velocity.equals(other.velocity)) {
       return false;
     }
-    if (Double.doubleToLongBits(x) != Double.doubleToLongBits(other.x)) {
-      return false;
-    }
-    if (Double.doubleToLongBits(y) != Double.doubleToLongBits(other.y)) {
-      return false;
-    }
     return true;
+  }
+
+  public Double getAccuracy() {
+    return accuracy;
+  }
+
+  public Double getHeading() {
+    return heading;
+  }
+
+  public Coordinate getObsCoords() {
+    return obsCoords;
+  }
+
+  public Coordinate getObsPoint() {
+    return obsPoint;
+  }
+
+  public Vector getProjPoint() {
+    return projPoint;
+  }
+
+  public Date getTimestamp() {
+    return timestamp;
+  }
+
+  public String getVehicleId() {
+    return vehicleId;
+  }
+
+  public Double getVelocity() {
+    return velocity;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + ((accuracy == null) ? 0 : accuracy.hashCode());
+    result = prime * result + ((heading == null) ? 0 : heading.hashCode());
+    result = prime * result + ((obsCoords == null) ? 0 : obsCoords.hashCode());
+    result = prime * result + ((obsPoint == null) ? 0 : obsPoint.hashCode());
+    result = prime * result + ((projPoint == null) ? 0 : projPoint.hashCode());
+    result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
+    result = prime * result + ((vehicleId == null) ? 0 : vehicleId.hashCode());
+    result = prime * result + ((velocity == null) ? 0 : velocity.hashCode());
+    return result;
+  }
+
+  public LocationRecord getPrevLoc() {
+    return prevLoc;
   }
 
 }

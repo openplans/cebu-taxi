@@ -9,8 +9,12 @@ import utils.OtpGraph;
 
 public class Global extends GlobalSettings {
 
-  public static OtpGraph otpGraph;
+  private static OtpGraph otpGraph;
   
+  public static OtpGraph getOtpGraph() {
+    return otpGraph;
+  }
+
   @Override
   public void onStart(Application app) {
 	  
