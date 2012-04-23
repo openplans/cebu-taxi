@@ -97,13 +97,15 @@ public class OtpGraph {
     return edgeToInfo.get(edge);
   }
 
-  public SnappedEdges snapToGraph(LocationRecord loc) {
+  /**
+   * Snaps the observed location to a graph edge, computes edges traveled
+   * between observations (when applicable), and returns both sets of edges. 
+   * 
+   * @param loc
+   * @return
+   */
+  public SnappedEdges snapToGraph(Coordinate obsCoords, Coordinate prevObsCoords) {
 
-    /*
-     * Snap to graph
-     */
-    Coordinate obsCoords = loc.getObsCoords();
-    Coordinate prevObsCoords = loc.getPrevLoc() != null ? loc.getPrevLoc().getObsCoords() : null;
     final Vertex snappedVertex = indexService.getClosestVertex(obsCoords, null,
         options);
     final List<Edge> pathTraversed = Lists.newArrayList();

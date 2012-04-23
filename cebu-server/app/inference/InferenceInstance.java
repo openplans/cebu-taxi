@@ -77,20 +77,28 @@ public class InferenceInstance {
   }
 
 
+  /**
+   * Update the tracking filter and the graph's edge-velocity distributions.
+   * @param record
+   */
+  @SuppressWarnings("unused")
   public void update(LocationRecord record) {
     // FIXME XXX TODO how do we get the graph?
     OtpGraph graph = null;//getOtpGraph();
     SnappedEdges snappedEdges = null;
     if (graph != null) {
-      snappedEdges = graph.snapToGraph(record);
+      // TODO when possible, use tracked graph locations.
+      Coordinate obsCoords = record.getObsCoords();
+      Coordinate prevObsCoords = record.getPrevLoc() != null ? record.getPrevLoc().getObsCoords() : null;
+      snappedEdges = graph.snapToGraph(obsCoords, prevObsCoords);
     }
     
     updateFilter(record, snappedEdges);
     
-    if (snappedEdges.getPathTraversed() != null) {
+    if (snappedEdges != null && snappedEdges.getPathTraversed() != null) {
       for (Edge edge : snappedEdges.getPathTraversed()) {
         EdgeInformation edgeInfo = graph.getEdgeInformation(edge);
-        // FIXME simply a hack for now
+        // FIXME simply a hack for now (mean coordinates velocity)
         edgeInfo.updateVelocity(UnivariateStatisticsUtil.computeMean(
             Lists.newArrayList(new Double[] {belief.getMean().getElement(1), belief.getMean().getElement(3)})
             ));
