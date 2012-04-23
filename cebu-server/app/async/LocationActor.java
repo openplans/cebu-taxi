@@ -28,7 +28,7 @@ public class LocationActor extends UntypedActor {
   // instantiate inference engine here
   private final SimpleDateFormat sdf = new SimpleDateFormat("F/d/y H:m:s");
 
-  private final Map<String, InferenceInstance> vehicleToInstance = Maps
+  private static final Map<String, InferenceInstance> vehicleToInstance = Maps
       .newConcurrentMap();
 
   public LocationActor() {
@@ -56,38 +56,41 @@ public class LocationActor extends UntypedActor {
        */
 
       final MultivariateGaussian belief = ie.getBelief();
-      final Matrix O = ie.getObservationMatrix();
-
-      final Vector infMean = O.times(belief.getMean().clone());
-      final DenseMatrix covar = (DenseMatrix) O.times(belief.getCovariance()
-          .times(O.transpose()));
-
-      final EigenDecompositionRightMTJ decomp = EigenDecompositionRightMTJ
-          .create(covar);
-      final Matrix Shalf = MatrixFactory.getDefault().createIdentity(2, 2);
-      Shalf.setElement(0, 0, Math.sqrt(decomp.getEigenValue(0).getRealPart()));
-      Shalf.setElement(1, 1, Math.sqrt(decomp.getEigenValue(1).getRealPart()));
-      final Vector majorAxis = infMean.plus(decomp.getEigenVectorsRealPart()
-          .times(Shalf).scale(1.98).getColumn(0));
-      final Vector minorAxis = infMean.plus(decomp.getEigenVectorsRealPart()
-          .times(Shalf).scale(1.98).getColumn(1));
-
-      /*
-       * Transform state mean position coordinates to lat, lon
-       */
-      final Coordinate kfMean = new Coordinate();
-      JTS.transform(
-          new Coordinate(infMean.getElement(0), infMean.getElement(1)), kfMean,
-          Api.getTransform().inverse());
-      final Coordinate kfMajor = new Coordinate();
-      JTS.transform(
-          new Coordinate(majorAxis.getElement(0), majorAxis.getElement(1)),
-          kfMajor, Api.getTransform().inverse());
-      final Coordinate kfMinor = new Coordinate();
-      JTS.transform(
-          new Coordinate(minorAxis.getElement(0), minorAxis.getElement(1)),
-          kfMinor, Api.getTransform().inverse());
-
+      
+      if (belief != null) {
+        final Matrix O = ie.getObservationMatrix();
+  
+        final Vector infMean = O.times(belief.getMean().clone());
+        final DenseMatrix covar = (DenseMatrix) O.times(belief.getCovariance()
+            .times(O.transpose()));
+  
+        final EigenDecompositionRightMTJ decomp = EigenDecompositionRightMTJ
+            .create(covar);
+        final Matrix Shalf = MatrixFactory.getDefault().createIdentity(2, 2);
+        Shalf.setElement(0, 0, Math.sqrt(decomp.getEigenValue(0).getRealPart()));
+        Shalf.setElement(1, 1, Math.sqrt(decomp.getEigenValue(1).getRealPart()));
+        final Vector majorAxis = infMean.plus(decomp.getEigenVectorsRealPart()
+            .times(Shalf).scale(1.98).getColumn(0));
+        final Vector minorAxis = infMean.plus(decomp.getEigenVectorsRealPart()
+            .times(Shalf).scale(1.98).getColumn(1));
+  
+        /*
+         * Transform state mean position coordinates to lat, lon
+         */
+        final Coordinate kfMean = new Coordinate();
+        JTS.transform(
+            new Coordinate(infMean.getElement(0), infMean.getElement(1)), kfMean,
+            Api.getTransform().inverse());
+        final Coordinate kfMajor = new Coordinate();
+        JTS.transform(
+            new Coordinate(majorAxis.getElement(0), majorAxis.getElement(1)),
+            kfMajor, Api.getTransform().inverse());
+        final Coordinate kfMinor = new Coordinate();
+        JTS.transform(
+            new Coordinate(minorAxis.getElement(0), minorAxis.getElement(1)),
+            kfMinor, Api.getTransform().inverse());
+      }
+  
       log.info("Message received:  " + locationRecord.getTimestamp().toString());
 
     }

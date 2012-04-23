@@ -33,42 +33,59 @@ public class Api extends Controller {
 	  return ok();
   }
 	
-  private static MathTransform transform;
+//  private static MathTransform transform;
   private static final SimpleDateFormat sdf = new SimpleDateFormat(
-      "MM/dd/yyyy hh:mm:ss");
+      "yyyy-MM-dd hh:mm:ss");
 
   public static MathTransform getTransform() {
-    return transform;
+    return transform.get();
   }
 
   public static SimpleDateFormat getSdf() {
     return sdf;
   }
 
+  public static ThreadLocal<MathTransform> transform = new ThreadLocal<MathTransform>() {
+
+    @Override
+    public MathTransform get() {
+      return super.get();
+    }
+
+    @Override
+    protected MathTransform initialValue() {
+      try {
+  
+        final String googleWebMercatorCode = "EPSG:4326";
+  
+        final String cartesianCode = "EPSG:4499";
+  
+        final CRSAuthorityFactory crsAuthorityFactory = CRS
+            .getAuthorityFactory(true);
+  
+        final CoordinateReferenceSystem mapCRS = crsAuthorityFactory
+            .createCoordinateReferenceSystem(googleWebMercatorCode);
+  
+        final CoordinateReferenceSystem dataCRS = crsAuthorityFactory
+            .createCoordinateReferenceSystem(cartesianCode);
+  
+        final boolean lenient = true; // allow for some error due to different
+                                      // datums
+        return CRS.findMathTransform(mapCRS, dataCRS, lenient);
+      } catch (final Exception e) {
+        e.printStackTrace();
+      }
+      
+      return null;
+    }
+    
+    
+    
+  };
+  
   static {
     System.setProperty("org.geotools.referencing.forceXY", "true");
 
-    try {
-
-      final String googleWebMercatorCode = "EPSG:4326";
-
-      final String cartesianCode = "EPSG:4499";
-
-      final CRSAuthorityFactory crsAuthorityFactory = CRS
-          .getAuthorityFactory(true);
-
-      final CoordinateReferenceSystem mapCRS = crsAuthorityFactory
-          .createCoordinateReferenceSystem(googleWebMercatorCode);
-
-      final CoordinateReferenceSystem dataCRS = crsAuthorityFactory
-          .createCoordinateReferenceSystem(cartesianCode);
-
-      final boolean lenient = true; // allow for some error due to different
-                                    // datums
-      transform = CRS.findMathTransform(mapCRS, dataCRS, lenient);
-    } catch (final Exception e) {
-      e.printStackTrace();
-    }
   }
 
   public static Result location(String vehicleId, String timestamp,
@@ -84,7 +101,7 @@ public class Api extends Controller {
       final double lon = Double.parseDouble(lonStr);
       final Coordinate obsCoords = new Coordinate(lon, lat);
       final Coordinate obsPoint = new Coordinate();
-      JTS.transform(obsCoords, obsPoint, transform);
+      JTS.transform(obsCoords, obsPoint, transform.get());
 
       final LocationRecord location = new LocationRecord(vehicleId,
           sdf.parse(timestamp), lat, lon, obsPoint.x, obsPoint.y,

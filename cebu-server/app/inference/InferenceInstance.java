@@ -2,6 +2,7 @@ package inference;
 
 import gov.sandia.cognition.math.matrix.Matrix;
 import gov.sandia.cognition.math.matrix.Vector;
+import gov.sandia.cognition.math.matrix.VectorFactory;
 import gov.sandia.cognition.statistics.distribution.MultivariateGaussian;
 
 import org.openplans.cebutaxi.inference.impl.StandardTrackingFilter;
@@ -55,7 +56,7 @@ public class InferenceInstance {
     return aVariance;
   }
 
-  public static long getAvgtimediff() {
+  public static long getAvgTimeDiff() {
     return avgTimeDiff;
   }
 
@@ -89,7 +90,14 @@ public class InferenceInstance {
         .getTime() - prevTime) / 1000;
     prevTime = record.getTimestamp().getTime();
 
-    // belief = updateFilter(timeDiff, xyPoint, filter, belief);
+    if (belief == null) {
+      belief = filter.createInitialLearnedObject();
+      belief.setMean(VectorFactory.getDefault()
+          .copyArray(
+              new double[] { xyPoint.getElement(0), 0d, xyPoint.getElement(1),
+                  0d }));
+    }
+    
     if (timeDiff > 0) {
       // filter.measure(belief, xyPoint);
       // filter.predict(belief);
