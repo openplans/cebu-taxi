@@ -42,7 +42,12 @@
             <version>2.0</version>
             <scope>provided</scope>
         </dependency>
-
+        
+        <dependency>
+    	  <groupId>org.opentripplanner</groupId>
+    	  <artifactId>opentripplanner-routing</artifactId>
+          <version>${otp.version}</version>
+    	</dependency>
         <dependency>
         	<groupId>com.vividsolutions</groupId>
         	<artifactId>jts</artifactId>
@@ -148,6 +153,7 @@
     <properties>
       <play2HomeDir>/opt/play-2.0</play2HomeDir>
       <geotools.version>8.0-M4</geotools.version>
+       <otp.version>0.6.0-SNAPSHOT</otp.version>
     </properties>
 
 </project>

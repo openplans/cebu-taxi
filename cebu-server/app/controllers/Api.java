@@ -1,5 +1,6 @@
 package controllers;
 
+
 import java.text.SimpleDateFormat;
 
 import org.geotools.geometry.jts.JTS;
@@ -8,18 +9,30 @@ import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
+import play.Logger;
+import play.api.Play;
 import play.libs.Akka;
 import play.mvc.Controller;
 import play.mvc.Result;
+
 import akka.actor.ActorRef;
 import akka.actor.Props;
+
 import async.LocationActor;
 import async.LocationRecord;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
 public class Api extends Controller {
-
+	
+  public static Result vertex()
+  {
+	  
+	  Logger.info("testing..");
+	  
+	  return ok();
+  }
+	
   private static MathTransform transform;
   private static final SimpleDateFormat sdf = new SimpleDateFormat(
       "dd/MM/yyyy - hh:mm:ss");
@@ -86,5 +99,4 @@ public class Api extends Controller {
       return badRequest(e.getMessage());
     }
   }
-
 }
