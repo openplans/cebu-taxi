@@ -2,6 +2,9 @@ package async;
 
 import java.io.File;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import controllers.Api;
 
@@ -18,19 +21,20 @@ public class CsvUploadActor extends UntypedActor {
   public void onReceive(Object csvFile) throws Exception {
     if(csvFile instanceof File) {
     	
-    	CSVReader gps_reader = new CSVReader(new FileReader((File)csvFile), ',');
-          String[] nextLine;
+    	CSVReader gps_reader = new CSVReader(new FileReader((File)csvFile), ';');
+          String[] line;
           gps_reader.readNext();
           log.info("processing gps data");
           
-          while ((nextLine = gps_reader.readNext()) != null) {
+          while ((line = gps_reader.readNext()) != null) {
+
         	 try
         	 {
-        		 Api.location(((File)csvFile).getName(), nextLine[0], nextLine[2], nextLine[3], nextLine[4], null, null);
+        		 Api.location(line[3], line[4], line[5], line[7], line[10], null, null);
         	 }
         	 catch(Exception e)
         	 {
-        		 // bad line
+        		 log.info("bad csv line: " + line);// bad line
         	 }
         	  
           }
