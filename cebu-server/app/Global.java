@@ -3,10 +3,6 @@
 
 import java.io.File;
 
-import org.opentripplanner.model.GraphBundle;
-import org.opentripplanner.routing.graph.Graph;
-import org.opentripplanner.routing.impl.GraphServiceImpl;
-import org.opentripplanner.routing.impl.StreetVertexIndexServiceImpl;
 
 import play.*;
 import utils.OtpGraph;

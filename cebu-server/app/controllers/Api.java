@@ -35,7 +35,7 @@ public class Api extends Controller {
 	
   private static MathTransform transform;
   private static final SimpleDateFormat sdf = new SimpleDateFormat(
-      "dd/MM/yyyy - hh:mm:ss");
+      "MM/dd/yyyy hh:mm:ss");
 
   public static MathTransform getTransform() {
     return transform;
