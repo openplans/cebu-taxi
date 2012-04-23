@@ -3,6 +3,7 @@ package controllers;
 import gov.sandia.cognition.math.matrix.Vector;
 import gov.sandia.cognition.math.matrix.VectorFactory;
 
+
 import java.text.SimpleDateFormat;
 
 import org.geotools.geometry.jts.JTS;
@@ -15,6 +16,8 @@ import org.opengis.referencing.operation.MathTransform;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
+import play.Logger;
+import play.api.Play;
 import play.libs.Akka;
 import play.mvc.Controller;
 import play.mvc.Result;
@@ -25,6 +28,15 @@ import async.LocationRecord;
 
 public class Api extends Controller {
 
+	
+  public static Result vertex()
+  {
+	  
+	  Logger.info("testing..");
+	  
+	  return ok();
+  }
+	
   public static Result location(String vehicleId, String timestamp, String latStr,
       String lonStr, String velocity, String heading, String accuracy) {
 
@@ -50,7 +62,7 @@ public class Api extends Controller {
       final double lat = Double.parseDouble(latStr);
       final double lon = Double.parseDouble(lonStr);
       Coordinate obsCoords = new Coordinate(lon, lat);
-      Coordinate obsPoint = new Coordinate();
+      Coordinate obsPoint = new Coordinate();	
       JTS.transform(obsCoords, obsPoint, transform);
       
 //      Vector xyPoint = VectorFactory.getDefault().createVector2D(obsPoint.x, obsPoint.y);
