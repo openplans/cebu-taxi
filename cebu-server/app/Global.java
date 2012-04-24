@@ -8,7 +8,7 @@ import com.typesafe.plugin.inject.InjectPlugin;
 
 public class Global extends GlobalSettings {
 
-	
+
   @Override
   public void onStart(Application app) {
 	 
