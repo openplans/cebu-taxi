@@ -2,6 +2,8 @@ package controllers;
 
 import java.io.File;
 
+import com.google.inject.Inject;
+
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import async.CsvUploadActor;
@@ -22,6 +24,7 @@ public class Application extends Controller {
   }
   
   public static Result upload(	) {
+	
 	  return ok(upload.render());
   }
   

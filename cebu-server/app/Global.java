@@ -1,21 +1,22 @@
-
-
-
 import java.io.File;
 
 
 import play.*;
 import utils.OtpGraph;
 
+import com.typesafe.plugin.inject.InjectPlugin;
+
 public class Global extends GlobalSettings {
 
-  public static OtpGraph otpGraph;
-  
+	
   @Override
   public void onStart(Application app) {
+	 
+	  // init otp graph
+	  //app.plugin(InjectPlugin.class).getInstance(OtpGraphImpl.class);
 	  
-	  otpGraph = new OtpGraph();
-    
+	  //Logger.warn("getting an instance from guice:"+ app.plugin(InjectPlugin.class).getInstance(OtpGraph.class));
+	 
   }  
   
   @Override

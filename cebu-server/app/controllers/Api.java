@@ -14,6 +14,8 @@ import play.api.Play;
 import play.libs.Akka;
 import play.mvc.Controller;
 import play.mvc.Result;
+import scala.Option;
+import utils.OtpGraph;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -21,14 +23,16 @@ import akka.actor.Props;
 import async.LocationActor;
 import async.LocationRecord;
 
+import com.google.inject.Inject;
 import com.vividsolutions.jts.geom.Coordinate;
 
 public class Api extends Controller {
 	
+	@Inject public static OtpGraph graph;
+	
   public static Result vertex()
   {
-	  
-	  Logger.info("testing..");
+	  Logger.info("vertices: " + graph.getVertexCount());
 	  
 	  return ok();
   }
