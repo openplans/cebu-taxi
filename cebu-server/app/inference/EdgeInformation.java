@@ -1,4 +1,4 @@
-package utils;
+package inference;
 
 import org.opentripplanner.routing.graph.Edge;
 

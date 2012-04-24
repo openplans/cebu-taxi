@@ -15,8 +15,6 @@ import au.com.bytecode.opencsv.CSVReader;
 
 public class CsvUploadActor extends UntypedActor {
   LoggingAdapter log = Logging.getLogger(getContext().system(), this);
-  
-  // instantiate inference engine here
  
   public void onReceive(Object csvFile) throws Exception {
     if(csvFile instanceof File) {
@@ -30,8 +28,8 @@ public class CsvUploadActor extends UntypedActor {
 
         	 try
         	 {
-        		 Api.location(line[3], line[4], line[5], line[7], line[10], null, null);
-        	 }
+        		 Api.traceLocation(((File) csvFile).getName(), line[3], line[4], line[5], line[7], line[10], null, null);
+        	 } 
         	 catch(Exception e)
         	 {
         		 log.info("bad csv line: " + line);// bad line
