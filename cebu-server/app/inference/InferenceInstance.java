@@ -98,6 +98,7 @@ public class InferenceInstance {
         && snappedEdges.getPathTraversed() != null) {
       for (Edge edge : snappedEdges.getPathTraversed()) {
         EdgeInformation edgeInfo = graph.getEdgeInformation(edge);
+        
         // FIXME simply a hack for now (mean coordinates velocity)
         edgeInfo.updateVelocity(UnivariateStatisticsUtil.computeMean(
             Lists.newArrayList(new Double[] {belief.getMean().getElement(1), belief.getMean().getElement(3)})

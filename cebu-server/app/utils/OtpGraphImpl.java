@@ -104,7 +104,14 @@ public class OtpGraphImpl implements OtpGraph {
 	  }
 	  
 	  public EdgeInformation getEdgeInformation(Edge edge) {
-	    return edgeToInfo.get(edge);
+	    EdgeInformation edgeInfo = edgeToInfo.get(edge);
+	    
+      if (edgeInfo == null) {
+        edgeInfo = new EdgeInformation(edge);
+        edgeToInfo.put(edge, edgeInfo);
+      }
+      
+	    return edgeInfo;
 	  }
 
 	  /**
