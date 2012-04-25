@@ -9,14 +9,16 @@ import org.geotools.referencing.CRS;
 import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
+import org.opentripplanner.routing.graph.Edge;
 
 import play.Logger;
 import play.api.Play;
 import play.libs.Akka;
 import play.mvc.Controller;
 import play.mvc.Result;
-import scala.Option;
+import static play.libs.Json.toJson;
 import utils.OtpGraph;
+
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
@@ -27,16 +29,21 @@ import async.LocationRecord;
 import com.google.inject.Inject;
 import com.google.common.collect.Maps;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 
 public class Api extends Controller {
+
+  @Inject public static OtpGraph graph;
 	
-	@Inject public static OtpGraph graph;
-	
-  public static Result vertex()
+  public static Result vertex(Integer edgeId)
   {
-	  Logger.info("vertices: " + graph.getVertexCount());
 	  
-	  return ok();
+	  Edge e = graph.getGraph().getEdgeById(edgeId);
+	  
+	  Geometry geom = e.getGeometry();
+	  
+	  
+	  return ok(toJson(geom));
   }
 	
 //  private static MathTransform transform;
