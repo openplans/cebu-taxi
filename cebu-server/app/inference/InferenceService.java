@@ -32,49 +32,10 @@ public class InferenceService extends UntypedActor {
   private static final Multimap<String, InferenceResultRecord> vehicleToTraceResults = LinkedHashMultimap
       .create();
 
-  public static ThreadLocal<MathTransform> transform = new ThreadLocal<MathTransform>() {
 
-    @Override
-    public MathTransform get() {
-      return super.get();
-    }
-
-    @Override
-    protected MathTransform initialValue() {
-      try {
-//        Hints hints = new Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, Boolean.TRUE);
-
-        final String googleWebMercatorCode = "EPSG:4326";
-
-        final String cartesianCode = "EPSG:4499";
-
-        final CRSAuthorityFactory crsAuthorityFactory = CRS
-            .getAuthorityFactory(true);
-
-        final CoordinateReferenceSystem mapCRS = crsAuthorityFactory
-            .createCoordinateReferenceSystem(googleWebMercatorCode);
-
-        final CoordinateReferenceSystem dataCRS = crsAuthorityFactory
-            .createCoordinateReferenceSystem(cartesianCode);
-
-        final boolean lenient = true; // allow for some error due to different
-                                      // datums
-        return CRS.findMathTransform(mapCRS, dataCRS, lenient);
-      } catch (final Exception e) {
-        e.printStackTrace();
-      }
-
-      return null;
-    }
-
-  };
 
   private final LoggingAdapter log = Logging.getLogger(getContext().system(),
       this);
-
-  static {
-    System.setProperty("org.geotools.referencing.forceXY", "true");
-  }
 
   @Override
   public void onReceive(Object location) throws Exception {
@@ -84,8 +45,11 @@ public class InferenceService extends UntypedActor {
 
       final InferenceInstance ie = getInferenceInstance(locationRecord
           .getVehicleId());
-
-      SnappedEdges snappedEdges = ie.update(locationRecord);
+      
+      SnappedEdges snappedEdges;
+      synchronized(ie) {
+         snappedEdges = ie.update(locationRecord);
+      }
 
       final InferenceResultRecord infResult = InferenceResultRecord
           .createInferenceResultRecord(locationRecord, ie, snappedEdges);
@@ -112,10 +76,6 @@ public class InferenceService extends UntypedActor {
     }
 
     return ie;
-  }
-
-  public static MathTransform getCRSTransform() {
-    return transform.get();
   }
 
 }

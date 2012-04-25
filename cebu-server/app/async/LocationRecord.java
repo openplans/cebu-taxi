@@ -2,14 +2,13 @@ package async;
 
 import gov.sandia.cognition.math.matrix.Vector;
 import gov.sandia.cognition.math.matrix.VectorFactory;
-import inference.InferenceService;
+import inference.GeoUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
-import org.geotools.geometry.jts.JTS;
 import org.opengis.referencing.operation.TransformException;
 
 import com.google.common.collect.Maps;
@@ -180,16 +179,14 @@ public class LocationRecord {
     this.prevLoc = null;
   }
 
-  public static LocationRecord createLocationRecord(String vehicleId,
+  public static synchronized LocationRecord createLocationRecord(String vehicleId,
     String timestamp, String latStr, String lonStr, String velocity,
     String heading, String accuracy) throws NumberFormatException,
       ParseException, TransformException {
     final double lat = Double.parseDouble(latStr);
     final double lon = Double.parseDouble(lonStr);
     final Coordinate obsCoords = new Coordinate(lat, lon);
-    final Coordinate obsPoint = new Coordinate();
-
-    JTS.transform(obsCoords, obsPoint, InferenceService.getCRSTransform());
+    final Coordinate obsPoint = GeoUtils.convertToEuclidean(obsCoords);
 
     final LocationRecord prevLocation = vehiclesToRecords.get(vehicleId);
 

@@ -274,7 +274,7 @@ public class GraphTest {
   }
 
   private static MultivariateGaussian updateFilter(long timeDiff,
-      Vector xyPoint, StandardTrackingFilter filter, MultivariateGaussian belief) {
+    Vector xyPoint, StandardTrackingFilter filter, MultivariateGaussian belief) {
     /*
      * Initialize or update the kalman filter
      */
