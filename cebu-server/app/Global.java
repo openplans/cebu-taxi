@@ -8,12 +8,7 @@ public class Global extends GlobalSettings {
 
   @Override
   public void onStart(Application app) {
-	 
-	  // init otp graph
-	  //app.plugin(InjectPlugin.class).getInstance(OtpGraphImpl.class);
-	  
-	  //Logger.warn("getting an instance from guice:"+ app.plugin(InjectPlugin.class).getInstance(OtpGraph.class));
-	 
+	
   }  
   
   @Override
