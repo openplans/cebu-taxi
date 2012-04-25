@@ -12,9 +12,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>. 
 */
 
-var hostname = "http://admin:password@localhost:8080"; // do not include trailing '/'
-
-var dataUrl = "http://dl.dropbox.com/u/620583/test_output.txt";
+var dataUrl = "/api/traces?vehicleId=861785000285407";
 
 var startLatLng = new L.LatLng(10.3181373, 123.8956844); // Portland OR
 
@@ -68,13 +66,12 @@ $(document).ready(function() {
 
 function loadData()
 { 
-    dataUrl = prompt('Data CSV URL:');
 
     $.get(dataUrl, function(data){
 	
 	$("#loadData").hide();
 
-	lines = CSVToArray(data, ',');
+	lines = data;
 	$("#controls").show();
 
 	initSlider();
@@ -142,7 +139,7 @@ function showData()
 		{
 
 			
-			var new_marker = new L.Circle(new L.LatLng(parseFloat(lines[line_id][1]), parseFloat(lines[line_id][2])), 10, {color: '#00c', lat: parseFloat(lines[line_id][3]), lon: parseFloat(lines[line_id][4])});
+			var new_marker = new L.Circle(new L.LatLng(parseFloat(lines[line_id].originalLat), parseFloat(lines[line_id].originalLon)), 10, {color: '#00c', lat: parseFloat(lines[line_id].kfMeanLat), lon: parseFloat(lines[line_id].kfMeanLon)});
 			group.addLayer(new_marker);
 
 			new_marker.on('click', function(e){
@@ -172,32 +169,49 @@ function renderMarker()
 	if(i>0)
 	{	
 		group.clearLayers();
+		overlay.clearLayers();
 
 		
 
-		var marker2 = new L.Circle(new L.LatLng(parseFloat(lines[i][3]), parseFloat(lines[i][4])), 10, {fill: true, color: '#0c0'});
+		var marker2 = new L.Circle(new L.LatLng(parseFloat(lines[i].kfMeanLat), parseFloat(lines[i].kfMeanLon)), 10, {fill: true, color: '#0c0'});
 		group.addLayer(marker2);
 
-		var majorAxis = new L.Polyline([new L.LatLng(parseFloat(lines[i][1]), parseFloat(lines[i][2])),new L.LatLng(parseFloat(lines[i][5]), parseFloat(lines[i][6]))], {fill: true, color: '#c00'})
+		var majorAxis = new L.Polyline([new L.LatLng(parseFloat(lines[i].originalLat), parseFloat(lines[i].originalLon)),new L.LatLng(parseFloat(lines[i].kfMajorLat), parseFloat(lines[i].kfMajorLon))], {fill: true, color: '#c00'})
 		
 		group.addLayer(majorAxis);
 
 
-		var minorAxis = new L.Polyline([new L.LatLng(parseFloat(lines[i][1]), parseFloat(lines[i][2])),new L.LatLng(parseFloat(lines[i][7]), parseFloat(lines[i][8]))], {fill: true, color: '#c0c'});
+		var minorAxis = new L.Polyline([new L.LatLng(parseFloat(lines[i].originalLat), parseFloat(lines[i].originalLon)),new L.LatLng(parseFloat(lines[i].kfMinorLat), parseFloat(lines[i].kfMinorLon))], {fill: true, color: '#c0c'});
 
 		group.addLayer(minorAxis);
 
-		var marker1 = new L.Circle(new L.LatLng(parseFloat(lines[i][1]), parseFloat(lines[i][2])), 10, {fill: true, color: '#00c'});
+		var marker1 = new L.Circle(new L.LatLng(parseFloat(lines[i].originalLat), parseFloat(lines[i].originalLon)), 10, {fill: true, color: '#00c'});
 		group.addLayer(marker1);
 
 
-		map.panTo(new L.LatLng(parseFloat(lines[i][1]), parseFloat(lines[i][2])));
+		map.panTo(new L.LatLng(parseFloat(lines[i].originalLat), parseFloat(lines[i].originalLon)));
 
+		renderGraph();
 
-		$("#count_display").html(lines[i][5] + ' (' + i + ')');
+		$("#count_display").html(lines[i].time + ' (' + i + ')');
 	}
 }
 
+
+function renderGraph()
+{
+	for(var j in lines[i].graphSegmentIds)
+	{
+		$.get('/api/segment', {segmentId: lines[i].graphSegmentIds[j]}, function(data) {
+
+			var geojson = new L.GeoJSON();
+			geojson.addGeoJSON(data.geom);
+			overlay.addLayer(geojson);
+
+		});
+	}
+
+}
 
 
 

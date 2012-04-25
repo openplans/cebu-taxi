@@ -30,7 +30,7 @@ public class GeoJSONSerializer extends JsonSerializer<Geometry> {
             throws IOException, JsonProcessingException {
         
         GeometryJSON json = new GeometryJSON();
-        
+       
         jgen.writeRawValue(json.toString(value));
     }
 

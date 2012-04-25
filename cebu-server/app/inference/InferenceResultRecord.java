@@ -1,5 +1,6 @@
 package inference;
 
+import java.util.Date;
 import java.util.List;
 
 import gov.sandia.cognition.math.matrix.Matrix;
@@ -19,9 +20,11 @@ import async.LocationRecord;
 import com.google.common.collect.Lists;
 import com.vividsolutions.jts.geom.Coordinate;
 
+import controllers.Api;
+
 public class InferenceResultRecord {
 
-  private final long time;
+  private final String time;
   private final double originalLat;
   private final double originalLon;
   private final double kfMeanLat; 
@@ -36,7 +39,7 @@ public class InferenceResultRecord {
     double originalLon, double kfMeanLat, double kfMeanLon, double kfMajorLat,
     double kfMajorLon, double kfMinorLat, double kfMinorLon,
     List<Integer> graphSegmentIds) {
-    this.time = time;
+    this.time = Api.sdf.format(new Date(time));
     this.originalLat = originalLat;
     this.originalLon = originalLon;
     this.kfMeanLat = kfMeanLat;
@@ -94,10 +97,10 @@ public class InferenceResultRecord {
       }
 
       return new InferenceResultRecord(locationRecord.getTimestamp().getTime(),
-          locationRecord.getObsCoords().x, locationRecord.getObsCoords().y,
-          kfMean.x, kfMean.y,
-          kfMajor.x, kfMajor.y,
-          kfMinor.x, kfMinor.y,
+          locationRecord.getObsCoords().y, locationRecord.getObsCoords().x,
+          kfMean.y, kfMean.x,
+          kfMajor.y, kfMajor.x,
+          kfMinor.y, kfMinor.x,
           Lists.newArrayList(snappedEdges.getSnappedEdges()));
     }
 
@@ -106,7 +109,7 @@ public class InferenceResultRecord {
 
 
 
-  public long getTime() {
+  public String getTime() {
     return time;
   }
 

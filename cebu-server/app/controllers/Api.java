@@ -1,8 +1,15 @@
 package controllers;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Map;
 
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.Version;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.map.module.SimpleModule;
+import org.codehaus.jackson.node.ObjectNode;
 import org.geotools.geometry.jts.JTS;
 import org.geotools.referencing.CRS;
 import org.opengis.referencing.crs.CRSAuthorityFactory;
@@ -14,44 +21,69 @@ import inference.InferenceService;
 
 import play.Logger;
 import play.libs.Akka;
+import play.libs.F.Callback;
+import play.libs.F.Callback0;
+import play.libs.Json;
 import play.mvc.Controller;
 import play.mvc.Result;
+import play.mvc.WebSocket;
 
-import static play.libs.Json.toJson;
+import utils.GeoJSONSerializer;
 import utils.OtpGraph;
 
 import akka.actor.ActorRef;
 import akka.actor.Props;
+import api.OsmSegment;
 import async.LocationRecord;
 
 import com.google.inject.Inject;
-import com.google.common.collect.Maps;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
 
 public class Api extends Controller {
 	
 //  private static MathTransform transform;
-  private static final SimpleDateFormat sdf = new SimpleDateFormat(
+  public static final SimpleDateFormat sdf = new SimpleDateFormat(
       "yyyy-MM-dd hh:mm:ss");
 
-
-  @Inject
-  public static OtpGraph graph;
+  public static OtpGraph graph = new OtpGraph();
+  
+  public static ObjectMapper jsonMapper = new ObjectMapper();
+  
 
   public static OtpGraph getGraph() {
     return graph;
   } 
   
-  public static Result vertex(Integer edgeId)
-  {
+  public static Result segment(Integer segmentId) throws JsonGenerationException, JsonMappingException, IOException {
+	  Edge e = graph.getGraph().getEdgeById(segmentId);
 	  
-	  Edge e = graph.getGraph().getEdgeById(edgeId);
+	  if(e != null) {
+		  
+		  OsmSegment osmSegment = new OsmSegment(segmentId, e.getGeometry());
+		  
+		  return ok(jsonMapper.writeValueAsString(osmSegment)).as("text/json");
+	  }
+	  else
+		  return badRequest();
+  }
+  
+  public static Result traces(String vehicleId) throws JsonGenerationException, JsonMappingException, IOException {
 	  
-	  Geometry geom = e.getGeometry();
 	  
-	  
-	  return ok(toJson(geom));
+	  return ok(jsonMapper.writeValueAsString(InferenceService.getTraceResults(vehicleId))).as("text/json");
+  }
+  
+  public static WebSocket<String> streamTraces() {
+	  return new WebSocket<String>() {
+	      
+	    
+	    public void onReady(WebSocket.In<String> in, WebSocket.Out<String> out) {
+	      
+	    
+	    	out.write("Hello!");
+	        out.close();
+	    
+	  }
+	};
   }
 	
   public static Result location(String vehicleId, String timestamp,

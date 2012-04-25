@@ -28,7 +28,7 @@ public class CsvUploadActor extends UntypedActor {
 
         	 try
         	 {
-        		 Api.traceLocation(((File) csvFile).getName(), line[3], line[4], line[5], line[7], line[10], null, null);
+        		 Api.traceLocation(((File) csvFile).getName(), line[3], line[1], line[5], line[7], line[10], null, null);
         	 } 
         	 catch(Exception e)
         	 {

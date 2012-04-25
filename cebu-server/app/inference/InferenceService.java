@@ -1,5 +1,6 @@
 package inference;
 
+import java.util.Collection;
 import java.util.Map;
 
 import org.geotools.referencing.CRS;
@@ -13,7 +14,7 @@ import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import async.LocationRecord;
 
-import com.google.common.collect.HashMultimap;
+import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
@@ -28,7 +29,7 @@ public class InferenceService extends UntypedActor {
   private static final Map<String, InferenceInstance> vehicleToInstance = Maps
       .newConcurrentMap();
 
-  private static final Multimap<String, InferenceResultRecord> vehicleToTraceResults = HashMultimap
+  private static final Multimap<String, InferenceResultRecord> vehicleToTraceResults = LinkedHashMultimap
       .create();
 
   public static ThreadLocal<MathTransform> transform = new ThreadLocal<MathTransform>() {
@@ -94,6 +95,11 @@ public class InferenceService extends UntypedActor {
 
     }
 
+  }
+  
+  public static Collection<InferenceResultRecord> getTraceResults(String vehicleId)
+  {
+	  return vehicleToTraceResults.get(vehicleId);
   }
 
   public static InferenceInstance getInferenceInstance(String vehicleId) {
