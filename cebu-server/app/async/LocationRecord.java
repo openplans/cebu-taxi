@@ -2,7 +2,6 @@ package async;
 
 import gov.sandia.cognition.math.matrix.Vector;
 import gov.sandia.cognition.math.matrix.VectorFactory;
-
 import inference.InferenceService;
 
 import java.text.ParseException;
@@ -28,21 +27,20 @@ public class LocationRecord {
 
   private final Double heading;
   private final Double accuracy;
-  private final LocationRecord prevLoc;
+  private LocationRecord prevLoc;
 
   /*
    * This map is how we keep track of the previous records for each vehicle.
-   * TODO might want to null the previous record member at some point.
    */
   private static Map<String, LocationRecord> vehiclesToRecords = Maps
       .newConcurrentMap();
-  
+
   private static final SimpleDateFormat sdf = new SimpleDateFormat(
       "yyyy-MM-dd hh:mm:ss");
 
-  private LocationRecord(String vehicleId, Date timestamp, Coordinate obsCoords,
-    Coordinate obsPoint, Double velocity, Double heading, Double accuracy, 
-    LocationRecord prevLoc) {
+  private LocationRecord(String vehicleId, Date timestamp,
+    Coordinate obsCoords, Coordinate obsPoint, Double velocity, Double heading,
+    Double accuracy, LocationRecord prevLoc) {
     super();
     this.vehicleId = vehicleId;
     this.timestamp = timestamp;
@@ -56,30 +54,6 @@ public class LocationRecord {
     this.prevLoc = prevLoc;
   }
 
-  public static LocationRecord createLocationRecord(String vehicleId,
-    String timestamp, String latStr, String lonStr, String velocity,
-    String heading, String accuracy) throws NumberFormatException,
-      ParseException, TransformException {
-    final double lat = Double.parseDouble(latStr);
-    final double lon = Double.parseDouble(lonStr);
-    final Coordinate obsCoords = new Coordinate(lon, lat);
-    final Coordinate obsPoint = new Coordinate();
-
-    JTS.transform(obsCoords, obsPoint, InferenceService.getTransform());
-
-    final LocationRecord prevLocation = vehiclesToRecords.get(vehicleId);
-
-    final LocationRecord location = new LocationRecord(vehicleId,
-        sdf.parse(timestamp), obsCoords, obsPoint,
-        velocity != null ? Double.parseDouble(velocity) : null,
-        heading != null ? Double.parseDouble(heading) : null,
-        accuracy != null ? Double.parseDouble(accuracy) : null, prevLocation);
-
-    vehiclesToRecords.put(location.getVehicleId(), location);
-    
-    return location;
-  }
-
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -91,7 +65,7 @@ public class LocationRecord {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    LocationRecord other = (LocationRecord) obj;
+    final LocationRecord other = (LocationRecord) obj;
     if (accuracy == null) {
       if (other.accuracy != null) {
         return false;
@@ -167,6 +141,10 @@ public class LocationRecord {
     return obsPoint;
   }
 
+  public LocationRecord getPrevLoc() {
+    return prevLoc;
+  }
+
   public Vector getProjPoint() {
     return projPoint;
   }
@@ -198,8 +176,39 @@ public class LocationRecord {
     return result;
   }
 
-  public LocationRecord getPrevLoc() {
-    return prevLoc;
+  private void reset() {
+    this.prevLoc = null;
+  }
+
+  public static LocationRecord createLocationRecord(String vehicleId,
+    String timestamp, String latStr, String lonStr, String velocity,
+    String heading, String accuracy) throws NumberFormatException,
+      ParseException, TransformException {
+    final double lat = Double.parseDouble(latStr);
+    final double lon = Double.parseDouble(lonStr);
+    final Coordinate obsCoords = new Coordinate(lat, lon);
+    final Coordinate obsPoint = new Coordinate();
+
+    JTS.transform(obsCoords, obsPoint, InferenceService.getCRSTransform());
+
+    final LocationRecord prevLocation = vehiclesToRecords.get(vehicleId);
+
+    /*
+     * do this so we don't potentially hold on to every record in memory
+     */
+    if (prevLocation != null) {
+      prevLocation.reset();
+    }
+
+    final LocationRecord location = new LocationRecord(vehicleId,
+        sdf.parse(timestamp), obsCoords, obsPoint,
+        velocity != null ? Double.parseDouble(velocity) : null,
+        heading != null ? Double.parseDouble(heading) : null,
+        accuracy != null ? Double.parseDouble(accuracy) : null, prevLocation);
+
+    vehiclesToRecords.put(location.getVehicleId(), location);
+
+    return location;
   }
 
 }

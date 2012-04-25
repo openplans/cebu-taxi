@@ -41,6 +41,7 @@ public class InferenceService extends UntypedActor {
     @Override
     protected MathTransform initialValue() {
       try {
+//        Hints hints = new Hints(Hints.FORCE_LONGITUDE_FIRST_AXIS_ORDER, Boolean.TRUE);
 
         final String googleWebMercatorCode = "EPSG:4326";
 
@@ -107,7 +108,7 @@ public class InferenceService extends UntypedActor {
     return ie;
   }
 
-  public static MathTransform getTransform() {
+  public static MathTransform getCRSTransform() {
     return transform.get();
   }
 

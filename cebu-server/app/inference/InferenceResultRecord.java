@@ -78,13 +78,13 @@ public class InferenceResultRecord {
       try {
         JTS.transform(
             new Coordinate(infMean.getElement(0), infMean.getElement(1)),
-            kfMean, InferenceService.getTransform().inverse());
+            kfMean, InferenceService.getCRSTransform().inverse());
         JTS.transform(
             new Coordinate(majorAxis.getElement(0), majorAxis.getElement(1)),
-            kfMajor, InferenceService.getTransform().inverse());
+            kfMajor, InferenceService.getCRSTransform().inverse());
         JTS.transform(
             new Coordinate(minorAxis.getElement(0), minorAxis.getElement(1)),
-            kfMinor, InferenceService.getTransform().inverse());
+            kfMinor, InferenceService.getCRSTransform().inverse());
       } catch (final NoninvertibleTransformException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
