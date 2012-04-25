@@ -41,8 +41,7 @@ public class Api extends Controller {
 
   public static OtpGraph getGraph() {
     return graph;
-  }
-  
+  } 
   
   public static Result vertex(Integer edgeId)
   {
@@ -55,7 +54,6 @@ public class Api extends Controller {
 	  return ok(toJson(geom));
   }
 	
-
   public static Result location(String vehicleId, String timestamp,
     String latStr, String lonStr, String velocity, String heading,
     String accuracy) {
