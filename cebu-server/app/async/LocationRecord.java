@@ -2,7 +2,6 @@ package async;
 
 import gov.sandia.cognition.math.matrix.Vector;
 import gov.sandia.cognition.math.matrix.VectorFactory;
-import inference.GeoUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -10,6 +9,8 @@ import java.util.Date;
 import java.util.Map;
 
 import org.opengis.referencing.operation.TransformException;
+
+import utils.GeoUtils;
 
 import com.google.common.collect.Maps;
 import com.vividsolutions.jts.geom.Coordinate;

@@ -10,6 +10,8 @@ import gov.sandia.cognition.statistics.distribution.MultivariateGaussian;
 import java.util.Date;
 import java.util.List;
 
+import utils.GeoUtils;
+
 import async.LocationRecord;
 
 import com.google.common.collect.Lists;
