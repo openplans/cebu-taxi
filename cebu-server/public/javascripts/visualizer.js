@@ -176,12 +176,12 @@ function renderMarker()
 		var marker2 = new L.Circle(new L.LatLng(parseFloat(lines[i].kfMeanLat), parseFloat(lines[i].kfMeanLon)), 10, {fill: true, color: '#0c0'});
 		group.addLayer(marker2);
 
-		var majorAxis = new L.Polyline([new L.LatLng(parseFloat(lines[i].originalLat), parseFloat(lines[i].originalLon)),new L.LatLng(parseFloat(lines[i].kfMajorLat), parseFloat(lines[i].kfMajorLon))], {fill: true, color: '#c00'})
+		var majorAxis = new L.Polyline([new L.LatLng(parseFloat(lines[i].kfMeanLat), parseFloat(lines[i].kfMeanLon)),new L.LatLng(parseFloat(lines[i].kfMajorLat), parseFloat(lines[i].kfMajorLon))], {fill: true, color: '#c00'})
 		
 		group.addLayer(majorAxis);
 
 
-		var minorAxis = new L.Polyline([new L.LatLng(parseFloat(lines[i].originalLat), parseFloat(lines[i].originalLon)),new L.LatLng(parseFloat(lines[i].kfMinorLat), parseFloat(lines[i].kfMinorLon))], {fill: true, color: '#c0c'});
+		var minorAxis = new L.Polyline([new L.LatLng(parseFloat(lines[i].kfMeanLat), parseFloat(lines[i].kfMeanLon)),new L.LatLng(parseFloat(lines[i].kfMinorLat), parseFloat(lines[i].kfMinorLon))], {fill: true, color: '#c0c'});
 
 		group.addLayer(minorAxis);
 
