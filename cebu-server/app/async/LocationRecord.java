@@ -186,7 +186,7 @@ public class LocationRecord {
       ParseException, TransformException {
     final double lat = Double.parseDouble(latStr);
     final double lon = Double.parseDouble(lonStr);
-    final Coordinate obsCoords = new Coordinate(lat, lon);
+    final Coordinate obsCoords = new Coordinate(lon, lat);
     final Coordinate obsPoint = GeoUtils.convertToEuclidean(obsCoords);
 
     final LocationRecord prevLocation = vehiclesToRecords.get(vehicleId);

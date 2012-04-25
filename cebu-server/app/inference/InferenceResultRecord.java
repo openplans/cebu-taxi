@@ -6,6 +6,7 @@ import gov.sandia.cognition.math.matrix.Vector;
 import gov.sandia.cognition.math.matrix.mtj.DenseMatrix;
 import gov.sandia.cognition.math.matrix.mtj.decomposition.EigenDecompositionRightMTJ;
 import gov.sandia.cognition.statistics.distribution.MultivariateGaussian;
+import gov.sandia.cognition.math.UnivariateStatisticsUtil;
 
 import java.util.Date;
 import java.util.List;
@@ -30,12 +31,12 @@ public class InferenceResultRecord {
   private final double kfMajorLon;
   private final double kfMinorLat;
   private final double kfMinorLon;
-  private final List<Integer> graphSegmentIds;
+  private final List<Double[]> graphSegmentIds;
 
   private InferenceResultRecord(long time, double originalLat,
     double originalLon, double kfMeanLat, double kfMeanLon, double kfMajorLat,
     double kfMajorLon, double kfMinorLat, double kfMinorLon,
-    List<Integer> graphSegmentIds) {
+    List<Double[]> idScaleList) {
     this.time = Api.sdf.format(new Date(time));
     this.originalLat = originalLat;
     this.originalLon = originalLon;
@@ -45,10 +46,10 @@ public class InferenceResultRecord {
     this.kfMajorLon = kfMajorLon;
     this.kfMinorLat = kfMinorLat;
     this.kfMinorLon = kfMinorLon;
-    this.graphSegmentIds = graphSegmentIds;
+    this.graphSegmentIds = idScaleList;
   }
 
-  public List<Integer> getGraphSegmentIds() {
+  public List<Double[]> getGraphSegmentIds() {
     return graphSegmentIds;
   }
 
@@ -114,11 +115,22 @@ public class InferenceResultRecord {
       final Coordinate kfMean = GeoUtils.convertToLatLon(infMean);
       final Coordinate kfMajor = GeoUtils.convertToLatLon(majorAxis);
       final Coordinate kfMinor = GeoUtils.convertToLatLon(minorAxis);
+      
+      List<Double[]> idScaleList = Lists.newArrayList();
+      
+      for (Integer id : snappedEdges.getSnappedEdges()) {
+        Vector mean = Api.getGraph().getEdgeInformation(id).getVelocityPrecisionDist().getMean();
+        final double meanOfMean = UnivariateStatisticsUtil.computeMean(
+            Lists.newArrayList(new Double[] {belief.getMean().getElement(1), belief.getMean().getElement(3)}));
+        idScaleList.add(new Double[] {id.doubleValue(), meanOfMean});
+      }
 
       return new InferenceResultRecord(locationRecord.getTimestamp().getTime(),
-          locationRecord.getObsCoords().x, locationRecord.getObsCoords().y,
-          kfMean.x, kfMean.y, kfMajor.x, kfMajor.y, kfMinor.x, kfMinor.y,
-          Lists.newArrayList(snappedEdges.getSnappedEdges()));
+          locationRecord.getObsCoords().y, locationRecord.getObsCoords().x,
+          kfMean.y, kfMean.x, 
+          kfMajor.y, kfMajor.x, 
+          kfMinor.y, kfMinor.x,
+          idScaleList);
     }
 
     return null;

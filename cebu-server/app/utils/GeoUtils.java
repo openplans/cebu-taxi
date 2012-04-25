@@ -57,14 +57,14 @@ public class GeoUtils {
 
   };
 
-  public static Coordinate convertToEuclidean(Coordinate latlon) {
+  public static Coordinate convertToEuclidean(Coordinate lonlat) {
     final Coordinate converted = new Coordinate();
 
     try {
       /*
        * CRS is lon-lat order
        */
-      JTS.transform(new Coordinate(latlon.y, latlon.x), converted,
+      JTS.transform(lonlat, converted,
           getCRSTransform());
     } catch (final NoninvertibleTransformException e) {
       e.printStackTrace();
@@ -90,7 +90,7 @@ public class GeoUtils {
       e.printStackTrace();
     }
 
-    return new Coordinate(converted.y, converted.x);
+    return converted;
   }
 
   public static Coordinate convertToLatLon(Vector vec) {
