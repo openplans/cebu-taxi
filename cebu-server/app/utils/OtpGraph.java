@@ -1,5 +1,8 @@
 package utils;
 
+import inference.EdgeInformation;
+import inference.SnappedEdges;
+
 import org.opentripplanner.model.GraphBundle;
 import org.opentripplanner.routing.core.TraverseOptions;
 import org.opentripplanner.routing.graph.Edge;

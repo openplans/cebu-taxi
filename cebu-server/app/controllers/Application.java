@@ -7,7 +7,6 @@ import com.google.inject.Inject;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import async.CsvUploadActor;
-import async.LocationActor;
 
 import play.*;
 import play.libs.Akka;

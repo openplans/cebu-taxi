@@ -1,4 +1,4 @@
-package utils;
+package inference;
 
 import java.util.List;
 import java.util.Set;

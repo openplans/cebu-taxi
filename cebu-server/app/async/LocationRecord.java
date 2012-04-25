@@ -3,8 +3,17 @@ package async;
 import gov.sandia.cognition.math.matrix.Vector;
 import gov.sandia.cognition.math.matrix.VectorFactory;
 
-import java.util.Date;
+import inference.InferenceService;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Map;
+
+import org.geotools.geometry.jts.JTS;
+import org.opengis.referencing.operation.TransformException;
+
+import com.google.common.collect.Maps;
 import com.vividsolutions.jts.geom.Coordinate;
 
 public class LocationRecord {
@@ -13,10 +22,6 @@ public class LocationRecord {
   private final Date timestamp;
   private final Coordinate obsCoords;
   private final Coordinate obsPoint;
-  // private final double lat;
-  // private final double lon;
-  // private final double x;
-  // private final double y;
   private final Vector projPoint;
 
   private final Double velocity;
@@ -25,7 +30,17 @@ public class LocationRecord {
   private final Double accuracy;
   private final LocationRecord prevLoc;
 
-  public LocationRecord(String vehicleId, Date timestamp, Coordinate obsCoords,
+  /*
+   * This map is how we keep track of the previous records for each vehicle.
+   * TODO might want to null the previous record member at some point.
+   */
+  private static Map<String, LocationRecord> vehiclesToRecords = Maps
+      .newConcurrentMap();
+  
+  private static final SimpleDateFormat sdf = new SimpleDateFormat(
+      "yyyy-MM-dd hh:mm:ss");
+
+  private LocationRecord(String vehicleId, Date timestamp, Coordinate obsCoords,
     Coordinate obsPoint, Double velocity, Double heading, Double accuracy, 
     LocationRecord prevLoc) {
     super();
@@ -39,6 +54,30 @@ public class LocationRecord {
     this.projPoint = VectorFactory.getDefault().createVector2D(obsPoint.x,
         obsPoint.y);
     this.prevLoc = prevLoc;
+  }
+
+  public static LocationRecord createLocationRecord(String vehicleId,
+    String timestamp, String latStr, String lonStr, String velocity,
+    String heading, String accuracy) throws NumberFormatException,
+      ParseException, TransformException {
+    final double lat = Double.parseDouble(latStr);
+    final double lon = Double.parseDouble(lonStr);
+    final Coordinate obsCoords = new Coordinate(lon, lat);
+    final Coordinate obsPoint = new Coordinate();
+
+    JTS.transform(obsCoords, obsPoint, InferenceService.getTransform());
+
+    final LocationRecord prevLocation = vehiclesToRecords.get(vehicleId);
+
+    final LocationRecord location = new LocationRecord(vehicleId,
+        sdf.parse(timestamp), obsCoords, obsPoint,
+        velocity != null ? Double.parseDouble(velocity) : null,
+        heading != null ? Double.parseDouble(heading) : null,
+        accuracy != null ? Double.parseDouble(accuracy) : null, prevLocation);
+
+    vehiclesToRecords.put(location.getVehicleId(), location);
+    
+    return location;
   }
 
   @Override

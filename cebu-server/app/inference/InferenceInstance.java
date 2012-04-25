@@ -11,15 +11,15 @@ import gov.sandia.cognition.statistics.distribution.MultivariateGaussian;
 import org.openplans.cebutaxi.inference.impl.StandardTrackingFilter;
 import org.opentripplanner.routing.graph.Edge;
 
-import utils.EdgeInformation;
 import utils.OtpGraph;
-import utils.SnappedEdges;
 
 import async.LocationRecord;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.vividsolutions.jts.geom.Coordinate;
+
+import controllers.Api;
 
 /**
  * This class holds inference data for a particular vehicle
@@ -81,10 +81,8 @@ public class InferenceInstance {
    * Update the tracking filter and the graph's edge-velocity distributions.
    * @param record
    */
-  @SuppressWarnings("unused")
-  public void update(LocationRecord record) {
-    // FIXME XXX TODO how do we get the graph?
-    OtpGraph graph = null;//getOtpGraph();
+  public SnappedEdges update(LocationRecord record) {
+    OtpGraph graph = Api.getGraph();
     SnappedEdges snappedEdges = null;
     if (graph != null) {
       // TODO when possible, use tracked graph locations.
@@ -95,9 +93,12 @@ public class InferenceInstance {
     
     updateFilter(record, snappedEdges);
     
-    if (snappedEdges != null && snappedEdges.getPathTraversed() != null) {
+    if (belief != null 
+        && snappedEdges != null 
+        && snappedEdges.getPathTraversed() != null) {
       for (Edge edge : snappedEdges.getPathTraversed()) {
         EdgeInformation edgeInfo = graph.getEdgeInformation(edge);
+        
         // FIXME simply a hack for now (mean coordinates velocity)
         edgeInfo.updateVelocity(UnivariateStatisticsUtil.computeMean(
             Lists.newArrayList(new Double[] {belief.getMean().getElement(1), belief.getMean().getElement(3)})
@@ -105,6 +106,8 @@ public class InferenceInstance {
       }
       
     }
+    
+    return snappedEdges;
     
   }
 
