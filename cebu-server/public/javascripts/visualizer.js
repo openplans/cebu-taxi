@@ -12,7 +12,7 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>. 
 */
 
-var dataUrl = "/api/traces?vehicleId=861785000285407";
+var dataUrl = "/api/traces?vehicleId=861785000290977";
 
 var startLatLng = new L.LatLng(10.3181373, 123.8956844); // Portland OR
 
@@ -30,8 +30,9 @@ var i = 0;
 var marker1 = null;
 var marker1 = null;
 
-var interval = null;
-/* INITIALIZATION */
+var interval = null
+
+var MAX_SPEED = 600; // in m/min
 
 
 
@@ -101,7 +102,7 @@ function playData()
 	$("#play").hide();
 	$("#pause").show();
 
-	interval = setInterval(moveMarker, 500);
+	interval = setInterval(moveMarker, 50);
 }
 
 function pauseData()
@@ -169,7 +170,7 @@ function renderMarker()
 	if(i>0)
 	{	
 		group.clearLayers();
-		overlay.clearLayers();
+		//overlay.clearLayers();
 
 		
 
@@ -202,277 +203,55 @@ function renderGraph()
 {
 	for(var j in lines[i].graphSegmentIds)
 	{
-		$.get('/api/segment', {segmentId: lines[i].graphSegmentIds[j]}, function(data) {
+		var segment = lines[i].graphSegmentIds[j];
+		
+		if(segment.length == 2)
+		{
 
-			var geojson = new L.GeoJSON();
-			geojson.addGeoJSON(data.geom);
-			overlay.addLayer(geojson);
+			$.get('/api/segment', {segmentId: segment[0]}, function(data) {
 
-		});
+				var color;
+
+				var avg_velocity = Math.abs(segment[1]);
+
+				if(avg_velocity < MAX_SPEED)
+					color =  '#' + getColor(avg_velocity / MAX_SPEED);
+				else
+					color = 'purple';
+
+				var geojson = new L.GeoJSON();
+
+				geojson.on('featureparse', function (e) {
+		                        e.layer.setStyle({color: e.properties.color,    weight: 7, opacity: 0.3});
+				});
+			
+				data.geom.properties = {color: color};
+
+				geojson.addGeoJSON(data.geom);
+				overlay.addLayer(geojson);
+
+			});	
+		}
 	}
 
 }
 
 
 
-/* COMPONENTS FUNCTIONS */ 
+function getColor(f)
+{
+	var n = Math.round(100 * f);
 
-function showComponents(event) {
+	var red =(255*n)/100
+	var green =(255*(100-n))/100; 
+	var blue =0
 
-    var url = hostname + '/opentripplanner-api-webapp/ws/components/polygons';
-        
-    $.ajax(url, {
-        dataType: 'jsonp',
-        success: function(data) {
-            drawComponents(data.components);
-        }
-    });
-}
+	var rgb = blue | (green << 8) | (red << 16);
 
-function drawComponents(comps) {
-
-    var geojson = new L.GeoJSON();
-    
-    for (var i = 0; i < comps.length; i++) {
-        var obj = comps[i];
-        for(x in obj) {
-            console.log(" - "+obj[x]);
-            geojson.addGeoJSON(obj[x]);
-        }  
-    }
-        
-    map.addLayer(geojson);        
-}
-
-function CSVToArray( strData, strDelimiter ){
-    // Check to see if the delimiter is defined. If not,
-    // then default to comma.
-    strDelimiter = (strDelimiter || ",");
-
-    // Create a regular expression to parse the CSV values.
-    var objPattern = new RegExp(
-            (
-                    // Delimiters.
-                    "(\\" + strDelimiter + "|\\r?\\n|\\r|^)" +
-
-                    // Quoted fields.
-                    "(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
-
-                    // Standard fields.
-                    "([^\"\\" + strDelimiter + "\\r\\n]*))"
-            ),
-            "gi"
-            );
-
-
-    // Create an array to hold our data. Give the array
-    // a default empty first row.
-    var arrData = [[]];
-
-    // Create an array to hold our individual pattern
-    // matching groups.
-    var arrMatches = null;
-
-
-    // Keep looping over the regular expression matches
-    // until we can no longer find a match.
-    while (arrMatches = objPattern.exec( strData )){
-
-            // Get the delimiter that was found.
-            var strMatchedDelimiter = arrMatches[ 1 ];
-
-            // Check to see if the given delimiter has a length
-            // (is not the start of string) and if it matches
-            // field delimiter. If id does not, then we know
-            // that this delimiter is a row delimiter.
-            if (
-                    strMatchedDelimiter.length &&
-                    (strMatchedDelimiter != strDelimiter)
-                    ){
-
-                    // Since we have reached a new row of data,
-                    // add an empty row to our data array.
-                    arrData.push( [] );
-
-            }
-
-
-            // Now that we have our delimiter out of the way,
-            // let's check to see which kind of value we
-            // captured (quoted or unquoted).
-            if (arrMatches[ 2 ]){
-
-                    // We found a quoted value. When we capture
-                    // this value, unescape any double quotes.
-                    var strMatchedValue = arrMatches[ 2 ].replace(
-                            new RegExp( "\"\"", "g" ),
-                            "\""
-                            );
-
-            } else {
-
-                    // We found a non-quoted value.
-                    var strMatchedValue = arrMatches[ 3 ];
-
-            }
-
-
-            // Now that we have our value string, let's add
-            // it to the data array.
-            arrData[ arrData.length - 1 ].push( strMatchedValue );
-    }
-
-    // Return the parsed data.
-    return( arrData );
+	return rgb.toString(16);
 }
 
 
-/* VERTEX/EDGE COUNTER */
 
-function updateCount(event) {
-    var sw = map.getBounds().getSouthWest();
-    var ll = sw.lat+','+sw.lng;
-
-    var ne = map.getBounds().getNorthEast();
-    var ur = ne.lat+','+ne.lng;
-
-    var url = hostname + '/opentripplanner-api-webapp/ws/internals/countFeatures';
-            
-    $.ajax(url, {
-        data: { 
-            lowerLeft: ll,
-            upperRight: ur               
-        },
-        dataType: 'jsonp',
-
-            
-        success: function(data) {
-            $("#count_display").html('v='+data.vertices+", e="+data.edges);
-        }
-    });
-}
-
-/* VERTEX FUNCTIONS */
-
-var collapsedVertices;
-
-function refreshVertices(event) {
-    
-    var sw = map.getBounds().getSouthWest();
-    var ll = sw.lat+','+sw.lng;
-
-    var ne = map.getBounds().getNorthEast();
-    var ur = ne.lat+','+ne.lng;
-  
-    var url = hostname + '/opentripplanner-api-webapp/ws/internals/vertices';
-        
-    $.ajax(url, {
-        data: { 
-            lowerLeft: ll,
-            upperRight: ur               
-        },
-        dataType: 'jsonp',
-        
-        success: drawVertices
-    });
-}
-
-function drawVertices(data) {
-    var total = 0;
-    collapsedVertices = new Object();
-    for (var i = 0; i < data.vertices.length; i++) {
-        var v = data.vertices[i];
-
-        var key = v.x+"#"+v.y;
-        total++;
-        if(!collapsedVertices.hasOwnProperty(key))
-            collapsedVertices[key] = new Array(v);
-        else 
-            collapsedVertices[key].push(v);
-            
-    }
-    console.log("total="+total+", collapsedVertices="+Object.keys(collapsedVertices).length)
-
-    if(vertexLayer != null) map.removeLayer(vertexLayer);
-    
-    vertexLayer = new L.LayerGroup();
-    for(var key in collapsedVertices) {
-        var coords = key.split('#');
-        var marker = new L.CircleMarker(new L.LatLng(parseFloat(coords[1]), parseFloat(coords[0])), { radius: 5 } );
-        var vertexArr = collapsedVertices[key];
-        var popupText = "";
-        if(vertexArr.length > 8) popupText += "<div style='height:120px; overflow: auto;'>";
-        popupText += "<b>"+vertexArr.length+" vertices here:</b>";
-        for(var i = 0; i < vertexArr.length; i++) {
-            popupText += "<br><a href='javascript:showVertexInfo(\""+key+"\","+i+")'>"+vertexArr[i].label+"</a>";
-        }
-        if(vertexArr.length > 8) popupText += "</div>";
-        marker.bindPopup(popupText);
-        vertexLayer.addLayer(marker);
-    }
-    map.addLayer(vertexLayer);
-}
-        
-    
-function showVertexInfo(key, index) {
-    var contents = "", title="";
-    var v = collapsedVertices[key][index];
-    for(var prop in v) {
-        contents += prop+": "+v[prop]+"<br>";                    
-        if(prop == "label") title = v[prop]; 
-    }
-    $("<div style='font-size: 12px;' title='"+title+"'>"+contents+"</div>").dialog()
-}
-
-/* EDGE FUNCTIONS */
-
-function refreshEdges(event) {
-    
-    console.log("edges");
-    
-    var sw = map.getBounds().getSouthWest();
-    var ll = sw.lat+','+sw.lng;
-
-    var ne = map.getBounds().getNorthEast();
-    var ur = ne.lat+','+ne.lng;
-  
-    var url = hostname + '/opentripplanner-api-webapp/ws/internals/edges';
-        
-    $.ajax(url, {
-        data: { 
-            lowerLeft: ll,
-            upperRight: ur               
-        },
-        dataType: 'jsonp',        
-        success: drawEdges
-    });
-}
-
-function drawEdges(data) {
-    var count = 0;
-    
-    if(edgeLayer != null) map.removeLayer(edgeLayer);
-    
-    edgeLayer = new L.LayerGroup();
-    
-    for (var i = 0; i < data.edges.length; i++) {
-        var e = data.edges[i];
-        var coords = new Array();
-        if(e.edge.geometry != null && e.edge.mode == "BUS") {
-            count++;
-            console.log(e);
-            var geom = e.edge.geometry;
-            for(var ci = 0; ci < geom.coordinates.length; ci++) {
-                coords.push(new L.LatLng(geom.coordinates[ci][1], geom.coordinates[ci][0]));
-            }
-            
-            var polyline = new L.Polyline(coords);                  
-            edgeLayer.addLayer(polyline);
-        }
-        
-    }
-    map.addLayer(edgeLayer);
-    console.log("edges w/ geom = "+count);
-}
 
 
