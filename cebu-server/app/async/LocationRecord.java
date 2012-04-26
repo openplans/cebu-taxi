@@ -180,10 +180,14 @@ public class LocationRecord {
     this.prevLoc = null;
   }
 
-  public static synchronized LocationRecord createLocationRecord(String vehicleId,
-    String timestamp, String latStr, String lonStr, String velocity,
-    String heading, String accuracy) throws NumberFormatException,
-      ParseException, TransformException {
+  public static void clearRecordData() {
+    vehiclesToRecords.clear();
+  }
+
+  public static synchronized LocationRecord createLocationRecord(
+    String vehicleId, String timestamp, String latStr, String lonStr,
+    String velocity, String heading, String accuracy)
+      throws NumberFormatException, ParseException, TransformException {
     final double lat = Double.parseDouble(latStr);
     final double lon = Double.parseDouble(lonStr);
     final Coordinate obsCoords = new Coordinate(lon, lat);
@@ -197,7 +201,7 @@ public class LocationRecord {
      */
     if (prevLocation != null) {
       prevLocation.reset();
-      
+
       /*
        * We check for out-of-time-order records.
        */
@@ -206,10 +210,9 @@ public class LocationRecord {
       }
     }
 
-    final LocationRecord location = new LocationRecord(vehicleId,
-        time, obsCoords, obsPoint,
-        velocity != null ? Double.parseDouble(velocity) : null,
-        heading != null ? Double.parseDouble(heading) : null,
+    final LocationRecord location = new LocationRecord(vehicleId, time,
+        obsCoords, obsPoint, velocity != null ? Double.parseDouble(velocity)
+            : null, heading != null ? Double.parseDouble(heading) : null,
         accuracy != null ? Double.parseDouble(accuracy) : null, prevLocation);
 
     vehiclesToRecords.put(location.getVehicleId(), location);

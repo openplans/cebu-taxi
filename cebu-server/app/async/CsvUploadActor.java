@@ -5,8 +5,6 @@ import inference.InferenceService;
 import java.io.File;
 import java.io.FileReader;
 
-import utils.OtpGraph;
-
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -25,12 +23,13 @@ public class CsvUploadActor extends UntypedActor {
       String[] line;
       gps_reader.readNext();
       log.info("processing gps data");
-      
+
       /*
        * FIXME TODO reset only data relevant to a re-run trace.
        */
       InferenceService.clearInferenceData();
       Api.getGraph().clearEdgeDistributions();
+      LocationRecord.clearRecordData();
 
       while ((line = gps_reader.readNext()) != null) {
 
