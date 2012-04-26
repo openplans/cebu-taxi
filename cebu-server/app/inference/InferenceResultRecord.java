@@ -99,18 +99,17 @@ public class InferenceResultRecord {
       final Matrix O = ie.getObservationMatrix();
 
       final Vector infMean = O.times(belief.getMean().clone());
-      final DenseMatrix covar = (DenseMatrix) O.times(belief.getCovariance()
-          .times(O.transpose()));
+      final DenseMatrix covar = (DenseMatrix) belief.getCovariance();
 
       final EigenDecompositionRightMTJ decomp = EigenDecompositionRightMTJ
           .create(covar);
       final Matrix Shalf = MatrixFactory.getDefault().createIdentity(2, 2);
       Shalf.setElement(0, 0, Math.sqrt(decomp.getEigenValue(0).getRealPart()));
       Shalf.setElement(1, 1, Math.sqrt(decomp.getEigenValue(1).getRealPart()));
-      final Vector majorAxis = infMean.plus(decomp.getEigenVectorsRealPart()
-          .times(Shalf).scale(1.98).getColumn(0));
-      final Vector minorAxis = infMean.plus(decomp.getEigenVectorsRealPart()
-          .times(Shalf).scale(1.98).getColumn(1));
+      final Vector majorAxis = infMean.plus(O.times(decomp.getEigenVectorsRealPart().getColumn(0))
+          .times(Shalf).scale(1.98));
+      final Vector minorAxis = infMean.plus(O.times(decomp.getEigenVectorsRealPart().getColumn(1))
+          .times(Shalf).scale(1.98));
 
       final Coordinate kfMean = GeoUtils.convertToLatLon(infMean);
       final Coordinate kfMajor = GeoUtils.convertToLatLon(majorAxis);
@@ -119,10 +118,8 @@ public class InferenceResultRecord {
       List<Double[]> idScaleList = Lists.newArrayList();
       
       for (Integer id : snappedEdges.getSnappedEdges()) {
-        Vector mean = Api.getGraph().getEdgeInformation(id).getVelocityPrecisionDist().getMean();
-        final double meanOfMean = UnivariateStatisticsUtil.computeMean(
-            Lists.newArrayList(new Double[] {belief.getMean().getElement(1), belief.getMean().getElement(3)}));
-        idScaleList.add(new Double[] {id.doubleValue(), meanOfMean});
+        double mean = Api.getGraph().getEdgeInformation(id).getVelocityPrecisionDist().getLocation();
+        idScaleList.add(new Double[] {id.doubleValue(), mean});
       }
 
       return new InferenceResultRecord(locationRecord.getTimestamp().getTime(),

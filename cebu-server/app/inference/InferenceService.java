@@ -3,12 +3,6 @@ package inference;
 import java.util.Collection;
 import java.util.Map;
 
-import org.geotools.referencing.CRS;
-import org.opengis.referencing.crs.CRSAuthorityFactory;
-import org.opengis.referencing.crs.CoordinateReferenceSystem;
-import org.opengis.referencing.operation.MathTransform;
-
-
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
@@ -32,39 +26,37 @@ public class InferenceService extends UntypedActor {
   private static final Multimap<String, InferenceResultRecord> vehicleToTraceResults = LinkedHashMultimap
       .create();
 
-
-
   private final LoggingAdapter log = Logging.getLogger(getContext().system(),
       this);
 
-  @Override
-  public void onReceive(Object location) throws Exception {
-    if (location instanceof LocationRecord) {
-
-      final LocationRecord locationRecord = (LocationRecord) location;
-
-      final InferenceInstance ie = getInferenceInstance(locationRecord
-          .getVehicleId());
-      
-      SnappedEdges snappedEdges;
-      synchronized(ie) {
-         snappedEdges = ie.update(locationRecord);
-      }
-
-      final InferenceResultRecord infResult = InferenceResultRecord
-          .createInferenceResultRecord(locationRecord, ie, snappedEdges);
-      
-      vehicleToTraceResults.put(locationRecord.getVehicleId(), infResult);
-      
-      log.info("Message received:  " + locationRecord.getTimestamp().toString());
-
-    }
-
+  public static void clearInferenceData() {
+    vehicleToInstance.clear();
+    vehicleToTraceResults.clear();
   }
   
-  public static Collection<InferenceResultRecord> getTraceResults(String vehicleId)
-  {
-	  return vehicleToTraceResults.get(vehicleId);
+  @Override
+  public void onReceive(Object location) throws Exception {
+    synchronized (this) {
+      if (location instanceof LocationRecord) {
+
+        final LocationRecord locationRecord = (LocationRecord) location;
+
+        final InferenceInstance ie = getInferenceInstance(locationRecord
+            .getVehicleId());
+
+        final SnappedEdges snappedEdges = ie.update(locationRecord);
+
+        final InferenceResultRecord infResult = InferenceResultRecord
+            .createInferenceResultRecord(locationRecord, ie, snappedEdges);
+
+        vehicleToTraceResults.put(locationRecord.getVehicleId(), infResult);
+
+        log.info("Message received:  "
+            + locationRecord.getTimestamp().toString());
+
+      }
+    }
+
   }
 
   public static InferenceInstance getInferenceInstance(String vehicleId) {
@@ -76,6 +68,11 @@ public class InferenceService extends UntypedActor {
     }
 
     return ie;
+  }
+
+  public static Collection<InferenceResultRecord> getTraceResults(
+    String vehicleId) {
+    return vehicleToTraceResults.get(vehicleId);
   }
 
 }

@@ -67,13 +67,15 @@ public class OtpGraph {
     Logger.info("Graph loaded..");
   }
 
+  public void clearEdgeDistributions() {
+    edgeToInfo.clear();
+  }
+
   public GraphBundle getBundle() {
     return bundle;
   }
 
-  public EdgeInformation getEdgeInformation(int id) {
-    
-    final Edge edge = graph.getEdgeById(id);
+  public EdgeInformation getEdgeInformation(Edge edge) {
     EdgeInformation edgeInfo = edgeToInfo.get(edge);
 
     if (edgeInfo == null) {
@@ -83,8 +85,10 @@ public class OtpGraph {
 
     return edgeInfo;
   }
-  
-  public EdgeInformation getEdgeInformation(Edge edge) {
+
+  public EdgeInformation getEdgeInformation(int id) {
+
+    final Edge edge = graph.getEdgeById(id);
     EdgeInformation edgeInfo = edgeToInfo.get(edge);
 
     if (edgeInfo == null) {
@@ -163,14 +167,13 @@ public class OtpGraph {
         /*
          * Just find the edge for the isolate point
          */
-        Set<Edge> edges = Sets.newHashSet();
+        final Set<Edge> edges = Sets.newHashSet();
         edges.addAll(Objects.firstNonNull(
             snappedStreetLocation.getOutgoingStreetEdges(),
             ImmutableList.<Edge> of()));
-        edges.addAll(Objects.firstNonNull(
-            snappedStreetLocation.getIncoming(),
+        edges.addAll(Objects.firstNonNull(snappedStreetLocation.getIncoming(),
             ImmutableList.<Edge> of()));
-        
+
         for (final Edge edge : Objects.firstNonNull(
             snappedStreetLocation.getOutgoingStreetEdges(),
             ImmutableList.<Edge> of())) {

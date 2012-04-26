@@ -189,6 +189,7 @@ public class LocationRecord {
     final Coordinate obsCoords = new Coordinate(lon, lat);
     final Coordinate obsPoint = GeoUtils.convertToEuclidean(obsCoords);
 
+    final Date time = sdf.parse(timestamp);
     final LocationRecord prevLocation = vehiclesToRecords.get(vehicleId);
 
     /*
@@ -196,10 +197,17 @@ public class LocationRecord {
      */
     if (prevLocation != null) {
       prevLocation.reset();
+      
+      /*
+       * We check for out-of-time-order records.
+       */
+      if (time.getTime() < prevLocation.getTimestamp().getTime()) {
+        return null;
+      }
     }
 
     final LocationRecord location = new LocationRecord(vehicleId,
-        sdf.parse(timestamp), obsCoords, obsPoint,
+        time, obsCoords, obsPoint,
         velocity != null ? Double.parseDouble(velocity) : null,
         heading != null ? Double.parseDouble(heading) : null,
         accuracy != null ? Double.parseDouble(accuracy) : null, prevLocation);

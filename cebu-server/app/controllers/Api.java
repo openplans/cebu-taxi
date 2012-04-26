@@ -97,7 +97,10 @@ public class Api extends Controller {
 
       final LocationRecord location = LocationRecord.createLocationRecord(
           vehicleId, timestamp, latStr, lonStr, velocity, heading, accuracy);
-      locationActor.tell(location);
+      
+      if (location != null) {
+        locationActor.tell(location);
+      }
 
       return ok();
     } catch (final Exception e) {
