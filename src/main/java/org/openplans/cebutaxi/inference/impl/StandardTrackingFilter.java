@@ -1,9 +1,12 @@
 package org.openplans.cebutaxi.inference.impl;
 
+import gov.sandia.cognition.math.ComplexNumber;
 import gov.sandia.cognition.math.matrix.Matrix;
 import gov.sandia.cognition.math.matrix.MatrixFactory;
 import gov.sandia.cognition.math.matrix.Vector;
 import gov.sandia.cognition.math.matrix.VectorFactory;
+import gov.sandia.cognition.math.matrix.mtj.DenseMatrix;
+import gov.sandia.cognition.math.matrix.mtj.decomposition.EigenDecompositionRightMTJ;
 import gov.sandia.cognition.math.signals.LinearDynamicalSystem;
 import gov.sandia.cognition.statistics.bayesian.AbstractKalmanFilter;
 import gov.sandia.cognition.statistics.distribution.MultivariateGaussian;
@@ -125,8 +128,22 @@ public class StandardTrackingFilter extends AbstractKalmanFilter {
 
     // Load the updated belief
     belief.setMean( xpred );
+    
+//    if (!checkPosDef((DenseMatrix)P))
+//      return;
+    
     belief.setCovariance( P );
     
+  }
+  
+  public static boolean checkPosDef(DenseMatrix covar) {
+    final EigenDecompositionRightMTJ decomp = EigenDecompositionRightMTJ
+        .create(covar); 
+    for (ComplexNumber eigenVal : decomp.getEigenValues()) {
+      if (eigenVal.getRealPart() < 0)
+        return false;
+    }
+    return true;
   }
 
   @Override
@@ -144,6 +161,11 @@ public class StandardTrackingFilter extends AbstractKalmanFilter {
     // how much to believe the observation, and how much to believe model
     Vector innovation = observation.minus( ypred );
     this.computeMeasurementBelief(belief, innovation, C);
+    
+    // XXX covariance was set in the previous call
+//    if (!checkPosDef((DenseMatrix)belief.getCovariance()))
+//      return;
+    
     
   }
 

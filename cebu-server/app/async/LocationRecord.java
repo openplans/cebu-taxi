@@ -187,7 +187,7 @@ public class LocationRecord {
   public static synchronized LocationRecord createLocationRecord(
     String vehicleId, String timestamp, String latStr, String lonStr,
     String velocity, String heading, String accuracy)
-      throws NumberFormatException, ParseException, TransformException {
+      throws NumberFormatException, ParseException, TransformException, TimeOrderException {
     final double lat = Double.parseDouble(latStr);
     final double lon = Double.parseDouble(lonStr);
     final Coordinate obsCoords = new Coordinate(lon, lat);
@@ -206,7 +206,7 @@ public class LocationRecord {
        * We check for out-of-time-order records.
        */
       if (time.getTime() < prevLocation.getTimestamp().getTime()) {
-        return null;
+        throw new TimeOrderException();
       }
     }
 

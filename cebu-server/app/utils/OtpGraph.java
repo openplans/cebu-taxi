@@ -151,11 +151,11 @@ public class OtpGraph {
         /*
          * Find the edges between the two observed points.
          */
-        final List<Edge> minimumConnectingEdges = streetMatcher
-            .match(movementGeometry);
+        final List<Edge> minimumConnectingEdges = Objects.firstNonNull(streetMatcher
+            .match(movementGeometry),
+            ImmutableList.<Edge> of());
 
-        for (final Edge edge : Objects.firstNonNull(minimumConnectingEdges,
-            ImmutableList.<Edge> of())) {
+        for (final Edge edge : minimumConnectingEdges) {
           final Integer edgeId = graph.getIdForEdge(edge);
           if (edgeId != null)
             snappedEdges.add(edgeId);

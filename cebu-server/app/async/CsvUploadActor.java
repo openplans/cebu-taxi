@@ -36,9 +36,12 @@ public class CsvUploadActor extends UntypedActor {
         try {
           Api.traceLocation(((File) csvFile).getName(), line[3], line[1],
               line[5], line[7], line[10], null, null);
+        } catch (final TimeOrderException ex) {
+          log.info("bad time order: " + line); 
         } catch (final Exception e) {
-          log.info("bad csv line: " + line);// bad line
-        }
+          log.info("bad csv line: " + line + "\n Exception:" + e.getMessage()); // bad line
+          break;
+        } 
 
       }
     }

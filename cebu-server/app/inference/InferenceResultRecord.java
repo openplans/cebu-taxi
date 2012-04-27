@@ -11,6 +11,8 @@ import gov.sandia.cognition.math.UnivariateStatisticsUtil;
 import java.util.Date;
 import java.util.List;
 
+import org.openplans.cebutaxi.inference.impl.StandardTrackingFilter;
+
 import utils.GeoUtils;
 
 import async.LocationRecord;
@@ -100,6 +102,7 @@ public class InferenceResultRecord {
 
       final Vector infMean = O.times(belief.getMean().clone());
       final DenseMatrix covar = (DenseMatrix) belief.getCovariance();
+//      StandardTrackingFilter.checkPosDef(covar);
 
       final EigenDecompositionRightMTJ decomp = EigenDecompositionRightMTJ
           .create(covar);

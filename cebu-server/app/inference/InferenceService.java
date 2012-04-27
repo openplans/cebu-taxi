@@ -13,7 +13,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
 /**
- * This class is an Actor that responds to LocationRecord messages and processes
+ * This class is an Actor that responds to LocationRecord messages and processes.
+ * Note: this is essentially a thread(instance)
  * 
  * @author bwillard
  * 
@@ -34,26 +35,29 @@ public class InferenceService extends UntypedActor {
     vehicleToTraceResults.clear();
   }
   
+  public static void processRecord(LocationRecord locationRecord) {
+
+    final InferenceInstance ie = getInferenceInstance(locationRecord
+        .getVehicleId());
+
+    final SnappedEdges snappedEdges = ie.update(locationRecord);
+
+    final InferenceResultRecord infResult = InferenceResultRecord
+        .createInferenceResultRecord(locationRecord, ie, snappedEdges);
+
+    vehicleToTraceResults.put(locationRecord.getVehicleId(), infResult);
+
+  }
+  
   @Override
   public void onReceive(Object location) throws Exception {
     synchronized (this) {
       if (location instanceof LocationRecord) {
-
         final LocationRecord locationRecord = (LocationRecord) location;
-
-        final InferenceInstance ie = getInferenceInstance(locationRecord
-            .getVehicleId());
-
-        final SnappedEdges snappedEdges = ie.update(locationRecord);
-
-        final InferenceResultRecord infResult = InferenceResultRecord
-            .createInferenceResultRecord(locationRecord, ie, snappedEdges);
-
-        vehicleToTraceResults.put(locationRecord.getVehicleId(), infResult);
-
+        processRecord(locationRecord);
+        
         log.info("Message received:  "
             + locationRecord.getTimestamp().toString());
-
       }
     }
 
