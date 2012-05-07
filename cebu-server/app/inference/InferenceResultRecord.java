@@ -11,11 +11,10 @@ import gov.sandia.cognition.math.UnivariateStatisticsUtil;
 import java.util.Date;
 import java.util.List;
 
-import org.openplans.cebutaxi.inference.impl.StandardTrackingFilter;
-
-import utils.GeoUtils;
-
-import async.LocationRecord;
+import org.openplans.tools.tracking.impl.InferredGraph.InferredEdge;
+import org.openplans.tools.tracking.impl.InferredGraph;
+import org.openplans.tools.tracking.impl.Observation;
+import org.openplans.tools.tracking.impl.util.GeoUtils;
 
 import com.google.common.collect.Lists;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -92,10 +91,9 @@ public class InferenceResultRecord {
   }
 
   public static InferenceResultRecord createInferenceResultRecord(
-    LocationRecord locationRecord, InferenceInstance ie,
-    SnappedEdges snappedEdges) {
+    Observation observation, InferenceInstance ie) {
 
-    final MultivariateGaussian belief = ie.getBelief();
+    MultivariateGaussian belief = ie.getBestState().getMovementBelief();
 
     if (belief != null) {
       final Matrix O = ie.getObservationMatrix();
@@ -120,13 +118,18 @@ public class InferenceResultRecord {
       
       List<Double[]> idScaleList = Lists.newArrayList();
       
-      for (Integer id : snappedEdges.getSnappedEdges()) {
-        double mean = Api.getGraph().getEdgeInformation(id).getVelocityPrecisionDist().getLocation();
-        idScaleList.add(new Double[] {id.doubleValue(), mean});
+      for (InferredEdge edge : ie.getBestState().getInferredPath()) {
+        if (edge == InferredGraph.getEmptyEdge())
+          continue;
+        /*
+         * FIXME TODO we should probably be using the edge convolutions at each step.
+         */
+        double mean = edge.getVelocityPrecisionDist().getLocation();
+        idScaleList.add(new Double[] {(double) edge.getEdgeId(), mean});
       }
 
-      return new InferenceResultRecord(locationRecord.getTimestamp().getTime(),
-          locationRecord.getObsCoords().y, locationRecord.getObsCoords().x,
+      return new InferenceResultRecord(observation.getTimestamp().getTime(),
+          observation.getObsCoords().y, observation.getObsCoords().x,
           kfMean.y, kfMean.x, 
           kfMajor.y, kfMajor.x, 
           kfMinor.y, kfMinor.x,

@@ -3,10 +3,11 @@ package inference;
 import java.util.Collection;
 import java.util.Map;
 
+import org.openplans.tools.tracking.impl.Observation;
+
 import akka.actor.UntypedActor;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
-import async.LocationRecord;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Maps;
@@ -35,29 +36,29 @@ public class InferenceService extends UntypedActor {
     vehicleToTraceResults.clear();
   }
   
-  public static void processRecord(LocationRecord locationRecord) {
+  public static void processRecord(Observation observation) {
 
-    final InferenceInstance ie = getInferenceInstance(locationRecord
+    final InferenceInstance ie = getInferenceInstance(observation
         .getVehicleId());
 
-    final SnappedEdges snappedEdges = ie.update(locationRecord);
+    ie.update(observation);
 
     final InferenceResultRecord infResult = InferenceResultRecord
-        .createInferenceResultRecord(locationRecord, ie, snappedEdges);
+        .createInferenceResultRecord(observation, ie);
 
-    vehicleToTraceResults.put(locationRecord.getVehicleId(), infResult);
+    vehicleToTraceResults.put(observation.getVehicleId(), infResult);
 
   }
   
   @Override
   public void onReceive(Object location) throws Exception {
     synchronized (this) {
-      if (location instanceof LocationRecord) {
-        final LocationRecord locationRecord = (LocationRecord) location;
-        processRecord(locationRecord);
+      if (location instanceof Observation) {
+        final Observation observation = (Observation) location;
+        processRecord(observation);
         
         log.info("Message received:  "
-            + locationRecord.getTimestamp().toString());
+            + observation.getTimestamp().toString());
       }
     }
 

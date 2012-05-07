@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>org.openplans</groupId>
-  <version>0.0.1-SNAPSHOT</version>
 
-  <name>Cebu Taxi</name>
   <url>http://openplans.org/</url>
 
   <scm>
@@ -103,10 +100,37 @@
                     </goals>
                   </pluginExecutionFilter>
                   <action>
+                    <ignore />
                   </action>
                 </pluginExecution>
               </pluginExecutions>
             </lifecycleMappingMetadata>
+<!-- 	          <taglets> -->
+<!-- 	            <taglet> -->
+<!-- 	              <tagletClass>net.sf.latextaglet.LaTeXBlockEquationTaglet</tagletClass> -->
+<!-- 	              <tagletArtifact> -->
+<!-- 							    <groupId>net.sf.latextaglet</groupId> -->
+<!-- 							    <artifactId>latextaglet</artifactId> -->
+<!-- 							    <version>0.1.1</version> -->
+<!-- 	              </tagletArtifact> -->
+<!-- 	            </taglet> -->
+<!-- 	            <taglet> -->
+<!-- 	              <tagletClass>net.sf.latextaglet.LaTeXEquationTaglet</tagletClass> -->
+<!-- 	              <tagletArtifact> -->
+<!-- 							    <groupId>net.sf.latextaglet</groupId> -->
+<!-- 							    <artifactId>latextaglet</artifactId> -->
+<!-- 							    <version>0.1.1</version> -->
+<!-- 	              </tagletArtifact> -->
+<!-- 	            </taglet> -->
+<!-- 	            <taglet> -->
+<!-- 	              <tagletClass>net.sf.latextaglet.LaTeXInlineTaglet</tagletClass> -->
+<!-- 	              <tagletArtifact> -->
+<!-- 							    <groupId>net.sf.latextaglet</groupId> -->
+<!-- 							    <artifactId>latextaglet</artifactId> -->
+<!-- 							    <version>0.1.1</version> -->
+<!-- 	              </tagletArtifact> -->
+<!-- 	            </taglet> -->
+<!-- 	          </taglets>             -->
           </configuration>
         </plugin>
       </plugins>
@@ -166,6 +190,16 @@
       <version>${geotools.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.opentripplanner</groupId>
+      <artifactId>opentripplanner-routing</artifactId>
+      <version>${otp.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opentripplanner</groupId>
+      <artifactId>opentripplanner-graph-builder</artifactId>
+      <version>${otp.version}</version>
+    </dependency>
+    <dependency>
     	<groupId>javax.ws.rs</groupId>
     	<artifactId>jsr311-api</artifactId>
       <version>1.1.1</version>
@@ -191,6 +225,11 @@
     	<version>${spring.version}</version>
     </dependency>
     <dependency>
+    	<groupId>org.slf4j</groupId>
+    	<artifactId>slf4j-log4j12</artifactId>
+    	<version>1.5.8</version>
+    </dependency>
+    <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
       <version>11.0.1</version>
@@ -210,10 +249,6 @@
 			<artifactId>opencsv</artifactId>
 			<version>2.0</version>
 	  </dependency>
-    <dependency>
-      <groupId>org.openplans</groupId>
-      <artifactId>openplans-tracking-tools</artifactId>
-    </dependency>
   </dependencies>
 
   <dependencyManagement>
@@ -254,11 +289,6 @@
         <version>4.8.1</version>
         <scope>test</scope>
       </dependency>
-      <dependency>
-        <groupId>org.openplans</groupId>
-        <artifactId>openplans-tracking-tools</artifactId>
-        <version>0.0.1-SNAPSHOT</version>
-      </dependency>
     </dependencies>
 
   </dependencyManagement>
@@ -267,7 +297,6 @@
     <geotools.version>8.0-M4</geotools.version>
     <spring.version>3.0.5.RELEASE</spring.version>
     <otp.version>0.7.0-SNAPSHOT</otp.version>
-    <op.tracking.version>0.0.1-SNAPSHOT</op.tracking.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <distribution_id>opengeo</distribution_id>
     <distribution_name>OpenGeo Maven Repository</distribution_name>
@@ -276,10 +305,10 @@
     <snapshot_distribution_name>OpenGeo Maven Repository</snapshot_distribution_name>
     <snapshot_distribution_url>dav:http://repo.opengeo.org</snapshot_distribution_url>
   </properties>
-  <packaging>pom</packaging>
-  <artifactId>cebu-taxi</artifactId>
-  <modules>
-    <module>cebu-server</module>
-    <module>cebu-api</module>
-  </modules>
+  <artifactId>cebu-api</artifactId>
+  <parent>
+    <groupId>org.openplans</groupId>
+    <artifactId>cebu-taxi</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+  </parent>
 </project>

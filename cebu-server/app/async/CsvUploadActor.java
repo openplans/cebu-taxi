@@ -1,9 +1,13 @@
 package async;
 
+
 import inference.InferenceService;
 
 import java.io.File;
 import java.io.FileReader;
+
+import org.openplans.tools.tracking.impl.Observation;
+import org.openplans.tools.tracking.impl.TimeOrderException;
 
 import akka.actor.UntypedActor;
 import akka.event.Logging;
@@ -28,18 +32,19 @@ public class CsvUploadActor extends UntypedActor {
        * FIXME TODO reset only data relevant to a re-run trace.
        */
       InferenceService.clearInferenceData();
-      Api.getGraph().clearEdgeDistributions();
-      LocationRecord.clearRecordData();
+      Observation.clearRecordData();
 
       while ((line = gps_reader.readNext()) != null) {
 
         try {
           Api.traceLocation(((File) csvFile).getName(), line[3], line[1],
               line[5], line[7], line[10], null, null);
+          log.info("processed time: " + line[1]); 
         } catch (final TimeOrderException ex) {
           log.info("bad time order: " + line); 
         } catch (final Exception e) {
-          log.info("bad csv line: " + line + "\n Exception:" + e.getMessage()); // bad line
+          log.info("bad csv line: " + line.toString() + "\n Exception:" + e.getMessage()); // bad line
+          e.printStackTrace();
           break;
         } 
 

@@ -10,6 +10,9 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.opengis.referencing.operation.TransformException;
+import org.openplans.tools.tracking.impl.Observation;
+import org.openplans.tools.tracking.impl.TimeOrderException;
+import org.openplans.tools.tracking.impl.util.OtpGraph;
 import org.opentripplanner.routing.graph.Edge;
 
 import play.Logger;
@@ -17,12 +20,9 @@ import play.libs.Akka;
 import play.mvc.Controller;
 import play.mvc.Result;
 import play.mvc.WebSocket;
-import utils.OtpGraph;
 import akka.actor.ActorRef;
 import akka.actor.Props;
 import api.OsmSegment;
-import async.LocationRecord;
-import async.TimeOrderException;
 
 public class Api extends Controller {
 
@@ -46,7 +46,7 @@ public class Api extends Controller {
 
     try {
 
-      final LocationRecord location = LocationRecord.createLocationRecord(
+      final Observation location = Observation.createObservation(
           vehicleId, timestamp, latStr, lonStr, velocity, heading, accuracy);
 
       if (location != null) {
@@ -108,7 +108,7 @@ public class Api extends Controller {
     String heading, String accuracy) throws NumberFormatException, ParseException, 
     TransformException, TimeOrderException {
 
-    final LocationRecord location = LocationRecord.createLocationRecord(
+    final Observation location = Observation.createObservation(
         vehicleId, timestamp, latStr, lonStr, velocity, heading, accuracy);
     
     // TODO set flags for result record handling
