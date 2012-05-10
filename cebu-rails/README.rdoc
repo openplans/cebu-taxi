@@ -1,0 +1,45 @@
+Install RVM:
+    $ curl -L get.rvm.io | bash -s stable
+
+Install Jruby:
+    $ rvm install jruby
+
+Use Jruby:
+    $ rvm use jruby
+
+Install the bootstrapping gem:
+    $ gem install bundler
+
+Install the rest:
+    $ bundle install
+
+Install the Java libraries
+    $ mvn package
+
+Run:
+    $ rails server
+
+To use a development version of a library, you need to do the following
+before running rails server:
+
+    $ rm lib/name-of-library.jar
+
+    $ export CLASSPATH='lib/*'
+
+    $ ln -s /path/to/library/target/classes/* .
+
+Yes, you really have to put the library into the root directory of
+cebu-rails.  I'm not really sure why.
+
+Remote debugging:
+
+You'll need to have openplans-tracking-tools set up in Eclipse as a maven
+project.
+
+    $ jruby -J-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=8000 -J-Xdebug script/rails server
+
+The server will wait for a debugger to connect.
+
+Then, in eclipse, Run > Debug Configurations > Remote Java Application
+Click "new".  Select openplans-tracking-tools as the project.  Click
+"Debug".  Now you can place breakpoints and do all the usual things.

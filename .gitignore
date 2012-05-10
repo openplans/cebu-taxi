@@ -7,3 +7,21 @@ target/
 *.ipr
 *.iml
 *.iws
+
+
+/cebu-rails/.bundle
+
+# Ignore the default SQLite database.
+/cebu-rails/db/*.sqlite3
+
+# Ignore all logfiles and tempfiles.
+/cebu-rails/log/*.log
+/cebu-rails/tmp
+
+# Emacs backup files
+*~
+
+#Java stuff
+*.jar
+
+/cebu-rails/target

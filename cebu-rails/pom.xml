@@ -1,0 +1,98 @@
+  <project 
+   xmlns="http://maven.apache.org/POM/4.0.0" 
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+ <modelVersion>4.0.0</modelVersion>
+ 
+ <groupId>org.openplans</groupId>
+ <packaging>war</packaging>
+ <version>1.0-SNAPSHOT</version>
+ <artifactId>cebu-rails</artifactId>
+ <name>cebu-rails</name>
+ <dependencies>
+   <dependency>
+     <groupId>org.openplans</groupId>
+     <artifactId>openplans-tracking-tools</artifactId>
+     <version>0.0.1-SNAPSHOT</version>
+     <scope>compile</scope>
+   </dependency>
+ </dependencies>
+ <build>
+   <finalName>cebu-rails</finalName>
+   <plugins>
+   <plugin>
+     <groupId>org.codehaus.mojo</groupId>
+     <artifactId>exec-maven-plugin</artifactId>
+     <executions>
+       <execution>
+       <!-- This tasks only creates a basic structure 
+       expected by maven,
+       so it can do its work -->
+         <id>create-mock-web-descriptor</id>
+         <phase>compile</phase>
+         <configuration>
+           <executable>/bin/sh</executable>
+           <workingDirectory>.</workingDirectory>
+           <arguments>
+             <argument>-c</argument>
+             <argument>
+               mkdir -p src/main/webapp/WEB-INF
+               touch    src/main/webapp/WEB-INF/web.xml
+             </argument>
+           </arguments>
+         </configuration>
+         <goals>
+           <goal>exec</goal>
+         </goals>
+       </execution>
+       <execution>
+       <!-- Now in the package phase we copy the 
+       jar files that maven put into the fake 
+       web app to our rails' lib folder -->
+         <id>copy-needed-jars-into-lib</id>
+         <phase>package</phase>
+         <configuration>
+           <executable>/bin/sh</executable>
+           <workingDirectory>.</workingDirectory>
+           <arguments>
+             <argument>-c</argument>
+             <argument>
+               rm -f lib/*.jar
+               cp target/cebu-rails/WEB-INF/lib/*.jar lib
+               rm -rf target/cebu-rails*
+               rm -rf src
+             </argument>
+           </arguments>
+         </configuration>
+         <goals>
+           <goal>exec</goal>
+         </goals>
+       </execution>
+       <execution>
+       <!-- Here we optionally create the final war file 
+       containing our rails app using warbler,
+       doing a small cleanup of the files 
+       and folders maven created  -->
+         <id>create-final-war</id>
+         <phase>package</phase>
+         <configuration>
+           <executable>/bin/sh</executable>
+           <workingDirectory>.</workingDirectory>
+           <arguments>
+             <argument>-c</argument>
+             <argument>
+                rm -rf *.war tmp/war
+                jruby -S warble &amp;&amp; \
+                mv *.war target/cebu-rails.war
+             </argument>
+           </arguments>
+         </configuration>
+         <goals>
+           <goal>exec</goal>
+         </goals>
+       </execution>
+     </executions>
+   </plugin>
+  </plugins>
+ </build>
+ </project>
