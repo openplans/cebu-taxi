@@ -2,6 +2,10 @@ require 'java'
 require 'inference/inference_service'
 
 class ApiController < ApplicationController
+
+  def index
+  end
+
   def location
     inference_service = InferenceService.instance
 
