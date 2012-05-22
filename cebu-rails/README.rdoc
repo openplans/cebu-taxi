@@ -13,6 +13,8 @@ Install the bootstrapping gem:
 Install the rest:
     $ bundle install
 
+Update sym links to openplans-tracking-tools ( ./org and ./lib/extra_classes/org should point to openplans-tracking-tools/target/classes/org/)
+
 Install the Java libraries
     $ mvn package
 
