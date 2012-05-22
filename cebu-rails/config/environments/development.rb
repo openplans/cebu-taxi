@@ -36,4 +36,8 @@ CebuRails::Application.configure do
   config.assets.debug = true
 
   config.reload_plugins = true
+
+  config.csv_file_path = File.expand_path('../../../csv_files', __FILE__)
+
+
 end

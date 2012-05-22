@@ -7,11 +7,25 @@ class ApiController < ApplicationController
   end
 
   def location
+
+    imei = params[:imei]
+
+    imei.gsub!(/\W/, '')
+
+    datetime, latitude, longitude, speed, heading, gpserror = request.raw_post.split ','
+
+    #store CSV
+
+    datetime =~ /(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})/
+    datetime = "#{$1}-#{$2}-#{$3} #{$4}:#{$5}:#{$6}"
+
+    Storage.store(imei + ".csv")
+
     inference_service = InferenceService.instance
 
     location = org.openplans.tools.tracking.impl.Observation.createObservation(
-    params[:vehicleId], params[:timestamp], params[:latStr], params[:lonStr],
-    params[:velocity], params[:heading], params[:accuracy])
+       imei, datetime, latitude, longitude, speed, heading, gpserror)
+
     if location
       inference_service.processRecordFromWeb(location)
     end
