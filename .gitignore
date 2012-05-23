@@ -25,3 +25,4 @@ target/
 *.jar
 
 /cebu-rails/target
+/cebu-rails/csv_files
