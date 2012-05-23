@@ -279,7 +279,7 @@
   <packaging>pom</packaging>
   <artifactId>cebu-taxi</artifactId>
   <modules>
-    <module>cebu-server</module>
+    <module>cebu-rails</module>
     <module>cebu-api</module>
   </modules>
 </project>
