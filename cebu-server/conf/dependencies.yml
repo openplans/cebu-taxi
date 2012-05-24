@@ -1,0 +1,8 @@
+# Application dependencies
+
+require:
+    - play
+    - org.openplans -> openplans-tracking-tools 0.0.1-SNAPSHOT
+    - org.openplans -> cebu-api 0.0.1-SNAPSHOT
+
+
