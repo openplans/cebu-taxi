@@ -10,5 +10,5 @@ Load dependencies:
 
 play dependencies
 
-Import existing project into Eclipse.w
+Import existing project into Eclipse. Add jars fro openplans-tracking-tools and cebu-api to Eclipse project Java build libraries.
 
