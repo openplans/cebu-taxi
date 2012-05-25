@@ -21,7 +21,7 @@ import models.*;
 
 public class Api extends Controller {
 
-	static SimpleDateFormat locationDateFormat = new SimpleDateFormat("yyyymmDD hhMMss");
+	static SimpleDateFormat locationDateFormat = new SimpleDateFormat("yyyyMMdd HHmmss");
 	
     public static void location(String imei) throws IOException {
     
