@@ -9,15 +9,19 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import org.openplans.tools.tracking.impl.Observation;
+
 import org.apache.commons.io.IOUtils;
+
+import com.vividsolutions.jts.geom.Coordinate;
+
+import jobs.ObservationHandler;
 
 import models.*;
 
 public class Api extends Controller {
 
 	static SimpleDateFormat locationDateFormat = new SimpleDateFormat("yyyymmDD hhMMss");
-	
-	
 	
     public static void location(String imei) throws IOException {
     
@@ -29,6 +33,7 @@ public class Api extends Controller {
 		
     	if(imei == null || imei.trim().isEmpty() || request.method != "POST")
     		badRequest();
+    
     	
     	// copy POST body to string
     	
@@ -46,24 +51,25 @@ public class Api extends Controller {
     		
     		String[] lineParts = line.trim().split(",");
     		
+    		
     		if(lineParts.length != 6)
     			badRequest();
     	
     		try
     		{
+    			
 	    		Date dateTime = locationDateFormat.parse(lineParts[0].replace("T", " "));
 	    		Double lat = Double.parseDouble(lineParts[1]);
 	    		Double lon = Double.parseDouble(lineParts[2]);
-	    		Double speed = Double.parseDouble(lineParts[3]);
+	    		Double velocity = Double.parseDouble(lineParts[3]);
 	    		Double heading = Double.parseDouble(lineParts[4]);
 	    		Double gpsError = Double.parseDouble(lineParts[5]);
 	    		
-	    		Logger.info("Location Update: " + imei + ", " + dateTime + ", " + lat + ", " + lon + ", " + speed + ", " + heading + ", " + gpsError);
+	    		Observation observation = Observation.createObservation(imei, dateTime, new Coordinate(lat, lon), velocity, heading, gpsError);
 	    		
-	    		// TODO write to disk 
-	        	
-	        	// TODO plug in tracking tools here
-	    		
+	    		// using a local queue to handle logging/inference...for now.
+	    		ObservationHandler.addObservation(observation);	    		
+	   		
     		}
     		catch(Exception e)
     		{
@@ -72,7 +78,6 @@ public class Api extends Controller {
     			// couldn't parse results
     			badRequest();
     		}
- 
     	}
     	
         ok();

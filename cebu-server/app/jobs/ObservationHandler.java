@@ -1,0 +1,40 @@
+package jobs;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
+import org.openplans.tools.tracking.impl.Observation;
+
+import com.jamonapi.utils.Logger;
+
+import play.Play;
+import play.jobs.Every;
+import play.jobs.Job;
+
+@Every("5s")
+public class ObservationHandler extends Job {
+	
+	static Queue<Observation> observationQueue = new ConcurrentLinkedQueue<Observation>();
+
+	public static void addObservation(Observation observation)
+	{
+		observationQueue.add(observation);
+	}
+	
+	public void doJob() throws InterruptedException, IOException {
+		
+		FileWriter observationLog = new FileWriter(new File(Play.configuration.get("application.logDir").toString(), "observations.log"), true);
+		
+		for (Observation observation; (observation = observationQueue.poll()) != null;)
+		{
+			Logger.log(observation.toString());
+			observationLog.write(observation.getVehicleId() + "," + observation.getTimestamp()  + "," + observation.getObsCoords().x  + "," + observation.getObsCoords().y  + "," + observation.getVelocity()  + "," + observation.getHeading() + "," + observation.getAccuracy() + "\n");
+		}
+		
+		observationLog.flush();
+		observationLog.close();
+    }
+}
