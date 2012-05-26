@@ -41,16 +41,20 @@ public class Api extends Controller {
     	
     	if(request.method == "POST")
     	{
-    		StringWriter writer = new StringWriter();
-    		IOUtils.copy(request.body, writer, request.encoding);
-    		requestBody = writer.toString();
+    		if(request.method == "P" && content != null)
+        	{
+        		requestBody = content;
+        		Logger.info("GET location message received: " + content);
+        	}
+    		else
+    		{
+    			StringWriter writer = new StringWriter();
+    			IOUtils.copy(request.body, writer, request.encoding);
+    			requestBody = writer.toString();
+    		}
     	}
-    	if(request.method == "GET" && content != null)
-    	{
-    		requestBody = content;
-    		Logger.info("GET location message received: " + content);
-    	}
-    	else
+    	
+    	if(requestBody == null || requestBody.isEmpty())
     		badRequest();
     		
     	// requests can contain multiple requests, split on newline
