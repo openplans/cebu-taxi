@@ -23,7 +23,7 @@ public class Api extends Controller {
 
 	static SimpleDateFormat locationDateFormat = new SimpleDateFormat("yyyyMMdd HHmmss");
 	
-    public static void location(String imei) throws IOException {
+    public static void location(String imei, String content) throws IOException {
     
     	// test request via curl:
     	// 
@@ -31,16 +31,28 @@ public class Api extends Controller {
     	
 		// check for valid request
 		
-    	if(imei == null || imei.trim().isEmpty() || request.method != "POST")
+    	if(imei == null || imei.trim().isEmpty())
     		badRequest();
     
-    	
+   	
     	// copy POST body to string
+
+    	String requestBody = null;
     	
-    	StringWriter writer = new StringWriter();
-    	IOUtils.copy(request.body, writer, request.encoding);
-    	String requestBody = writer.toString();
-   
+    	if(request.method == "POST")
+    	{
+    		StringWriter writer = new StringWriter();
+    		IOUtils.copy(request.body, writer, request.encoding);
+    		requestBody = writer.toString();
+    	}
+    	if(request.method == "GET" && content != null)
+    	{
+    		requestBody = content;
+    		Logger.info("GET location message received: " + content);
+    	}
+    	else
+    		badRequest();
+    		
     	// requests can contain multiple requests, split on newline
     	
     	String[] lines = requestBody.split("\n");
