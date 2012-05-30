@@ -18,10 +18,15 @@ import play.jobs.Job;
 public class ObservationHandler extends Job {
 	
 	static Queue<Observation> observationQueue = new ConcurrentLinkedQueue<Observation>();
+	public static Queue<String> historyQueue = new ConcurrentLinkedQueue<String>();
 
-	public static void addObservation(Observation observation)
+	public static void addObservation(Observation observation, String loggerMessage)
 	{
 		observationQueue.add(observation);
+		historyQueue.add(loggerMessage);
+		
+		if(historyQueue.size() > 250)
+			historyQueue.poll();
 	}
 	
 	public void doJob() throws InterruptedException, IOException {

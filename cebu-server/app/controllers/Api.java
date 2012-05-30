@@ -38,21 +38,19 @@ public class Api extends Controller {
     	// copy POST body to string
 
     	String requestBody = null;
+    	String message = "";
+    	
+    	 if(content != null)
+         {
+                 requestBody = content;
+                 message = "QueryString location message received: imei=" + imei + " " + content;
+         }
     	
     	if(request.method == "POST")
-    	{
-    		if(request.method == "P" && content != null)
-        	{
-        		requestBody = content;
-        		Logger.info("GET location message received: " + content);
-        	}
-    		else
-    		{
-    			StringWriter writer = new StringWriter();
-    			IOUtils.copy(request.body, writer, request.encoding);
-    			requestBody = writer.toString();
-    		}
-    	}
+        {
+              requestBody = params.get("body");
+              message = "POST body location message received: imei=" + imei + " " + requestBody;
+        }
     	
     	if(requestBody == null || requestBody.isEmpty())
     		badRequest();
@@ -84,7 +82,7 @@ public class Api extends Controller {
 	    		Observation observation = Observation.createObservation(imei, dateTime, new Coordinate(lat, lon), velocity, heading, gpsError);
 	    		
 	    		// using a local queue to handle logging/inference...for now.
-	    		ObservationHandler.addObservation(observation);	    		
+	    		ObservationHandler.addObservation(observation, message);	    		
 	   		
     		}
     		catch(Exception e)
