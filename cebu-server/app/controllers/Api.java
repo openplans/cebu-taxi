@@ -13,6 +13,8 @@ import org.openplans.tools.tracking.impl.Observation;
 
 import org.apache.commons.io.IOUtils;
 
+import api.Operator;
+
 import com.vividsolutions.jts.geom.Coordinate;
 
 import jobs.ObservationHandler;
@@ -22,6 +24,24 @@ import models.*;
 public class Api extends Controller {
 
 	static SimpleDateFormat locationDateFormat = new SimpleDateFormat("yyyyMMdd HHmmss");
+	
+	public static void operator(String imei)
+	{
+		Logger.info("Operator Auth request for IMEI " + imei); 
+		
+		Operator operator = new Operator();
+		
+		operator.id = new Long(100);
+		operator.name = "Spyder";
+		operator.gpsInterval = 5;
+		operator.updateInterval = 30;
+		
+		if(request.format == "xml")
+			renderXml(operator);
+		else
+			renderJSON(operator);
+	}
+	
 	
     public static void location(String imei, String content) throws IOException {
     
