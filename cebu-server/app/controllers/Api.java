@@ -40,17 +40,17 @@ public class Api extends Controller {
     	String requestBody = null;
     	String message = "";
     	
-    	 if(content != null)
-         {
-                 requestBody = content;
-                 message = "QueryString location message received: imei=" + imei + " " + content;
-         }
-    	
-    	if(request.method == "POST")
+		if(content != null)
+		{
+			requestBody = content;
+			
+		}
+		else if(request.method == "POST")
         {
               requestBody = params.get("body");
-              message = "POST body location message received: imei=" + imei + " " + requestBody;
         }
+		
+		message = "location message received: imei=" + imei + " " + content;
     	
     	if(requestBody == null || requestBody.isEmpty())
     		badRequest();
