@@ -1,3 +1,0 @@
-
-To build the graph, you need OpenTripPlanner's graph builder and the following command:
- java -cp path/to/cebu-taxi.jar:opentripplanner-graph-builder/target/graph-builder.jar org.opentripplanner.graph_builder.GraphBuilderMain cebu-osm.xml
