@@ -13,7 +13,7 @@ import org.openplans.tools.tracking.impl.Observation;
 
 import org.apache.commons.io.IOUtils;
 
-import api.Operator;
+import api.AuthResponse;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -29,17 +29,154 @@ public class Api extends Controller {
 	{
 		Logger.info("Operator Auth request for IMEI " + imei); 
 		
-		Operator operator = new Operator();
+		Phone phone = Phone.find("imei = ?", imei).first();
 		
-		operator.id = new Long(100);
-		operator.name = "Spyder";
-		operator.gpsInterval = 5;
-		operator.updateInterval = 30;
+		if(phone != null)
+		{
+			AuthResponse authResponse = new AuthResponse();
+			
+			authResponse.id = new Long(100);
+			authResponse.name = phone.operator.name;
+			
+			if(phone.driver != null)
+			{
+				authResponse.driverId = phone.driver.driverId;
+				authResponse.driverName = phone.driver.name;
+			}
+			
+			if(phone.vehicle != null)
+			{
+				authResponse.bodyNumber = phone.vehicle.bodyNumber;
+			}
+			
+			authResponse.gpsInterval = 5;
+			authResponse.updateInterval = 30;
+			
+			if(request.format == "xml")
+				renderXml(authResponse);
+			else
+				renderJSON(authResponse);
+		}
+		else
+		{
+			Logger.info("Unknown phone entry for IMEI " + imei); 
+			unauthorized("Unknown Phone IMEI");
+		}
+	}
+	
+	public static void register(String imei, Long operatorId)
+	{
+		if(imei != null && !imei.isEmpty() && operatorId != null)
+		{
+			Phone phone = Phone.find("imei = ?", imei).first();
+			
+			if(phone == null)
+			{
+				Logger.info("Creating phone entry for IMEI " + imei); 
+				phone = new Phone();
+				phone.imei = imei;
+			}
+			
+			Operator operator = Operator.findById(operatorId);
+			
+			if(operator == null)
+			{
+				Logger.info("Unknown operator: " + operatorId); 
+				badRequest();
+			}
+			
+			phone.operator = operator;
+			
+			phone.save();
+			
+			ok();
+		}
+		else
+		{
+			List<Operator> operators = Operator.findAll();
+			
+			if(request.format == "xml")
+				renderXml(operators);
+			else
+				renderJSON(operators);
+		}
+	}
+	
+	public static void login(String imei, String driverId, String bodyNumber)
+	{
+		Phone phone = Phone.find("imei = ?", imei).first();
+		
+		if(phone == null)
+		{
+			Logger.info("Unknown phone entry for IMEI " + imei); 
+			unauthorized("Unknown Phone IMEI");
+		}
+		
+		Driver driver = Driver.find("driverId = ?", driverId).first();
+		
+		if(driver == null)
+		{
+			Logger.info("Unknown Driver Id " + driverId); 
+			unauthorized("Unknown Driver ID");
+		}
+		
+		Vehicle veichie = Vehicle.find("bodyNumber = ?", bodyNumber).first();
+		
+		if(veichie == null)
+		{
+			Logger.info("Unknown vehicel, createing record"); 
+			
+			veichie = new Vehicle();
+			veichie.bodyNumber = bodyNumber;
+			veichie.save();
+		}
+		
+		phone.driver = driver;
+		phone.vehicle = veichie;
+		
+		phone.save();
+
+		AuthResponse authResponse = new AuthResponse();
+		
+		authResponse.id = new Long(100);
+		authResponse.name = phone.operator.name;
+		
+		if(phone.driver != null)
+		{
+			authResponse.driverId = phone.driver.driverId;
+			authResponse.driverName = phone.driver.name;
+		}
+		
+		if(phone.vehicle != null)
+		{
+			authResponse.bodyNumber = phone.vehicle.bodyNumber;
+		}
+		
+		authResponse.gpsInterval = 5;
+		authResponse.updateInterval = 30;
 		
 		if(request.format == "xml")
-			renderXml(operator);
+			renderXml(authResponse);
 		else
-			renderJSON(operator);
+			renderJSON(authResponse);
+	}
+	
+	public static void logout(String imei)
+	{
+		Phone phone = Phone.find("imei = ?", imei).first();
+		
+		if(phone == null)
+		{
+			Logger.info("Unknown phone entry for IMEI " + imei); 
+			unauthorized("Unknown Phone IMEI");
+		}
+		
+		phone.driver = null;
+		phone.vehicle = null;
+		
+		phone.save();
+
+		ok();
 	}
 	
 	
