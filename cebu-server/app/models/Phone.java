@@ -10,13 +10,13 @@ public class Phone extends Model {
 
 	public String imei;
 	
-	@OneToMany
+	@ManyToOne
 	public Operator operator;
 	
-	@OneToMany
+	@ManyToOne
 	public Driver driver;
 	
-	@OneToMany
+	@ManyToOne
 	public Vehicle vehicle;
 }
  
