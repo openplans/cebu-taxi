@@ -1,7 +1,7 @@
 package models;
 
 import javax.persistence.Entity;
-import javax.persistence.OneToMany;
+import javax.persistence.ManyToOne;
 
 import play.db.jpa.Model;
 
