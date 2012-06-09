@@ -29,6 +29,9 @@ public class Api extends Controller {
 	{
 		Logger.info("Operator Auth request for IMEI " + imei); 
 		
+		if(imei == null)
+			unauthorized("IMEI Required");
+		
 		Phone phone = Phone.find("imei = ?", imei).first();
 		
 		if(phone != null)
@@ -104,6 +107,9 @@ public class Api extends Controller {
 	
 	public static void login(String imei, String driverId, String bodyNumber)
 	{
+		if(imei == null)
+			unauthorized("IMEI Required");
+		
 		Phone phone = Phone.find("imei = ?", imei).first();
 		
 		if(phone == null)
@@ -124,7 +130,7 @@ public class Api extends Controller {
 		
 		if(veichie == null)
 		{
-			Logger.info("Unknown vehicel, createing record"); 
+			Logger.info("Unknown vehicle, createing record for body number " + bodyNumber); 
 			
 			veichie = new Vehicle();
 			veichie.bodyNumber = bodyNumber;
@@ -163,6 +169,9 @@ public class Api extends Controller {
 	
 	public static void logout(String imei)
 	{
+		if(imei == null)
+			unauthorized("IMEI Required");
+		
 		Phone phone = Phone.find("imei = ?", imei).first();
 		
 		if(phone == null)
