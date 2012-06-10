@@ -67,9 +67,9 @@ public class Api extends Controller {
 		}
 	}
 	
-	public static void register(String imei, Long operatorId)
+	public static void register(String imei, Long operator)
 	{
-		if(imei != null && !imei.isEmpty() && operatorId != null)
+		if(imei != null && !imei.isEmpty() && operator != null)
 		{
 			Phone phone = Phone.find("imei = ?", imei).first();
 			
@@ -80,15 +80,15 @@ public class Api extends Controller {
 				phone.imei = imei;
 			}
 			
-			Operator operator = Operator.findById(operatorId);
+			Operator operatorObj = Operator.findById(operator);
 			
-			if(operator == null)
+			if(operatorObj == null)
 			{
-				Logger.info("Unknown operator: " + operatorId); 
+				Logger.info("Unknown operator: " + operator); 
 				badRequest();
 			}
 			
-			phone.operator = operator;
+			phone.operator = operatorObj;
 			
 			phone.save();
 			
@@ -105,7 +105,7 @@ public class Api extends Controller {
 		}
 	}
 	
-	public static void login(String imei, String driverId, String bodyNumber)
+	public static void login(String imei, String driver, String body)
 	{
 		if(imei == null)
 			unauthorized("IMEI Required");
@@ -118,26 +118,26 @@ public class Api extends Controller {
 			unauthorized("Unknown Phone IMEI");
 		}
 		
-		Driver driver = Driver.find("driverId = ?", driverId).first();
+		Driver driverObj = Driver.find("driverId = ?", driver).first();
 		
-		if(driver == null)
+		if(driverObj == null)
 		{
-			Logger.info("Unknown Driver Id " + driverId); 
+			Logger.info("Unknown Driver Id " + driver); 
 			unauthorized("Unknown Driver ID");
 		}
 		
-		Vehicle veichie = Vehicle.find("bodyNumber = ?", bodyNumber).first();
+		Vehicle veichie = Vehicle.find("bodyNumber = ?", body).first();
 		
 		if(veichie == null)
 		{
-			Logger.info("Unknown vehicle, createing record for body number " + bodyNumber); 
+			Logger.info("Unknown vehicle, createing record for body number " + body); 
 			
 			veichie = new Vehicle();
-			veichie.bodyNumber = bodyNumber;
+			veichie.bodyNumber = body;
 			veichie.save();
 		}
 		
-		phone.driver = driver;
+		phone.driver = driverObj;
 		phone.vehicle = veichie;
 		
 		phone.save();
