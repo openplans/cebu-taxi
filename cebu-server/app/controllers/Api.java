@@ -118,13 +118,23 @@ public class Api extends Controller {
 			unauthorized("Unknown Phone IMEI");
 		}
 		
-		Driver driverObj = Driver.find("driverId = ?", driver).first();
+		if(driver == null)
+			badRequest();
+		
+		Driver driverObj = Driver.find("driver = ?", driver).first();
 		
 		if(driverObj == null)
 		{
 			Logger.info("Unknown Driver Id " + driver); 
-			unauthorized("Unknown Driver ID");
+			
+			driverObj = new Driver();
+			driverObj.driverId = driver;
+			driverObj.save();
+		
 		}
+		
+		if(body == null)
+			badRequest();
 		
 		Vehicle veichie = Vehicle.find("bodyNumber = ?", body).first();
 		
