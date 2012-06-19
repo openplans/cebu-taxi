@@ -121,7 +121,7 @@ public class Api extends Controller {
 		if(driver == null)
 			badRequest();
 		
-		Driver driverObj = Driver.find("driver = ?", driver).first();
+		Driver driverObj = Driver.find("driverId = ?", driver).first();
 		
 		if(driverObj == null)
 		{
