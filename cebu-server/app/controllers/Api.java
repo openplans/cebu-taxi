@@ -206,6 +206,8 @@ public class Api extends Controller {
     	// curl -d "20120430T133023,124.02342,34.43622,8.33,124,200" http://localhost:9000/api/location?imei=myIMEI    	
     	
 		// check for valid request
+    	
+    	Date now = new Date();
 		
     	if(imei == null || imei.trim().isEmpty())
     		badRequest();
@@ -258,7 +260,7 @@ public class Api extends Controller {
 	    		Observation observation = Observation.createObservation(imei, dateTime, new Coordinate(lat, lon), velocity, heading, gpsError);
 	    		
 	    		// using a local queue to handle logging/inference...for now.
-	    		ObservationHandler.addObservation(observation, line);	    		
+	    		ObservationHandler.addObservation(observation, now.toString() + " - " + line);	    		
 	   		
     		}
     		catch(Exception e)
