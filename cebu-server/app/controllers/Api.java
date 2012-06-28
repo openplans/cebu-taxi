@@ -260,7 +260,7 @@ public class Api extends Controller {
 	    		Observation observation = Observation.createObservation(imei, dateTime, new Coordinate(lat, lon), velocity, heading, gpsError);
 	    		
 	    		// using a local queue to handle logging/inference...for now.
-	    		ObservationHandler.addObservation(observation, now.toString() + " - " + line);	    		
+	    		ObservationHandler.addObservation(observation, now.toString() + " - " + imei +  " - " + line);	    		
 	   		
     		}
     		catch(Exception e)
