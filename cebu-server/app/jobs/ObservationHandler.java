@@ -15,8 +15,8 @@ import play.jobs.Every;
 import play.jobs.Job;
 
 @Every("5s")
-public class ObservationHandler extends Job {
-	
+	public class ObservationHandler extends Job {
+		
 	static Queue<Observation> observationQueue = new ConcurrentLinkedQueue<Observation>();
 	public static Queue<String> historyQueue = new ConcurrentLinkedQueue<String>();
 
@@ -36,7 +36,7 @@ public class ObservationHandler extends Job {
 		for (Observation observation; (observation = observationQueue.poll()) != null;)
 		{
 			Logger.log(observation.toString());
-			observationLog.write(observation.getVehicleId() + "," + observation.getTimestamp()  + "," + observation.getObsCoords().x  + "," + observation.getObsCoords().y  + "," + observation.getVelocity()  + "," + observation.getHeading() + "," + observation.getAccuracy() + "\n");
+			observationLog.write(observation.getVehicleId() + "," + observation.getTimestamp()  + "," + observation.getObsCoordsLatLon().x  + "," + observation.getObsCoordsLatLon().y  + "," + observation.getVelocity()  + "," + observation.getHeading() + "," + observation.getAccuracy() + "\n");
 		}
 		
 		observationLog.flush();

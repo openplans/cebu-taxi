@@ -3,6 +3,8 @@ package controllers;
 import play.*;
 import play.mvc.*;
 
+import inference.InferenceService;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.text.DateFormat;
@@ -10,6 +12,7 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 
 import org.openplans.tools.tracking.impl.Observation;
+import org.openplans.tools.tracking.impl.util.OtpGraph;
 
 import org.apache.commons.io.IOUtils;
 
@@ -24,6 +27,17 @@ import models.*;
 public class Api extends Controller {
 
 	static SimpleDateFormat locationDateFormat = new SimpleDateFormat("yyyyMMdd HHmmss");
+	
+	public static final SimpleDateFormat sdf = new SimpleDateFormat(
+		      "yyyy-MM-dd hh:mm:ss");
+	
+	public static OtpGraph graph = new OtpGraph(
+		      Play.configuration.getProperty("application.otpGraphPath"));
+	
+	public static OtpGraph getGraph() {
+		return graph;
+	}
+		
 	
 	public static void operator(String imei)
 	{
@@ -237,6 +251,8 @@ public class Api extends Controller {
     	
     	String[] lines = requestBody.split("\n");
     	 	
+    	ArrayList<Observation> observations = new ArrayList<Observation>();
+    	
     	for(String line : lines)
     	{
     		// request format: 20120430T133023,124.02342,34.43622,8.33,124,200
@@ -249,7 +265,6 @@ public class Api extends Controller {
     	
     		try
     		{
-    			
 	    		Date dateTime = locationDateFormat.parse(lineParts[0].replace("T", " "));
 	    		Double lat = Double.parseDouble(lineParts[1]);
 	    		Double lon = Double.parseDouble(lineParts[2]);
@@ -258,6 +273,8 @@ public class Api extends Controller {
 	    		Double gpsError = Double.parseDouble(lineParts[5]);
 	    		
 	    		Observation observation = Observation.createObservation(imei, dateTime, new Coordinate(lat, lon), velocity, heading, gpsError);
+	    			    	
+	    		observations.add(observation);
 	    		
 	    		// using a local queue to handle logging/inference...for now.
 	    		ObservationHandler.addObservation(observation, now.toString() + " - " + imei +  " - " + line);	    		
@@ -271,6 +288,15 @@ public class Api extends Controller {
     			badRequest();
     		}
     	}
+    	
+    	try
+    	{
+    		InferenceService.processRecords(observations, InferenceService.INFO_LEVEL.SINGLE_RESULT);
+    	}
+    	catch(Exception e)
+		{
+			Logger.error("Unable to process records: ", e.toString());
+		}
     	
         ok();
     }

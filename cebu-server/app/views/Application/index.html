@@ -1,1 +1,21 @@
-<html><body>cebutraffic.org</bod></html>
+<html><body>cebutraffic.org
+
+
+
+
+
+
+
+ #{form @Application.uploadHandler(), enctype:'multipart/form-data'}
+   
+	 	<input name="debugEnabled" id="debugEnabled" type="checkbox" value="true"/>
+	    <label for="enableDebug">Enable debug for this trace</label><br>
+	 				<input name="csv" type="file"/>
+	                <input type="submit"/>
+	 #{/form}
+
+
+
+
+
+</bod></html>
