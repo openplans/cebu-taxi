@@ -44,6 +44,11 @@ public class Application extends Controller {
 		render();
 	}
 	
+	public static void upload() {
+		render();
+	}
+	
+	
     public static void recent() {
     	Queue history = ObservationHandler.historyQueue;
     	response.setContentTypeIfNotSet("text/plain");

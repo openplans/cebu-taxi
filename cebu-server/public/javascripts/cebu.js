@@ -5,7 +5,7 @@ var mbUrl = 'http://{s}.tiles.mapbox.com/v3/openplans.map-g4j0dszr/{z}/{x}/{y}.p
 
 var cebuUrl = 'http://cebutraffic.org/tiles/{z}/{x}/{y}.png';
 
-var mbAttrib = 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2011 CloudMade';
+var mbAttrib = 'Traffic overlay powered by OpenPlans Vehicle Tracking Tools, Map tiles &copy; Mapbox (terms).';
 var mbOptions = {
   maxZoom : 17,
   attribution : mbAttrib
