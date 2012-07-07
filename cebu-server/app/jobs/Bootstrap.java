@@ -13,6 +13,8 @@ public class Bootstrap extends Job {
     	Play.getFile("lib/libjniarpack-linux-x86_64.so");
     	Play.getFile("lib/libjniblas-linux-x86_64.so");
     	Play.getFile("lib/libjnilapack-linux-x86_64.so");
+    
+    	System.out.println(org.netlib.blas.BLAS.getInstance().getClass().getName());
     	
         // Check if the database is empty
         if(Operator.count() == 0) {
