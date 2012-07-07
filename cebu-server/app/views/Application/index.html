@@ -1,20 +1,28 @@
-<html><body>cebutraffic.org
+<html>
+
+<head>
+<title>Debug Visualizer</title>
+
+<!-- leaflet -->
+<script type="text/javascript" src="@{'/public/javascripts/jquery-1.7.1.min.js'}"></script>
+<script src="@{'/public/javascripts/leaflet.js'}"></script>
+<link rel="stylesheet" href="@{'/public/javascripts/leaflet.css'}" />
+<!-- jquery -->
+
+
+<script src="@{'/public/javascripts/cebu.js'}"></script>
+
+
+</head>	
 
 
 
+<body>
 
 
 
-
- #{form @Application.uploadHandler(), enctype:'multipart/form-data'}
-   
-	 	<input name="debugEnabled" id="debugEnabled" type="checkbox" value="true"/>
-	    <label for="enableDebug">Enable debug for this trace</label><br>
-	 				<input name="csv" type="file"/>
-	                <input type="submit"/>
-	 #{/form}
-
-
+<div style="height: 100%; width: 100%;" id="map">
+</div>
 
 
 
