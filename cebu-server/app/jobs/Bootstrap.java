@@ -16,5 +16,9 @@ public class Bootstrap extends Job {
         if(Alert.count() == 0) {
             Fixtures.loadModels("initial-alert-data.yml");
         }
+        
+        if(Message.count() == 0) {
+            Fixtures.loadModels("initial-message-data.yml");
+        }
     }
 }

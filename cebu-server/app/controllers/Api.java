@@ -17,6 +17,7 @@ import org.openplans.tools.tracking.impl.util.OtpGraph;
 import org.apache.commons.io.IOUtils;
 
 import api.AuthResponse;
+import api.MessageResponse;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
@@ -38,9 +39,12 @@ public class Api extends Controller {
 		return graph;
 	}
 		
+	
 	public static void alerts(String imei, String type) {
 		
 		List<Alert> alerts = null;
+		
+		// TODO IMEI filtering for dispatch messages -- not useful for testing
 		
 		if(type == null || type.isEmpty() || type.toLowerCase().equals("all"))
 			alerts = Alert.all().fetch();
@@ -53,6 +57,57 @@ public class Api extends Controller {
 			renderJSON(alerts);
 	}
 	
+	
+	public static void messages(String imei, Long message_id, Double lat, Double lon) {
+		
+		if(request.method == "POST")
+		{
+			Phone phone = Phone.find("imei = ?", imei).first();
+			
+			if(phone != null)
+			{
+				Message message = new Message();
+				
+				// TODO message_id lookup for threading -- not useful for testing 
+				
+				message.read = false;
+				
+				message.fromPhone = phone;
+				message.timestamp = new Date();
+				message.location_lat = lat;
+				message.location_lon = lon;
+				message.body = params.get("body");
+				
+				message.save();
+			}
+			else
+			{
+				Logger.info("Unknown phone entry for IMEI " + imei); 
+				unauthorized("Unknown Phone IMEI");
+			}
+			
+		}
+		else
+		{
+			// TODO IMEI message lookup -- not useful for testing
+		
+			List<Message> messages = Message.find("fromphone_id IS NULL").fetch();
+			
+			List<MessageResponse> messageResponses = new ArrayList<MessageResponse>();
+			
+			for(Message message : messages)
+			{
+				messageResponses.add(new MessageResponse(message));
+			}
+			
+			// TODO mark messages read -- not useful for testing
+		
+			if(request.format == "xml")
+				renderXml(messageResponses);
+			else
+				renderJSON(messageResponses);
+		}
+	}
 	
 	public static void operator(String imei)
 	{

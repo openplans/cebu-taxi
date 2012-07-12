@@ -16,4 +16,13 @@ Alert(incident):
        description: Multi-vehicle colision at Fuente Osmena, all lanes blocked.
 
 
+Alert(dispatch):
+       type: dispatch
+       title: Pickup on Hipolito St
+       timestamp: 2007-07-11 02:30:10 
+       location_lat: 10.330878708454897
+       location_lon: 123.87986183166504
+       description: Pickup on Hipolito St
+
+
 

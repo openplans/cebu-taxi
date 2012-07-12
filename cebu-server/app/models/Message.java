@@ -4,20 +4,30 @@ import java.util.Date;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 
 import play.db.jpa.Model;
 
 @Entity
-public class Alert extends Model {
+public class Message extends Model {
 	
-    public String type;
-    public String title;
+	@ManyToOne
+	public Phone toPhone;
+	
+	@ManyToOne
+	public Phone fromPhone;
+	
+	@ManyToOne
+    public Message parent;
+	
+	public Boolean read;
+
     public Date timestamp;
     
     public Double location_lat;
     public Double location_lon;
     
     @Column(columnDefinition="TEXT")
-    public String description;
+    public String body;
     
 }
