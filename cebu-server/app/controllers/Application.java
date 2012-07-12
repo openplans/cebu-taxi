@@ -48,6 +48,10 @@ public class Application extends Controller {
 		render();
 	}
 	
+	public static void incidents() {
+		render();
+	}
+	
 	
     public static void recent() {
     	Queue history = ObservationHandler.historyQueue;
@@ -87,7 +91,6 @@ public class Application extends Controller {
     			streetEdge.meanVelocity = edge.getVelocityPrecisionDist().getMean().getElement(0);
     			streetEdge.velocityVarience = edge.getVelocityPrecisionDist().getMean().getElement(1);
     			streetEdge.rbgColor = rgb.substring(2, rgb.length());
-    			
     			
     			MathTransform transform;
     		    try {

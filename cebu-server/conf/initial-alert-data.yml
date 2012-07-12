@@ -1,0 +1,19 @@
+Alert(flood):
+       type: flood
+       title: Flood on M.J. Cucenco Ave
+       timestamp: 2007-07-10 12:30:10 
+       location_lat: 10.312174859088344
+       location_lon: 123.91011714935303
+       description: Major flooding on M.J. Cucenco Ave, avoid area.
+
+
+Alert(incident):
+       type: incident
+       title: Multi-vehicle colision at Fuente Osmena  
+       timestamp: 2007-07-11 02:30:10 
+       location_lat: 10.310485969214884 
+       location_lon: 123.89355182647705
+       description: Multi-vehicle colision at Fuente Osmena, all lanes blocked.
+
+
+

@@ -38,6 +38,21 @@ public class Api extends Controller {
 		return graph;
 	}
 		
+	public static void alerts(String imei, String type) {
+		
+		List<Alert> alerts = null;
+		
+		if(type == null || type.isEmpty() || type.toLowerCase().equals("all"))
+			alerts = Alert.all().fetch();
+		else
+			alerts = Alert.find("type = ?", type.toLowerCase()).fetch();
+			
+		if(request.format == "xml")
+			renderXml(alerts);
+		else
+			renderJSON(alerts);
+	}
+	
 	
 	public static void operator(String imei)
 	{

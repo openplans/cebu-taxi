@@ -1,0 +1,37 @@
+<html>
+
+<head>
+<title>cebutraffic.org</title>
+
+<!-- leaflet -->
+
+<script type="text/javascript" src="@{'/public/javascripts/jquery-1.7.1.min.js'}"></script>
+<script src="@{'/public/javascripts/leaflet.js'}"></script>
+<script src="@{'/public/javascripts/ember-0.9.8.1.min.js'}"></script>
+
+<link rel="stylesheet" href="@{'/public/javascripts/leaflet.css'}" />
+<!-- jquery -->
+
+
+<script src="@{'/public/javascripts/ember_test.js'}"></script>
+
+
+</head>	
+
+
+	
+	<body style="margin: 0px; padding: 0px;">
+	
+	
+		<h1>People</h1>
+		 
+		<ul>
+		{{#each peopleController}}
+		  <li>Hello, <b>{{fullName}}</b>!
+		{{/each}}
+		</ul>
+		
+		
+	
+	</body>
+</html>

@@ -4,7 +4,9 @@
 
 # Home page
 GET     /                                       Application.index
-GET     /recent                                       Application.recent
+GET     /recent                                 Application.recent
+
+GET     /api/alerts/{type}                      Api.alerts
 
 # Ignore favicon requests
 GET     /favicon.ico                            404
