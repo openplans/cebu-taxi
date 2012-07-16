@@ -9,15 +9,18 @@ import models.Phone;
 
 public class MessageResponse {
 	
-	public Long message_id;
+	public Long id;
+	public Long parentId;
     public Date timestamp;
     
     public String body;
     
     public MessageResponse(Message message)
     {
+    	this.id = message.id;
+    	
     	if(message.parent != null)
-    		this.message_id = message.parent.id;
+    		this.parentId = message.parent.id;
     
     	this.timestamp = message.timestamp;
     	

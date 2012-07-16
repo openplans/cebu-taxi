@@ -39,14 +39,29 @@ public class Api extends Controller {
 		return graph;
 	}
 		
+	private static List<Long> ConvetStringArrayToLongArray(String[] stringArray){
+		ArrayList<Long> longList = new ArrayList<Long>();
+
+		for(String str : stringArray){
+		longList.add(new Long(str));
+		}
+
+		return longList;
+		}
 	
-	public static void alerts(String imei, String type) {
+	public static void alerts(String imei, String type, String ids) {
 		
 		List<Alert> alerts = null;
 		
 		// TODO IMEI filtering for dispatch messages -- not useful for testing
 		
-		if(type == null || type.isEmpty() || type.toLowerCase().equals("all"))
+		if(ids != null && !ids.isEmpty())
+		{
+			String[] id_list = ids.split(",");			
+
+			alerts = Alert.em().createQuery("FROM Alert alert WHERE alert.id in (?1)").setParameter(1, ConvetStringArrayToLongArray(id_list)).getResultList(); 
+		}
+		else if(type == null || type.isEmpty() || type.toLowerCase().equals("all"))
 			alerts = Alert.all().fetch();
 		else
 			alerts = Alert.find("type = ?", type.toLowerCase()).fetch();
@@ -58,7 +73,7 @@ public class Api extends Controller {
 	}
 	
 	
-	public static void messages(String imei, Long message_id, Double lat, Double lon) {
+	public static void messages(String imei, Long message_id, Double lat, Double lon, String body) {
 		
 		if(request.method == "POST")
 		{
@@ -76,7 +91,7 @@ public class Api extends Controller {
 				message.timestamp = new Date();
 				message.location_lat = lat;
 				message.location_lon = lon;
-				message.body = params.get("body");
+				message.body = body;
 				
 				message.save();
 			}
