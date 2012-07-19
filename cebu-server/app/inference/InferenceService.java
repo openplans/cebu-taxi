@@ -88,7 +88,7 @@ public class InferenceService extends UntypedActor {
     InferenceInstance ie = vehicleToInstance.get(vehicleId);
 
     if (ie == null) {
-      ie = new InferenceInstance(vehicleId, isSimulation, infoLevel);
+      ie = new InferenceInstance(vehicleId, isSimulation, infoLevel, null);
       vehicleToInstance.put(vehicleId, ie);
     }
 

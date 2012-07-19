@@ -2,7 +2,6 @@ package models;
 
 import gov.sandia.cognition.math.MutableDouble;
 import gov.sandia.cognition.math.RingAccumulator;
-import gov.sandia.cognition.math.matrix.VectorFactory;
 import gov.sandia.cognition.statistics.DataDistribution;
 import inference.InferenceResultRecord;
 import inference.InferenceService.INFO_LEVEL;
@@ -15,9 +14,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.apache.log4j.Logger;
 import org.openplans.tools.tracking.impl.Observation;
 import org.openplans.tools.tracking.impl.VehicleState;
-import org.openplans.tools.tracking.impl.VehicleState.InitialParameters;
+import org.openplans.tools.tracking.impl.VehicleState.VehicleStateInitialParameters;
+import org.openplans.tools.tracking.impl.VehicleTrackingFilter;
 import org.openplans.tools.tracking.impl.statistics.FilterInformation;
-import org.openplans.tools.tracking.impl.statistics.VehicleTrackingFilter;
+import org.openplans.tools.tracking.impl.statistics.VehicleTrackingBootstrapFilter;
+import org.openplans.tools.tracking.impl.statistics.VehicleTrackingPLFilter;
 import org.openplans.tools.tracking.impl.util.OtpGraph;
 
 import com.google.common.base.Stopwatch;
@@ -41,15 +42,16 @@ public class InferenceInstance {
 
   public final boolean isSimulation;
 
-  private VehicleTrackingFilter filter;
+  private VehicleTrackingFilter<Observation, VehicleState> filter;
 
-  private final Queue<InferenceResultRecord> resultRecords = new ConcurrentLinkedQueue<InferenceResultRecord>();
+  private final Queue<InferenceResultRecord> resultRecords =
+      new ConcurrentLinkedQueue<InferenceResultRecord>();
 
   private DataDistribution<VehicleState> postBelief;
   private DataDistribution<VehicleState> resampleBelief;
   private VehicleState bestState;
 
-  private final InitialParameters initialParameters;
+  private final VehicleStateInitialParameters initialParameters;
 
   public int totalRecords = 0;
 
@@ -57,29 +59,20 @@ public class InferenceInstance {
 
   private static OtpGraph inferredGraph = Api.getGraph();
 
-  public InferenceInstance(String vehicleId, boolean isSimulation,
-    INFO_LEVEL infoLevel) {
-    this.initialParameters = new InitialParameters(
-        VectorFactory.getDefault().createVector2D(
-            VehicleState.getGvariance(), VehicleState.getGvariance()),
-        VectorFactory.getDefault().createVector2D(
-            VehicleState.getDvariance(), VehicleState.getVvariance()),
-        VectorFactory.getDefault().createVector2D(
-            VehicleState.getDvariance(), VehicleState.getVvariance()),
-        VectorFactory.getDefault().createVector2D(0.05d, 1d),
-        VectorFactory.getDefault().createVector2D(1d, 0.05d), 0l);
-    this.vehicleId = vehicleId;
-    this.isSimulation = isSimulation;
-    this.infoLevel = infoLevel;
-  }
+  private final RingAccumulator<MutableDouble> averager =
+      new RingAccumulator<MutableDouble>();
 
   public InferenceInstance(String vehicleId, boolean isSimulation,
-    INFO_LEVEL infoLevel, InitialParameters parameters) {
+    INFO_LEVEL infoLevel, VehicleStateInitialParameters parameters) {
     this.initialParameters = parameters;
     this.vehicleId = vehicleId;
     this.isSimulation = isSimulation;
     this.simSeed = parameters.getSeed();
     this.infoLevel = infoLevel;
+  }
+
+  public RingAccumulator<MutableDouble> getAverager() {
+    return averager;
   }
 
   public VehicleState getBestState() {
@@ -94,7 +87,7 @@ public class InferenceInstance {
     return infoLevel;
   }
 
-  public InitialParameters getInitialParameters() {
+  public VehicleStateInitialParameters getInitialParameters() {
     return initialParameters;
   }
 
@@ -130,15 +123,13 @@ public class InferenceInstance {
     return isSimulation;
   }
 
-  private final RingAccumulator<MutableDouble> averager = new RingAccumulator<MutableDouble>();
-  
   synchronized public void update(Observation obs) {
 
     updateFilter(obs);
     this.recordsProcessed++;
 
-    final InferenceResultRecord infResult = InferenceResultRecord
-        .createInferenceResultRecord(obs, this);
+    final InferenceResultRecord infResult =
+        InferenceResultRecord.createInferenceResultRecord(obs, this);
 
     if (infoLevel == INFO_LEVEL.SINGLE_RESULT
         && !this.resultRecords.isEmpty())
@@ -156,10 +147,10 @@ public class InferenceInstance {
 
     this.recordsProcessed++;
 
-    final InferenceResultRecord result = InferenceResultRecord
-        .createInferenceResultRecord(
-            obs, this, actualState, postBelief.getMaxValueKey(),
-            postBelief.clone(),
+    final InferenceResultRecord result =
+        InferenceResultRecord.createInferenceResultRecord(obs, this,
+            actualState, postBelief.getMaxValueKey(), postBelief
+                .clone(),
             resampleBelief != null ? resampleBelief.clone() : null);
 
     if (infoLevel == INFO_LEVEL.SINGLE_RESULT
@@ -173,40 +164,43 @@ public class InferenceInstance {
 
     final Stopwatch watch = new Stopwatch();
     watch.start();
-    
+
     if (filter == null || postBelief == null) {
-      filter = new VehicleTrackingFilter(
+
+//      filter =
+//          new VehicleTrackingBootstrapFilter(obs, inferredGraph,
+//              initialParameters,
+//              infoLevel.compareTo(INFO_LEVEL.DEBUG) >= 0);
+
+      filter = new VehicleTrackingPLFilter(
           obs, inferredGraph, initialParameters,
           infoLevel.compareTo(INFO_LEVEL.DEBUG) >= 0);
+
       filter.getRandom().setSeed(simSeed);
       postBelief = filter.createInitialLearnedObject();
     } else {
       filter.update(postBelief, obs);
       if (infoLevel.compareTo(INFO_LEVEL.DEBUG) >= 0) {
-        final FilterInformation filterInfo = filter
-            .getFilterInformation(obs);
-        resampleBelief = filterInfo != null ? filterInfo
-            .getResampleDist() : null;
+        final FilterInformation filterInfo =
+            filter.getFilterInformation(obs);
+        resampleBelief =
+            filterInfo != null ? filterInfo.getResampleDist() : null;
       }
     }
-    
+
     watch.stop();
     averager.accumulate(new MutableDouble(watch.elapsedMillis()));
 
     if (recordsProcessed > 0 && recordsProcessed % 20 == 0)
-      log.info("avg. secs per record = " + this.getAverager().getMean().value
-          / 1000d);
-    
+      log.info("avg. records per sec = " + 1000d
+          / this.getAverager().getMean().value);
+
     if (postBelief != null)
       this.bestState = postBelief.getMaxValueKey();
   }
 
   public static OtpGraph getInferredGraph() {
     return inferredGraph;
-  }
-
-  public RingAccumulator<MutableDouble> getAverager() {
-    return averager;
   }
 
 }

@@ -88,7 +88,12 @@ public class Api extends Controller {
 				message.read = false;
 				
 				message.fromPhone = phone;
+				
+				// TODO SimpleDateFormat df = new SimpleDateFormat("yyyy-mm-dd hh:MM:SS");
+				
 				message.timestamp = new Date();
+				
+				
 				message.location_lat = lat;
 				message.location_lon = lon;
 				message.body = body;

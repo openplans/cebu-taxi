@@ -25,7 +25,7 @@ import org.openplans.tools.tracking.impl.graph.paths.InferredPath;
 import org.openplans.tools.tracking.impl.graph.paths.PathEdge;
 import org.openplans.tools.tracking.impl.statistics.FilterInformation;
 import org.openplans.tools.tracking.impl.statistics.StandardRoadTrackingFilter;
-import org.openplans.tools.tracking.impl.statistics.VehicleTrackingFilter;
+import org.openplans.tools.tracking.impl.VehicleTrackingFilter;
 import org.openplans.tools.tracking.impl.util.GeoUtils;
 
 import com.google.common.base.Preconditions;
@@ -396,7 +396,7 @@ public class InferenceResultRecord {
     }
 
     return new ResultSet(
-        cloneState, instance.getFilter(), meanCoords,
+        cloneState, null, meanCoords,
         majorAxisCoords, minorAxisCoords, pathSegmentIds,
         pathDirection);
   }
