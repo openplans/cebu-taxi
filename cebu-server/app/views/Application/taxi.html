@@ -2,7 +2,20 @@
 
 #{set page:'taxi' /}
 
-<div id="map">
+<div class="row-fluid" style="background-color: #fff;">
+
+	<div class="span2">
+	<ul class="nav nav-list" id="taxi_list">
+	  <li class="nav-header">
+	    Active Taxis
+	  </li>
+	 
+	</ul>
+	</div>
+	<div class="span10" style="margin: 0px;"">
+	<div id="map">
+	</div>
+	</div>
 </div>
 
 <script src="@{'/public/javascripts/cebu_taxi.js'}"></script>
