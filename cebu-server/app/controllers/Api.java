@@ -78,7 +78,7 @@ public class Api extends Controller {
 		cal.add(Calendar.MINUTE, -5);
 		Date recentDate = cal.getTime();
 		
-		List<Phone> phones = Phone.find("lastUpdate > ?", recentDate).fetch();
+		List<Phone> phones = Phone.find("lastUpdate > ? order by id", recentDate).fetch();
 			
 		if(request.format == "xml")
 			renderXml(phones);
