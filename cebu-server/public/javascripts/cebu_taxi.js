@@ -120,6 +120,8 @@ function updateTaxis()
 		$('.taxi_item').click(function(event) {
 			
 			map.setView(taxiMarkers[$(event.target).data('id')].getLatLng(), 17);
+			
+			$('#taxi_list').find("li").removeClass("active");
 			$(event.target).addClass("active");
 			
 		});
