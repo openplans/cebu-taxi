@@ -107,7 +107,7 @@ function updateTaxis()
 	for(var taxi in taxiData)
 	{
 		taxiMarkers[taxiData[taxi].id] = new L.Marker(new L.LatLng(taxiData[taxi].recentLat.toFixed(5), taxiData[taxi].recentLon.toFixed(5)), {icon: taxiIcon});
-		taxiMarkers[taxiData[taxi].id].bindPopup(taxiData[taxi].description);
+		taxiMarkers[taxiData[taxi].id].bindPopup('<strong>' + taxiData[taxi].operator.name + '</strong>: ' + taxiData[taxi].driver.driverId);
 
 		taxiLayer.addLayer(taxiMarkers[taxiData[taxi].id]);
 	}
