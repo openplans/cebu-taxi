@@ -1,4 +1,6 @@
 
+var map;
+
 var startLatLng = new L.LatLng(10.3181373, 123.8956844); 
 
 var mbUrl = 'http://{s}.tiles.mapbox.com/v3/openplans.map-g4j0dszr/{z}/{x}/{y}.png';
@@ -117,7 +119,7 @@ function updateTaxis()
 
 		$('.taxi_item').click(function(event) {
 			
-			taxiMarkers[event];
+			map.setView(taxiMarkers[$(event.target).data('id')].getLatLng(), 14);
 			
 		});
 	}
