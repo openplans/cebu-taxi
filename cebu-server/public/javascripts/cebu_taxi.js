@@ -110,6 +110,10 @@ function updateTaxis()
 		taxiMarkers[taxiData[taxi].id].bindPopup('<strong>' + taxiData[taxi].operator.name + '</strong>: ' + taxiData[taxi].driver.driverId);
 
 		taxiLayer.addLayer(taxiMarkers[taxiData[taxi].id]);
+		
+		$('taxi_list').find("li:gt(0)").remove();
+		
+		$('taxi_list').append('<li><a href="#">' + taxiData[taxi].operator.name + ': ' + taxiData[taxi].driver.driverId + '</a></li>');
 	}
 }
 
