@@ -113,7 +113,7 @@ function updateTaxis()
 
 		taxiLayer.addLayer(taxiMarkers[taxiData[taxi].id]);
 		
-		$('#taxi_list').append('<li><a class="taxi_item" href="#" data-id="' + taxiData[taxi].id + ''">' + taxiData[taxi].operator.name + ': ' + taxiData[taxi].driver.driverId + '</a></li>');
+		$('#taxi_list').append('<li><a class="taxi_item" href="#" data-id="' + taxiData[taxi].id + '">' + taxiData[taxi].operator.name + ': ' + taxiData[taxi].driver.driverId + '</a></li>');
 
 		$('.taxi_item').click(function(event) {
 			
