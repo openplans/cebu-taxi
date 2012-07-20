@@ -1,24 +1,8 @@
-<html>
+#{extends 'main.html' /}
 
-<head>
+#{set page:'index' /}
 
-<title>cebutraffic.org</title>
-
-<!-- leaflet -->
-<script type="text/javascript" src="@{'/public/javascripts/jquery-1.7.1.min.js'}"></script>
-<script src="@{'/public/javascripts/leaflet.js'}"></script>
-<link rel="stylesheet" href="@{'/public/javascripts/leaflet.css'}" />
-<!-- jquery -->
-
-<script src="@{'/public/javascripts/cebu.js'}"></script>
-
-</head>	
-
-<body style="margin: 0px; padding: 0px;">
-
-<div style="height: 100%; width: 100%;" id="map">
+<div id="map">
 </div>
 
-
-
-</bod></html>
+<script src="@{'/public/javascripts/cebu_current.js'}"></script>

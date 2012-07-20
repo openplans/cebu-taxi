@@ -72,6 +72,20 @@ public class Api extends Controller {
 			renderJSON(alerts);
 	}
 	
+	public static void activeTaxis() {
+			
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.MINUTE, -5);
+		Date recentDate = cal.getTime();
+		
+		List<Phone> phones = Phone.find("lastUpdate > ?", recentDate).fetch();
+			
+		if(request.format == "xml")
+			renderXml(phones);
+		else
+			renderJSON(phones);
+	}
+	
 	
 	public static void messages(String imei, Long message_id, Double lat, Double lon, String body) {
 		
@@ -365,7 +379,7 @@ public class Api extends Controller {
 	    		Observation observation = Observation.createObservation(imei, dateTime, new Coordinate(lat, lon), velocity, heading, gpsError);
 	    			    	
 	    		observations.add(observation);
-	    		
+	    	
 	    		// using a local queue to handle logging/inference...for now.
 	    		ObservationHandler.addObservation(observation, now.toString() + " - " + imei +  " - " + line);	    		
 	   		
@@ -376,6 +390,22 @@ public class Api extends Controller {
     			
     			// couldn't parse results
     			badRequest();
+    		}
+    	}
+    	
+    	if(observations.size() > 0)
+    	{
+    		Observation observation = observations.get(observations.size() -1 );
+    		
+    		Phone phone = Phone.find("imei = ?", observation.getVehicleId()).first();
+    		
+    		if(phone != null)
+    		{
+    			phone.recentLat = observation.getObsCoordsLatLon().x;
+    			phone.recentLon = observation.getObsCoordsLatLon().y;
+    			phone.lastUpdate = new Date();
+    			
+    			phone.save();
     		}
     	}
     	

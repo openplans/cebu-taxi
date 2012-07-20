@@ -1,5 +1,7 @@
 package models;
 
+import java.util.Date;
+
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 
@@ -18,5 +20,10 @@ public class Phone extends Model {
 	
 	@ManyToOne
 	public Vehicle vehicle;
+	
+	public Date lastUpdate;
+	    
+    public Double recentLat;
+    public Double recentLon;
 }
  

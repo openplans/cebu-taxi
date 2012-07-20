@@ -44,6 +44,15 @@ public class Application extends Controller {
 		render();
 	}
 	
+	public static void taxi() {
+		render();
+	}
+	
+	public static void citom() {
+		render();
+	}
+	
+	
 	public static void upload() {
 		render();
 	}
