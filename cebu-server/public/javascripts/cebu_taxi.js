@@ -111,9 +111,9 @@ function updateTaxis()
 
 		taxiLayer.addLayer(taxiMarkers[taxiData[taxi].id]);
 		
-		$('taxi_list').find("li:gt(0)").remove();
+		$('#taxi_list').find("li:gt(0)").remove();
 		
-		$('taxi_list').append('<li><a href="#">' + taxiData[taxi].operator.name + ': ' + taxiData[taxi].driver.driverId + '</a></li>');
+		$('#taxi_list').append('<li><a href="#">' + taxiData[taxi].operator.name + ': ' + taxiData[taxi].driver.driverId + '</a></li>');
 	}
 }
 
