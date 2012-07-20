@@ -106,11 +106,10 @@ function updateTaxis()
 	
 	for(var taxi in taxiData)
 	{
-		incidentMarkers[indcidentData[incident].id] = new L.Marker(new L.LatLng(indcidentData[incident].location_lat.toFixed(5), indcidentData[incident].location_lon.toFixed(5)), {icon: icon});
-		incidentMarkers[indcidentData[incident].id].bindPopup(indcidentData[incident].description);
-		
-		
-		incidentLayer.addLayer(incidentMarkers[indcidentData[incident].id]);
+		taxiMarkers[taxiData[taxi].id] = new L.Marker(new L.LatLng(taxiData[taxi].recentLat.toFixed(5), taxiData[taxi].recentLon.toFixed(5)), {icon: taxiIcon});
+		taxiMarkers[taxiData[taxi].id].bindPopup(taxiData[taxi].description);
+
+		taxiLayer.addLayer(taxiMarkers[taxiData[taxi].id]);
 	}
 }
 
