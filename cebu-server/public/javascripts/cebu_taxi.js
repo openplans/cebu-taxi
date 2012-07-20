@@ -104,6 +104,8 @@ function updateTaxis()
 	taxiLayer.clearLayers();
 	taxiMarkers = {}
 	
+	$('#taxi_list').find("li:gt(0)").remove();
+	
 	for(var taxi in taxiData)
 	{
 		taxiMarkers[taxiData[taxi].id] = new L.Marker(new L.LatLng(taxiData[taxi].recentLat.toFixed(5), taxiData[taxi].recentLon.toFixed(5)), {icon: taxiIcon});
@@ -111,9 +113,13 @@ function updateTaxis()
 
 		taxiLayer.addLayer(taxiMarkers[taxiData[taxi].id]);
 		
-		$('#taxi_list').find("li:gt(0)").remove();
-		
-		$('#taxi_list').append('<li><a href="#">' + taxiData[taxi].operator.name + ': ' + taxiData[taxi].driver.driverId + '</a></li>');
+		$('#taxi_list').append('<li><a class="taxi_item" href="#" data-id="' + taxiData[taxi].id + ''">' + taxiData[taxi].operator.name + ': ' + taxiData[taxi].driver.driverId + '</a></li>');
+
+		$('.taxi_item').click(function(event) {
+			
+			taxiMarkers[event];
+			
+		});
 	}
 }
 
