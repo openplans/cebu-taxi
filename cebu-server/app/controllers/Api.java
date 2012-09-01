@@ -33,7 +33,7 @@ public class Api extends Controller {
 		      "yyyy-MM-dd hh:mm:ss");
 	
 	public static OtpGraph graph = new OtpGraph(
-		      Play.configuration.getProperty("application.otpGraphPath"));
+		      Play.configuration.getProperty("application.otpGraphPath"), Play.configuration.getProperty("application.dcPath"));
 	
 	public static OtpGraph getGraph() {
 		return graph;
@@ -78,8 +78,10 @@ public class Api extends Controller {
 		cal.add(Calendar.MINUTE, -5);
 		Date recentDate = cal.getTime();
 		
-		List<Phone> phones = Phone.find("lastUpdate > ? order by id", recentDate).fetch();
+		//List<Phone> phones = Phone.find("lastUpdate > ? order by id", recentDate).fetch();
 			
+		List<Phone> phones = Phone.findAll();
+		
 		if(request.format == "xml")
 			renderXml(phones);
 		else
@@ -407,16 +409,18 @@ public class Api extends Controller {
     			
     			phone.save();
     		}
+    		
+    		try
+        	{
+        		InferenceService.processRecord(observation);
+        	}
+        	catch(Exception e)
+    		{
+    			Logger.error("Unable to process records: ", e.toString());
+    		}
     	}
     	
-    	try
-    	{
-    		InferenceService.processRecords(observations, InferenceService.INFO_LEVEL.SINGLE_RESULT);
-    	}
-    	catch(Exception e)
-		{
-			Logger.error("Unable to process records: ", e.toString());
-		}
+    	
     	
         ok();
     }

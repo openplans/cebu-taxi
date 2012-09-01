@@ -1,3 +1,66 @@
+//Setup a global namespace for our code.
+Taxi = Em.Application.create({
+
+  // When everything is loaded.
+  ready: function() {
+
+    // Start polling Twitter
+    setInterval(function() {
+    	Taxi.vehicles.refresh();
+    }, 2000);
+
+    // Call the superclass's `ready` method.
+    this._super();
+  }
+});
+
+Taxi.Vehicle = Em.Object.extend();
+
+//An instance of ArrayController which handles collections.
+Taxi.vehicles = Em.ArrayController.create({
+
+  // Default collection is an empty array.
+  content: [],
+
+  // Simple id-to-model mapping for searches and duplicate checks.
+  _idCache: {},
+
+  // Add a Twitter.Tweet instance to this collection.
+  // Most of the work is in the built-in `pushObject` method,
+  // but this is where we add our simple duplicate checking.
+  addVehicle: function(vehicle) {
+    // The `id` from Twitter's JSON
+    var id = vehicle.get("id");
+
+    // If we don't already have an object with this id, add it.
+    if (typeof this._idCache[id] === "undefined") {
+      this.pushObject(vehicle);
+      this._idCache[id] = vehicle.id;
+    }
+  },
+
+  // Public method to fetch more data. Get's called in the loop
+  // above as well as whenever the `query` variable changes (via
+  // an observer).
+  refresh: function() {
+	
+	
+	  
+    // Poll Twitter
+    var self = this;
+    var url = "/api/activeTaxis";
+    
+    
+    
+    $.getJSON(url, function(data) {
+      // Make a model for each result and add it to the collection.
+      for (var i = 0; i < data.length; i++) {
+        self.addVehicle(Taxi.Vehicle.create(data[i]));
+      }
+    });
+  }
+});
+
 
 var map;
 
@@ -5,7 +68,7 @@ var startLatLng = new L.LatLng(10.3181373, 123.8956844);
 
 var mbUrl = 'http://{s}.tiles.mapbox.com/v3/openplans.map-g4j0dszr/{z}/{x}/{y}.png';
 
-var cebuUrl = 'http://ec2-50-16-122-177.compute-1.amazonaws.com/tiles/{z}/{x}/{y}.png';
+var cebuUrl = 'http://cebutraffic.org/tiles/{z}/{x}/{y}.png';
 
 var IncidentIcon = L.Icon.extend({
     iconUrl: '/public/images/caraccident.png',
@@ -101,7 +164,7 @@ function loadTaxis()
 	});
 }
 
-function updateTaxis()
+/*function updateTaxis()
 {
 	taxiLayer.clearLayers();
 	taxiMarkers = {}
@@ -126,7 +189,7 @@ function updateTaxis()
 			
 		});
 	}
-}
+}*/
 
 // main 
 
@@ -159,8 +222,11 @@ $(document).ready(function() {
   map.addControl(layersControl);
   
   loadIncidents();
-  loadTaxis();
+  //loadTaxis();
   
-  window.setInterval(loadTaxis, 5000);
+  //window.setInterval(loadTaxis, 5000);
 
 });
+
+
+

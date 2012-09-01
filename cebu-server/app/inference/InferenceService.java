@@ -1,25 +1,28 @@
 package inference;
 
-import gov.sandia.cognition.algorithm.ParallelUtil;
+import gov.sandia.cognition.math.matrix.VectorFactory;
 
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import models.InferenceInstance;
 
-import org.omg.PortableServer.THREAD_POLICY_ID;
 import org.openplans.tools.tracking.impl.Observation;
-import org.openplans.tools.tracking.impl.TimeOrderException;
+import org.openplans.tools.tracking.impl.VehicleState.VehicleStateInitialParameters;
+import org.openplans.tools.tracking.impl.statistics.filters.AbstractVehicleTrackingFilter;
+import org.openplans.tools.tracking.impl.statistics.filters.VehicleTrackingPLFilter;
 
 import play.Logger;
 import akka.actor.UntypedActor;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
+import controllers.Application;
 
 /**
  * This class is an Actor that responds to LocationRecord messages and
@@ -33,22 +36,57 @@ public class InferenceService extends UntypedActor {
   public enum INFO_LEVEL {
     SINGLE_RESULT, ALL_RESULTS, DEBUG
   }
-  
+
+  private static class UpdateRunnable implements Runnable {
+
+    final Observation obs;
+    final InferenceInstance ie;
+
+    UpdateRunnable(Observation obs, InferenceInstance ie) {
+      super();
+      this.obs = obs;
+      this.ie = ie;
+    }
+
+    @Override
+    public void run() {
+      ie.update(obs);
+    }
+
+  }
+
+  private static VehicleStateInitialParameters defaultVehicleStateInitialParams =
+      new VehicleStateInitialParameters(VectorFactory.getDefault()
+          .createVector2D(150d, 150d), VectorFactory.getDefault()
+          .createVector2D(0.000625, 0.000625), VectorFactory
+          .getDefault().createVector2D(0.000625, 0.000625),
+          VectorFactory.getDefault().createVector2D(0.05d, 1d),
+          VectorFactory.getDefault().createVector2D(1d, 0.05d), 
+          VehicleTrackingPLFilter.class.getName(),
+          50,
+          0l);
+
   static public final int THREAD_COUNT;
+
   static {
-    int numProcessors = Runtime.getRuntime().availableProcessors();
-  
+    final int numProcessors =
+        Runtime.getRuntime().availableProcessors();
+
     if (numProcessors <= 2) {
-        THREAD_COUNT = numProcessors;
+      THREAD_COUNT = numProcessors;
     } else {
-        THREAD_COUNT = numProcessors - 1;
+      THREAD_COUNT = numProcessors - 1;
     }
   }
-  
-  private static final ExecutorService executor = Executors.newFixedThreadPool(THREAD_COUNT);
-  
-  private static final Map<String, InferenceInstance> vehicleToInstance = Maps
-      .newConcurrentMap();
+
+  private static final ExecutorService executor = Executors
+      .newFixedThreadPool(THREAD_COUNT);
+
+  private static final Map<String, InferenceInstance> vehicleToInstance =
+      Maps.newConcurrentMap();
+
+  public static final String defaultFilterName = 
+      Iterables.getFirst(Application.getFilters().keySet(), null);
 
   public static INFO_LEVEL defaultInfoLevel = INFO_LEVEL.ALL_RESULTS;
 
@@ -60,7 +98,11 @@ public class InferenceService extends UntypedActor {
     synchronized (this) {
       if (location instanceof Observation) {
         final Observation observation = (Observation) location;
-        processRecord(observation);
+        if (!processRecord(observation)) {
+
+          new InferenceInstance(observation.getVehicleId(), false,
+              defaultInfoLevel, defaultVehicleStateInitialParams, defaultFilterName);
+        }
 
         Logger.info("Message received:  "
             + observation.getTimestamp().toString());
@@ -71,6 +113,19 @@ public class InferenceService extends UntypedActor {
 
   public static void clearInferenceData() {
     vehicleToInstance.clear();
+  }
+
+  public static INFO_LEVEL getDefaultInfoLevel() {
+    return defaultInfoLevel;
+  }
+
+  public static VehicleStateInitialParameters
+      getDefaultVehicleStateInitialParams() {
+    return defaultVehicleStateInitialParams;
+  }
+
+  public static ExecutorService getExecutor() {
+    return executor;
   }
 
   public static InferenceInstance getInferenceInstance(
@@ -84,47 +139,58 @@ public class InferenceService extends UntypedActor {
   }
 
   public static InferenceInstance getOrCreateInferenceInstance(
-    String vehicleId, boolean isSimulation, INFO_LEVEL infoLevel) {
+    String vehicleId,
+    VehicleStateInitialParameters initialParameters,
+    String filterTypeName,
+    boolean isSimulation, INFO_LEVEL infoLevel) {
+
     InferenceInstance ie = vehicleToInstance.get(vehicleId);
 
     if (ie == null) {
-      ie = new InferenceInstance(vehicleId, isSimulation, infoLevel, null);
+      ie =
+          new InferenceInstance(vehicleId, isSimulation, infoLevel,
+              initialParameters, filterTypeName);
       vehicleToInstance.put(vehicleId, ie);
     }
 
     return ie;
   }
 
-  private static class UpdateRunnable implements Runnable {
-
-    final Observation obs;
-    final InferenceInstance ie;
-
-    UpdateRunnable(Observation obs, InferenceInstance ie) {
-      super();
-      this.obs = obs;
-      this.ie = ie;
-    }
-    
-    @Override
-    public void run() {
-      ie.update(obs);
-    }
-          
-  }
-  
   /**
    * This will process a record for an already existing
    * {@link #InferenceInstance}, or it will create a new one.
    * 
    * @param observation
+   * @return boolean true if an instance was found and processed
    */
-  public static void processRecord(Observation observation) {
+  public static boolean processRecord(Observation observation) {
 
-    final InferenceInstance ie = getOrCreateInferenceInstance(
-        observation.getVehicleId(), false, defaultInfoLevel);
+    final InferenceInstance ie =
+        getInferenceInstance(observation.getVehicleId());
+
+    if (ie == null)
+      return false;
 
     executor.execute(new UpdateRunnable(observation, ie));
+
+    return true;
+  }
+
+  public static void
+      processRecords(List<Observation> observations,
+        VehicleStateInitialParameters initialParameters,
+        String filterTypeName,
+        INFO_LEVEL level) throws InterruptedException {
+
+    final List<Callable<Object>> tasks = Lists.newArrayList();
+    for (final Observation obs : observations) {
+      final InferenceInstance ie =
+          getOrCreateInferenceInstance(obs.getVehicleId(),
+              initialParameters, filterTypeName, false, level);
+      tasks.add(Executors.callable(new UpdateRunnable(obs, ie)));
+    }
+
+    executor.invokeAll(tasks);
   }
 
   public static void remove(String name) {
@@ -132,23 +198,14 @@ public class InferenceService extends UntypedActor {
     Observation.remove(name);
   }
 
-  public static ExecutorService getExecutor() {
-    return executor;
+  public static void setDefaultInfoLevel(INFO_LEVEL defaultInfoLevel) {
+    InferenceService.defaultInfoLevel = defaultInfoLevel;
   }
 
-  public static void processRecords(
-    List<Observation> observations, INFO_LEVEL level) 
-        throws InterruptedException {
-    
-    List<Callable<Object>> tasks = Lists.newArrayList();    
-    for(Observation obs : observations) {
-      final InferenceInstance ie = getOrCreateInferenceInstance(
-          obs.getVehicleId(), false, level);
-      tasks.add(Executors.callable(new UpdateRunnable(obs, ie)));
-    }
-
-    executor.invokeAll(tasks); 
+  public static void setDefaultVehicleStateInitialParams(
+    VehicleStateInitialParameters defaultVehicleStateInitialParams) {
+    InferenceService.defaultVehicleStateInitialParams =
+        defaultVehicleStateInitialParams;
   }
-
 
 }
