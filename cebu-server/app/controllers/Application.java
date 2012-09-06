@@ -163,31 +163,45 @@ public class Application extends Controller {
     	ok();
     }
     
+    public static void benchmark() {
+    	
+    	
+    }
+    
+    
     public static void velocities() {
     	
     	HashMap<Integer, Double> baseline = Api.getGraph().getDataCube().filterAndGroup(new HashMap<String, Integer>(), "edge");
     	
-    	HashMap<String, Integer> filter = new HashMap<String, Integer>();
     	
-    	//filter.put("interval", 22); 	
-    	
-    	HashMap<Integer, Double> h12 =  Api.getGraph().getDataCube().filterAndGroup(filter, "interval");
-    	
-    	HashMap<Integer, Double> delta = new HashMap<Integer, Double>();
-    	
-    	for(Integer edgeId : h12.keySet())
+    	for(int interval = 0; interval < 24; interval++)
     	{
-    		if(baseline.containsKey(edgeId))
-    			delta.put(edgeId, h12.get(edgeId) - baseline.get(edgeId));
+    		HashMap<String, Integer> filterParams = new HashMap<String, Integer>();
+        	
+        	filterParams.put("interval", interval);
+        	
+        	HashMap<Integer, Double> intervalData = Api.getGraph().getDataCube().filterAndGroup(filterParams, "edge");
+        	
+        	for(Integer edgeId : baseline.keySet())
+        	{
+        		if(intervalData.keySet().contains(edgeId))
+        		{
+        			Double v = intervalData.get(edgeId);
+        			
+        			StreetEdge.em().createNativeQuery("UPDATE streetedge SET v" + interval + " = ?, c" + interval + " = ? WHERE edgeid = ?")
+        				.setParameter(1, v)
+        				.setParameter(2, v - baseline.get(edgeId))
+        				.setParameter(3, edgeId).executeUpdate(); 
+        		}
+        	}
     	}
+    
     	
-    	//renderJSON(h12);
-   
-    	
-    	
-    	for(Integer edgeId : baseline.keySet())
-    	{
-			StreetEdge streetEdge = new StreetEdge();
+//    	for(Integer edgeId : baseline.keySet())
+//  	{
+
+    		
+    		/* StreetEdge streetEdge = new StreetEdge();
 			streetEdge.edgeId = edgeId; 
 			
 			if(baseline.containsKey(edgeId))
@@ -247,10 +261,14 @@ public class Application extends Controller {
 		    	Logger.error("Can't transform geom.");
 		    }
 			
-			streetEdge.save();
-    	}
+			streetEdge.save(); */
+    		
+    		
+    	//}
     	
-    	renderJSON(baseline);
+    	ok();
+    	
+    	//renderJSON(baseline);
     }
 
 }
