@@ -114,7 +114,6 @@ $(document).ready(function() {
 	  change: sliderChange });
   
   $( "#datepicker" ).datepicker({
-		numberOfMonths: 3,
 		showButtonPanel: true,
 		disabled: true
 	});
