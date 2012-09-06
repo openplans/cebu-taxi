@@ -32,103 +32,103 @@ server {
 
 # proxy to Apache 2 and mod_python
 location /tiles_avg {
-  proxy_pass         http://127.0.0.1:9049/tiles_avg;
+  proxy_pass         http://127.0.0.1:8010/tiles_avg;
         }
 
 location /tiles_c0 {
-  proxy_pass         http://127.0.0.1:9050/tiles_c0;
+  proxy_pass         http://127.0.0.1:8010/tiles_c0;
         }
 
 location /tiles_c1 {
-  proxy_pass         http://127.0.0.1:9051/tiles_c1;
+  proxy_pass         http://127.0.0.1:8010/tiles_c1;
         }
 
 location /tiles_c2 {
-  proxy_pass         http://127.0.0.1:9052/tiles_c2;
+  proxy_pass         http://127.0.0.1:8010/tiles_c2;
         }
 
 location /tiles_c3 {
-  proxy_pass         http://127.0.0.1:9053/tiles_c3;
+  proxy_pass         http://127.0.0.1:8010/tiles_c3;
         }
 
 location /tiles_c4 {
-  proxy_pass         http://127.0.0.1:9054/tiles_c4;
+  proxy_pass         http://127.0.0.1:8010/tiles_c4;
         }
 
 location /tiles_c5 {
-  proxy_pass         http://127.0.0.1:9055/tiles_c5;
+  proxy_pass         http://127.0.0.1:8010/tiles_c5;
         }
 
 location /tiles_c6 {
-  proxy_pass         http://127.0.0.1:9056/tiles_c6;
+  proxy_pass         http://127.0.0.1:8010/tiles_c6;
         }
 
 location /tiles_c7 {
-  proxy_pass         http://127.0.0.1:9057/tiles_c7;
+  proxy_pass         http://127.0.0.1:8010/tiles_c7;
         }
 
 location /tiles_c8 {
-  proxy_pass         http://127.0.0.1:9058/tiles_c8;
+  proxy_pass         http://127.0.0.1:8010/tiles_c8;
         }
 
 location /tiles_c9 {
-  proxy_pass         http://127.0.0.1:9059/tiles_c9;
+  proxy_pass         http://127.0.0.1:8010/tiles_c9;
         }
 
 location /tiles_c10 {
-  proxy_pass         http://127.0.0.1:9060/tiles_c10;
+  proxy_pass         http://127.0.0.1:8010/tiles_c10;
         }
 
 location /tiles_c11 {
-  proxy_pass         http://127.0.0.1:9061/tiles_c11;
+  proxy_pass         http://127.0.0.1:8010/tiles_c11;
         }
 
 location /tiles_c12 {
-  proxy_pass         http://127.0.0.1:9062/tiles_c12;
+  proxy_pass         http://127.0.0.1:8010/tiles_c12;
         }
 
 location /tiles_c13 {
-  proxy_pass         http://127.0.0.1:9063/tiles_c13;
+  proxy_pass         http://127.0.0.1:8010/tiles_c13;
         }
 
 location /tiles_c14 {
-  proxy_pass         http://127.0.0.1:9064/tiles_c14;
+  proxy_pass         http://127.0.0.1:8010/tiles_c14;
         }
 
 location /tiles_c15 {
-  proxy_pass         http://127.0.0.1:9065/tiles_c15;
+  proxy_pass         http://127.0.0.1:8010/tiles_c15;
         }
 
 location /tiles_c16 {
-  proxy_pass         http://127.0.0.1:9066/tiles_c16;
+  proxy_pass         http://127.0.0.1:8010/tiles_c16;
         }
 
 location /tiles_c17 {
-  proxy_pass         http://127.0.0.1:9067/tiles_c17;
+  proxy_pass         http://127.0.0.1:8010/tiles_c17;
         }
 
 location /tiles_c18 {
-  proxy_pass         http://127.0.0.1:9068/tiles_c18;
+  proxy_pass         http://127.0.0.1:8010/tiles_c18;
         }
 
 location /tiles_c19 {
-  proxy_pass         http://127.0.0.1:9069/tiles_c19;
+  proxy_pass         http://127.0.0.1:8010/tiles_c19;
         }
 
 location /tiles_c20 {
-  proxy_pass         http://127.0.0.1:9070/tiles_c20;
+  proxy_pass         http://127.0.0.1:8010/tiles_c20;
         }
 
 location /tiles_c21 {
-  proxy_pass         http://127.0.0.1:9071/tiles_c21;
+  proxy_pass         http://127.0.0.1:8010/tiles_c21;
         }
 
 location /tiles_c22 {
-  proxy_pass         http://127.0.0.1:9072/tiles_c22;
+  proxy_pass         http://127.0.0.1:8010/tiles_c22;
         }
 
 location /tiles_c23 {
-  proxy_pass         http://127.0.0.1:9073/tiles_c23;
+  proxy_pass         http://127.0.0.1:8010/tiles_c23;
         }
 
 }
