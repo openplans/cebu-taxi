@@ -3,7 +3,7 @@ var startLatLng = new L.LatLng(10.3181373, 123.8956844);
 
 var mbUrl = 'http://{s}.tiles.mapbox.com/v3/openplans.map-g4j0dszr/{z}/{x}/{y}.png';
 
-var cebuUrl = 'http://localhost/tiles_avg/{z}/{x}/{y}.png';
+var cebuUrl = '/tiles_avg/{z}/{x}/{y}.png';
 
 var IncidentIcon = L.Icon.extend({
     iconUrl: '/public/images/caraccident.png',

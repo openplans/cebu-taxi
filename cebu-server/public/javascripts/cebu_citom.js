@@ -100,7 +100,7 @@ $(document).ready(function() {
   
   for(var i = 0; i < 24; i++)
   {
-  	var cebuUrl = 'http://localhost/tiles_c' + i + '/{z}/{x}/{y}.png';
+  	var cebuUrl = '/tiles_c' + i + '/{z}/{x}/{y}.png';
   	cLayers[i] = new L.TileLayer(cebuUrl, mbOptions);
   }
   
