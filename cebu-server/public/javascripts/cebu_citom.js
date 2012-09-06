@@ -3,7 +3,9 @@ var startLatLng = new L.LatLng(10.3181373, 123.8956844);
 
 var mbUrl = 'http://{s}.tiles.mapbox.com/v3/openplans.map-g4j0dszr/{z}/{x}/{y}.png';
 
-var cebuUrl = 'http://localhost/tiles_avg/{z}/{x}/{y}.png';
+var cLayers = new Array();
+
+var overlays = new L.LayerGroup();
 
 var IncidentIcon = L.Icon.extend({
     iconUrl: '/public/images/caraccident.png',
@@ -78,32 +80,45 @@ function updateIncidents()
 
 // main 
 
+function sliderChange(event, ui)
+{
+	$('#hourLabel').text($( "#slider" ).slider( "value"));
+	
+	overlays.clearLayers();
+	
+	overlays.addLayer(cLayers[$( "#slider" ).slider( "value")]);
+	
+}
+
 $(document).ready(function() {
 	
   map = new L.Map('map');
 
   var mb = new L.TileLayer(mbUrl, mbOptions);
   map.addLayer(mb);
-
-  var cebu = new L.TileLayer(cebuUrl, mbOptions);
-  map.addLayer(cebu);
-
-  var congestion = new L.TileLayer(cebuUrl, mbOptions);
   
-  map.addLayer(incidentLayer);
+  
+  for(var i = 0; i < 24; i++)
+  {
+  	var cebuUrl = 'http://localhost/tiles_c' + i + '/{z}/{x}/{y}.png';
+  	cLayers[i] = new L.TileLayer(cebuUrl, mbOptions);
+  }
+  
+  overlays.addLayer(cLayers[0]);
+  
+  map.addLayer(overlays);
   
   map.setView(startLatLng, 15, true);
   
-  var overlays = {
-		    "Velocity": cebu,
-		    "Congestion": congestion,
-		    "Incidents": incidentLayer
-  };
- 
-  var layersControl = new L.Control.Layers(null, overlays);
-
-  map.addControl(layersControl);
+  $( "#slider" ).slider({ min: 0, max: 23, 
+	  change: sliderChange });
   
-  loadIncidents();
+  $( "#datepicker" ).datepicker({
+		numberOfMonths: 3,
+		showButtonPanel: true,
+		disabled: true
+	});
 
 });
+
+
