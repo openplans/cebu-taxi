@@ -2,7 +2,7 @@
 
 var mbUrl = 'http://{s}.tiles.mapbox.com/v3/openplans.map-ky03eiac/{z}/{x}/{y}.png';
 
-var overlayUrl = 'http://cebutraffic.org/tiles_avg{z}/{x}/{y}.png';
+var overlayUrl = 'http://cebutraffic.org/tiles_avg/{z}/{x}/{y}.png';
 
 
 var mbAttrib = 'Traffic overlay powered by OpenPlans Vehicle Tracking Tools, Map tiles &copy; Mapbox (terms).';
