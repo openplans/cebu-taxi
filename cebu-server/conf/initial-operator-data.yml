@@ -1,17 +1,12 @@
+Operator(richielda ):
+       name: Richielda 
+
 Operator(spyder):
-       name: Spyder
+       name: Spider/Scorpion
 
 Operator(ctc):
        name: CTC
 
-Operator(dragon):
-       name: Dragon
-
-Driver(kevin):
-       name: Kevin
-       driverId: ABC123
-
-Driver(richard):
-       name: Richard
-       driverId: XYZ789
+Operator(holiday):
+       name: Holiday
 

@@ -1,0 +1,700 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  SIGSEGV (0xb) at pc=0x00007f2fd9518578, pid=5454, tid=139843378894592
+#
+# JRE version: 6.0_22-b22
+# Java VM: OpenJDK 64-Bit Server VM (20.0-b11 mixed mode linux-amd64 compressed oops)
+# Derivative: IcedTea6 1.10.6
+# Distribution: Ubuntu 11.04, package 6b22-1.10.6-0ubuntu1
+# Problematic frame:
+# V  [libjvm.so+0x5ec578]  PhaseIdealLoop::build_loop_late_post(Node*)+0x158
+#
+# If you would like to submit a bug report, please include
+# instructions how to reproduce the bug and visit:
+#   https://bugs.launchpad.net/ubuntu/+source/openjdk-6/
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x00000000009be800):  JavaThread "C2 CompilerThread0" daemon [_thread_in_native, id=5469, stack(0x00007f2fd2dc5000,0x00007f2fd2ec6000)]
+
+siginfo:si_signo=SIGSEGV: si_errno=0, si_code=1 (SEGV_MAPERR), si_addr=0x0000000000000008
+
+Registers:
+RAX=0x0000000000000000, RBX=0x00007f2fd2ec2890, RCX=0x0000000000d37ca0, RDX=0x0000000000002000
+RSP=0x00007f2fd2ec10b0, RBP=0x00007f2fd2ec10f0, RSI=0x00007f2fc49d40d0, RDI=0x0000000000000000
+R8 =0x00007f2fc4cdd480, R9 =0x00007f2fd2ec2890, R10=0x00007f2fc49d40d0, R11=0x0000000000000000
+R12=0x0000000000ca5b50, R13=0x00007f2fc43ae3d8, R14=0x00007f2fd2ec28b0, R15=0x00007f2fc4a587b8
+RIP=0x00007f2fd9518578, EFLAGS=0x0000000000010283, CSGSFS=0x0000000000000033, ERR=0x0000000000000004
+  TRAPNO=0x000000000000000e
+
+Top of Stack: (sp=0x00007f2fd2ec10b0)
+0x00007f2fd2ec10b0:   00007f2fc4358388 00007f2fd2ec1380
+0x00007f2fd2ec10c0:   00007f2fd2ec10f0 00007f2fd2ec2890
+0x00007f2fd2ec10d0:   0000000000000002 0000000000ca5b50
+0x00007f2fd2ec10e0:   00007f2fc4a60098 00007f2fd2ec1380
+0x00007f2fd2ec10f0:   00007f2fd2ec1160 00007f2fd9518b5b
+0x00007f2fd2ec1100:   0000000000000001 00007f2f00000100
+0x00007f2fd2ec1110:   00007f2f00000001 00007f2fd2ec3230
+0x00007f2fd2ec1120:   00007f2fd2ec1360 00007f2fd2ec13c0
+0x00007f2fd2ec1130:   0000000000001804 00007f2fd2ec2890
+0x00007f2fd2ec1140:   0000000000000001 0000000000000007
+0x00007f2fd2ec1150:   0000000000000001 00007f2fc45cc350
+0x00007f2fd2ec1160:   00007f2fd2ec1410 00007f2fd9519497
+0x00007f2fd2ec1170:   0000000000000000 00007f2fd95adf47
+0x00007f2fd2ec1180:   0000000000007fe8 00007f2fc45cc2e0
+0x00007f2fd2ec1190:   00007f2fd2ec11e0 00007f2fd2ec28b0
+0x00007f2fd2ec11a0:   00007f2fd2ec11d0 00007f2fc43ade90
+0x00007f2fd2ec11b0:   00007f2fd9b10900 00000000c0102770
+0x00007f2fd2ec11c0:   00007f2fd2ec1210 00007f2fd9595db7
+0x00007f2fd2ec11d0:   00007f2fd2ec11f0 00007f2fd9595317
+0x00007f2fd2ec11e0:   00007f2fd2ec1210 0000000000000000
+0x00007f2fd2ec11f0:   00007f2fd2ec1210 000000000000ffa0
+0x00007f2fd2ec1200:   000000000001ffc0 00007f2fd2ec1240
+0x00007f2fd2ec1210:   00007f2fd2ec1230 00007f2fd93b6765
+0x00007f2fd2ec1220:   00007f2fc4183680 00007f2fc4280640
+0x00007f2fd2ec1230:   00000000011eb280 00000000d2ec1e80
+0x00007f2fd2ec1240:   00007f2fd2ec12a0 00007f2fc4a5a280
+0x00007f2fd2ec1250:   00007f2fc42806f0 00007f2fc4000020
+0x00007f2fd2ec1260:   00007f2fd2ec12f0 0000000000010010
+0x00007f2fd2ec1270:   00007f2fc4a240e0 0000000000010000
+0x00007f2fd2ec1280:   00007f2fc4a256f8 00007f2fd9bc2e1e
+0x00007f2fd2ec1290:   0000000000019200 00007f2fd2ec12d0
+0x00007f2fd2ec12a0:   00007f2fd2ec12c0 00007f2fd9255881 
+
+Instructions: (pc=0x00007f2fd9518578)
+0x00007f2fd9518558:   84 d8 03 00 00 8b 70 28 49 89 c7 0f 1f 44 00 00
+0x00007f2fd9518568:   4c 8b 93 e0 09 00 00 89 f6 49 8d 34 f2 48 8b 06
+0x00007f2fd9518578:   48 8b 50 08 48 83 3a 00 75 27 8b 4b 28 0f 1f 00
+0x00007f2fd9518588:   8b 50 28 31 c0 39 ca 73 0e 48 8b 43 30 89 d2 48 
+
+Register to memory mapping:
+
+RAX=0x0000000000000000 is an unknown value
+RBX=0x00007f2fd2ec2890 is pointing into the stack for thread: 0x00000000009be800
+RCX=0x0000000000d37ca0 is an unknown value
+RDX=0x0000000000002000 is an unknown value
+RSP=0x00007f2fd2ec10b0 is pointing into the stack for thread: 0x00000000009be800
+RBP=0x00007f2fd2ec10f0 is pointing into the stack for thread: 0x00000000009be800
+RSI=0x00007f2fc49d40d0 is an unknown value
+RDI=0x0000000000000000 is an unknown value
+R8 =0x00007f2fc4cdd480 is an unknown value
+R9 =0x00007f2fd2ec2890 is pointing into the stack for thread: 0x00000000009be800
+R10=0x00007f2fc49d40d0 is an unknown value
+R11=0x0000000000000000 is an unknown value
+R12=0x0000000000ca5b50 is an unknown value
+R13=0x00007f2fc43ae3d8 is an unknown value
+R14=0x00007f2fd2ec28b0 is pointing into the stack for thread: 0x00000000009be800
+R15=0x00007f2fc4a587b8 is an unknown value
+
+
+Stack: [0x00007f2fd2dc5000,0x00007f2fd2ec6000],  sp=0x00007f2fd2ec10b0,  free space=1008k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+V  [libjvm.so+0x5ec578]  PhaseIdealLoop::build_loop_late_post(Node*)+0x158
+V  [libjvm.so+0x5ecb5b]  PhaseIdealLoop::build_loop_late(VectorSet&, Node_List&, Node_Stack&)+0x10b
+V  [libjvm.so+0x5ed497]  PhaseIdealLoop::build_and_optimize(bool, bool)+0x757
+V  [libjvm.so+0x392af5]  Compile::Optimize()+0xdc5
+V  [libjvm.so+0x393789]  Compile::Compile(ciEnv*, C2Compiler*, ciMethod*, int, bool, bool)+0xae9
+V  [libjvm.so+0x319b60]  C2Compiler::compile_method(ciEnv*, ciMethod*, int)+0xe0
+V  [libjvm.so+0x398084]  CompileBroker::invoke_compiler_on_method(CompileTask*)+0x294
+V  [libjvm.so+0x3988d1]  CompileBroker::compiler_thread_loop()+0x381
+V  [libjvm.so+0x793b18]  JavaThread::thread_main_inner()+0x58
+V  [libjvm.so+0x686e52]  java_start(Thread*)+0x112
+
+
+Current CompileTask:
+C2: 717033 874      jregex.Pretokenizer.next()V (1064 bytes)
+
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+  0x0000000001286000 JavaThread "com.mchange.v2.async.ThreadPoolAsynchronousRunner$PoolThread-#2" daemon [_thread_blocked, id=6072, stack(0x00007f2fd03a6000,0x00007f2fd04a7000)]
+  0x0000000000f0e000 JavaThread "com.mchange.v2.async.ThreadPoolAsynchronousRunner$PoolThread-#1" daemon [_thread_blocked, id=6071, stack(0x00007f2fd08ab000,0x00007f2fd09ac000)]
+  0x00000000021b7800 JavaThread "com.mchange.v2.async.ThreadPoolAsynchronousRunner$PoolThread-#0" daemon [_thread_blocked, id=6070, stack(0x00007f2fd14b7000,0x00007f2fd15b8000)]
+  0x0000000000c15000 JavaThread "Timer-26" daemon [_thread_blocked, id=6069, stack(0x00007f2fd00a3000,0x00007f2fd01a4000)]
+  0x00007f2fc420c000 JavaThread "New I/O  worker #2" [_thread_in_native, id=6047, stack(0x00007f2fcbbfc000,0x00007f2fcbcfd000)]
+  0x0000000000c14000 JavaThread "com.mchange.v2.async.ThreadPoolAsynchronousRunner$PoolThread-#2" daemon [_thread_blocked, id=6008, stack(0x00007f2fd0fb2000,0x00007f2fd10b3000)]
+  0x0000000000c13800 JavaThread "com.mchange.v2.async.ThreadPoolAsynchronousRunner$PoolThread-#1" daemon [_thread_blocked, id=6007, stack(0x00007f2fd0bae000,0x00007f2fd0caf000)]
+  0x0000000000a2a000 JavaThread "com.mchange.v2.async.ThreadPoolAsynchronousRunner$PoolThread-#0" daemon [_thread_blocked, id=6006, stack(0x00007f2fd05a8000,0x00007f2fd06a9000)]
+  0x0000000000a29800 JavaThread "Timer-24" daemon [_thread_blocked, id=6005, stack(0x00007f2fd0caf000,0x00007f2fd0db0000)]
+  0x0000000000a28800 JavaThread "com.mchange.v2.async.ThreadPoolAsynchronousRunner$PoolThread-#2" daemon [_thread_blocked, id=5958, stack(0x00007f2fd07aa000,0x00007f2fd08ab000)]
+  0x0000000000b97800 JavaThread "com.mchange.v2.async.ThreadPoolAsynchronousRunner$PoolThread-#1" daemon [_thread_blocked, id=5957, stack(0x00007f2fd15b8000,0x00007f2fd16b9000)]
+  0x0000000000b97000 JavaThread "com.mchange.v2.async.ThreadPoolAsynchronousRunner$PoolThread-#0" daemon [_thread_blocked, id=5956, stack(0x00007f2fd06a9000,0x00007f2fd07aa000)]
+  0x0000000000c28000 JavaThread "Timer-22" daemon [_thread_blocked, id=5955, stack(0x00007f2fd11b4000,0x00007f2fd12b5000)]
+  0x00007f2fc420d800 JavaThread "com.mchange.v2.async.ThreadPoolAsynchronousRunner$PoolThread-#2" daemon [_thread_blocked, id=5927, stack(0x00007f2fd1dc5000,0x00007f2fd1ec6000)]
+  0x00007f2fc420c800 JavaThread "com.mchange.v2.async.ThreadPoolAsynchronousRunner$PoolThread-#1" daemon [_thread_blocked, id=5926, stack(0x00007f2fd09ac000,0x00007f2fd0aad000)]
+  0x00007f2fc47ef800 JavaThread "com.mchange.v2.async.ThreadPoolAsynchronousRunner$PoolThread-#0" daemon [_thread_blocked, id=5925, stack(0x00007f2fd1bc3000,0x00007f2fd1cc4000)]
+  0x00007f2fc4b06000 JavaThread "Timer-20" daemon [_thread_blocked, id=5924, stack(0x00007f2fd04a7000,0x00007f2fd05a8000)]
+  0x00007f2fc4669000 JavaThread "pool-2-thread-8" [_thread_blocked, id=5912, stack(0x00007f2fd13b6000,0x00007f2fd14b7000)]
+  0x00007f2fc4805800 JavaThread "pool-2-thread-6" [_thread_blocked, id=5702, stack(0x00007f2fd12b5000,0x00007f2fd13b6000)]
+  0x00007f2fc5533800 JavaThread "pool-2-thread-5" [_thread_blocked, id=5701, stack(0x00007f2fd0eb1000,0x00007f2fd0fb2000)]
+  0x0000000000dc2000 JavaThread "com.mchange.v2.async.ThreadPoolAsynchronousRunner$PoolThread-#2" daemon [_thread_blocked, id=5614, stack(0x00007f2fd17ba000,0x00007f2fd18bb000)]
+  0x0000000000a83000 JavaThread "com.mchange.v2.async.ThreadPoolAsynchronousRunner$PoolThread-#1" daemon [_thread_blocked, id=5613, stack(0x00007f2fd16b9000,0x00007f2fd17ba000)]
+  0x0000000000f1b800 JavaThread "com.mchange.v2.async.ThreadPoolAsynchronousRunner$PoolThread-#0" daemon [_thread_blocked, id=5612, stack(0x00007f2fd18bb000,0x00007f2fd19bc000)]
+  0x0000000000a16800 JavaThread "Timer-1" daemon [_thread_blocked, id=5611, stack(0x00007f2fd0aad000,0x00007f2fd0bae000)]
+  0x00007f2fc418e800 JavaThread "play-thread-1" [_thread_blocked, id=5475, stack(0x00007f2fd1cc4000,0x00007f2fd1dc5000)]
+  0x00007f2fcc531000 JavaThread "DestroyJavaVM" [_thread_blocked, id=5457, stack(0x00007f2fda80f000,0x00007f2fda910000)]
+  0x00007f2fcc464000 JavaThread "New I/O server boss #1 ([id: 0x4a504ec1, /0:0:0:0:0:0:0:0:9001])" [_thread_in_native, id=5473, stack(0x00007f2fd1ec6000,0x00007f2fd1fc7000)]
+  0x00007f2fcc001000 JavaThread "Low Memory Detector" daemon [_thread_blocked, id=5471, stack(0x00007f2fd2bc3000,0x00007f2fd2cc4000)]
+  0x00000000009c1000 JavaThread "C2 CompilerThread1" daemon [_thread_blocked, id=5470, stack(0x00007f2fd2cc4000,0x00007f2fd2dc5000)]
+=>0x00000000009be800 JavaThread "C2 CompilerThread0" daemon [_thread_in_native, id=5469, stack(0x00007f2fd2dc5000,0x00007f2fd2ec6000)]
+  0x00000000009b2000 JavaThread "JDWP Event Helper Thread" daemon [_thread_blocked, id=5468, stack(0x00007f2fd2ec6000,0x00007f2fd2fc7000)]
+  0x00000000009ae800 JavaThread "JDWP Transport Listener: dt_socket" daemon [_thread_in_native, id=5467, stack(0x00007f2fd2fc7000,0x00007f2fd30c8000)]
+  0x0000000000978800 JavaThread "Signal Dispatcher" daemon [_thread_blocked, id=5466, stack(0x00007f2fd34fd000,0x00007f2fd35fe000)]
+  0x0000000000955000 JavaThread "Finalizer" daemon [_thread_blocked, id=5464, stack(0x00007f2fd35fe000,0x00007f2fd36ff000)]
+  0x0000000000953000 JavaThread "Reference Handler" daemon [_thread_blocked, id=5463, stack(0x00007f2fd36ff000,0x00007f2fd3800000)]
+
+Other Threads:
+  0x000000000094c000 VMThread [stack: 0x00007f2fd3800000,0x00007f2fd3901000] [id=5462]
+  0x00007f2fcc00c000 WatcherThread [stack: 0x00007f2fd2ac2000,0x00007f2fd2bc3000] [id=5472]
+
+VM state:not at safepoint (normal execution)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+Heap
+ PSYoungGen      total 22080K, used 16935K [0x00000000eaab0000, 0x00000000ecfc0000, 0x0000000100000000)
+  eden space 20672K, 75% used [0x00000000eaab0000,0x00000000eb9d9cb8,0x00000000ebee0000)
+  from space 1408K, 100% used [0x00000000ecbd0000,0x00000000ecd30000,0x00000000ecd30000)
+  to   space 2560K, 0% used [0x00000000ecd40000,0x00000000ecd40000,0x00000000ecfc0000)
+ PSOldGen        total 39808K, used 21542K [0x00000000c0000000, 0x00000000c26e0000, 0x00000000eaab0000)
+  object space 39808K, 54% used [0x00000000c0000000,0x00000000c1509a38,0x00000000c26e0000)
+ PSPermGen       total 51008K, used 50948K [0x00000000b5a00000, 0x00000000b8bd0000, 0x00000000c0000000)
+  object space 51008K, 99% used [0x00000000b5a00000,0x00000000b8bc1208,0x00000000b8bd0000)
+
+Code Cache  [0x00007f2fd4433000, 0x00007f2fd4993000, 0x00007f2fd7433000)
+ total_blobs=1465 nmethods=825 adapters=601 free_code_cache=44839936 largest_free_block=33792
+
+Dynamic libraries:
+00400000-00409000 r-xp 00000000 08:06 266228                             /usr/lib/jvm/java-6-openjdk/jre/bin/java
+00608000-00609000 r--p 00008000 08:06 266228                             /usr/lib/jvm/java-6-openjdk/jre/bin/java
+00609000-0060a000 rw-p 00009000 08:06 266228                             /usr/lib/jvm/java-6-openjdk/jre/bin/java
+008d0000-03193000 rw-p 00000000 00:00 0                                  [heap]
+b5a00000-b8bd0000 rw-p 00000000 00:00 0 
+b8bd0000-c0000000 rw-p 00000000 00:00 0 
+c0000000-c26e0000 rw-p 00000000 00:00 0 
+c26e0000-eaab0000 rw-p 00000000 00:00 0 
+eaab0000-ecfc0000 rw-p 00000000 00:00 0 
+ecfc0000-efa30000 ---p 00000000 00:00 0 
+efa30000-100000000 rw-p 00000000 00:00 0 
+7f2fc4000000-7f2fc7e11000 rw-p 00000000 00:00 0 
+7f2fc7e11000-7f2fc8000000 ---p 00000000 00:00 0 
+7f2fcb8f9000-7f2fcb8fc000 ---p 00000000 00:00 0 
+7f2fcb8fc000-7f2fcb9fa000 rw-p 00000000 00:00 0 
+7f2fcb9fa000-7f2fcb9fd000 ---p 00000000 00:00 0 
+7f2fcb9fd000-7f2fcbafb000 rw-p 00000000 00:00 0 
+7f2fcbafb000-7f2fcbafe000 ---p 00000000 00:00 0 
+7f2fcbafe000-7f2fcbbfc000 rw-p 00000000 00:00 0 
+7f2fcbbfc000-7f2fcbbff000 ---p 00000000 00:00 0 
+7f2fcbbff000-7f2fcbcfd000 rw-p 00000000 00:00 0 
+7f2fcbcfd000-7f2fcbd00000 ---p 00000000 00:00 0 
+7f2fcbd00000-7f2fcbdfe000 rw-p 00000000 00:00 0 
+7f2fcbdfe000-7f2fcbe01000 ---p 00000000 00:00 0 
+7f2fcbe01000-7f2fcbeff000 rw-p 00000000 00:00 0 
+7f2fcbeff000-7f2fcbf02000 ---p 00000000 00:00 0 
+7f2fcbf02000-7f2fcc000000 rw-p 00000000 00:00 0 
+7f2fcc000000-7f2fcf505000 rw-p 00000000 00:00 0 
+7f2fcf505000-7f2fd0000000 ---p 00000000 00:00 0 
+7f2fd00a3000-7f2fd00a6000 ---p 00000000 00:00 0 
+7f2fd00a6000-7f2fd01a4000 rw-p 00000000 00:00 0 
+7f2fd01a4000-7f2fd01a7000 ---p 00000000 00:00 0 
+7f2fd01a7000-7f2fd02a5000 rw-p 00000000 00:00 0 
+7f2fd02a5000-7f2fd02a8000 ---p 00000000 00:00 0 
+7f2fd02a8000-7f2fd03a6000 rw-p 00000000 00:00 0 
+7f2fd03a6000-7f2fd03a9000 ---p 00000000 00:00 0 
+7f2fd03a9000-7f2fd04a7000 rw-p 00000000 00:00 0 
+7f2fd04a7000-7f2fd04aa000 ---p 00000000 00:00 0 
+7f2fd04aa000-7f2fd05a8000 rw-p 00000000 00:00 0 
+7f2fd05a8000-7f2fd05ab000 ---p 00000000 00:00 0 
+7f2fd05ab000-7f2fd06a9000 rw-p 00000000 00:00 0 
+7f2fd06a9000-7f2fd06ac000 ---p 00000000 00:00 0 
+7f2fd06ac000-7f2fd07aa000 rw-p 00000000 00:00 0 
+7f2fd07aa000-7f2fd07ad000 ---p 00000000 00:00 0 
+7f2fd07ad000-7f2fd08ab000 rw-p 00000000 00:00 0 
+7f2fd08ab000-7f2fd08ae000 ---p 00000000 00:00 0 
+7f2fd08ae000-7f2fd09ac000 rw-p 00000000 00:00 0 
+7f2fd09ac000-7f2fd09af000 ---p 00000000 00:00 0 
+7f2fd09af000-7f2fd0aad000 rw-p 00000000 00:00 0 
+7f2fd0aad000-7f2fd0ab0000 ---p 00000000 00:00 0 
+7f2fd0ab0000-7f2fd0bae000 rw-p 00000000 00:00 0 
+7f2fd0bae000-7f2fd0bb1000 ---p 00000000 00:00 0 
+7f2fd0bb1000-7f2fd0caf000 rw-p 00000000 00:00 0 
+7f2fd0caf000-7f2fd0cb2000 ---p 00000000 00:00 0 
+7f2fd0cb2000-7f2fd0db0000 rw-p 00000000 00:00 0 
+7f2fd0db0000-7f2fd0db3000 ---p 00000000 00:00 0 
+7f2fd0db3000-7f2fd0eb1000 rw-p 00000000 00:00 0 
+7f2fd0eb1000-7f2fd0eb4000 ---p 00000000 00:00 0 
+7f2fd0eb4000-7f2fd0fb2000 rw-p 00000000 00:00 0 
+7f2fd0fb2000-7f2fd0fb5000 ---p 00000000 00:00 0 
+7f2fd0fb5000-7f2fd10b3000 rw-p 00000000 00:00 0 
+7f2fd10b3000-7f2fd10b6000 ---p 00000000 00:00 0 
+7f2fd10b6000-7f2fd11b4000 rw-p 00000000 00:00 0 
+7f2fd11b4000-7f2fd11b7000 ---p 00000000 00:00 0 
+7f2fd11b7000-7f2fd12b5000 rw-p 00000000 00:00 0 
+7f2fd12b5000-7f2fd12b8000 ---p 00000000 00:00 0 
+7f2fd12b8000-7f2fd13b6000 rw-p 00000000 00:00 0 
+7f2fd13b6000-7f2fd13b9000 ---p 00000000 00:00 0 
+7f2fd13b9000-7f2fd14b7000 rw-p 00000000 00:00 0 
+7f2fd14b7000-7f2fd14ba000 ---p 00000000 00:00 0 
+7f2fd14ba000-7f2fd15b8000 rw-p 00000000 00:00 0 
+7f2fd15b8000-7f2fd15bb000 ---p 00000000 00:00 0 
+7f2fd15bb000-7f2fd16b9000 rw-p 00000000 00:00 0 
+7f2fd16b9000-7f2fd16bc000 ---p 00000000 00:00 0 
+7f2fd16bc000-7f2fd17ba000 rw-p 00000000 00:00 0 
+7f2fd17ba000-7f2fd17bd000 ---p 00000000 00:00 0 
+7f2fd17bd000-7f2fd18bb000 rw-p 00000000 00:00 0 
+7f2fd18bb000-7f2fd18be000 ---p 00000000 00:00 0 
+7f2fd18be000-7f2fd19bc000 rw-p 00000000 00:00 0 
+7f2fd19bc000-7f2fd19c2000 r-xp 00000000 08:06 266218                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libmanagement.so
+7f2fd19c2000-7f2fd1bc1000 ---p 00006000 08:06 266218                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libmanagement.so
+7f2fd1bc1000-7f2fd1bc2000 r--p 00005000 08:06 266218                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libmanagement.so
+7f2fd1bc2000-7f2fd1bc3000 rw-p 00006000 08:06 266218                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libmanagement.so
+7f2fd1bc3000-7f2fd1bc6000 ---p 00000000 00:00 0 
+7f2fd1bc6000-7f2fd1cc4000 rw-p 00000000 00:00 0 
+7f2fd1cc4000-7f2fd1cc7000 ---p 00000000 00:00 0 
+7f2fd1cc7000-7f2fd1dc5000 rw-p 00000000 00:00 0 
+7f2fd1dc5000-7f2fd1dc8000 ---p 00000000 00:00 0 
+7f2fd1dc8000-7f2fd1ec6000 rw-p 00000000 00:00 0 
+7f2fd1ec6000-7f2fd1ec9000 ---p 00000000 00:00 0 
+7f2fd1ec9000-7f2fd1fc7000 rw-p 00000000 00:00 0 
+7f2fd1fc7000-7f2fd1fcf000 r-xp 00000000 08:06 266221                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libnio.so
+7f2fd1fcf000-7f2fd21ce000 ---p 00008000 08:06 266221                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libnio.so
+7f2fd21ce000-7f2fd21cf000 r--p 00007000 08:06 266221                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libnio.so
+7f2fd21cf000-7f2fd21d0000 rw-p 00008000 08:06 266221                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libnio.so
+7f2fd21d0000-7f2fd21e5000 r-xp 00000000 08:06 266220                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libnet.so
+7f2fd21e5000-7f2fd23e4000 ---p 00015000 08:06 266220                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libnet.so
+7f2fd23e4000-7f2fd23e5000 r--p 00014000 08:06 266220                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libnet.so
+7f2fd23e5000-7f2fd23e6000 rw-p 00015000 08:06 266220                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libnet.so
+7f2fd23e6000-7f2fd23f5000 r--s 000b0000 08:06 8392941                    /home/kwebb/.m2/repository/org/codehaus/jackson/jackson-mapper-asl/1.9.7/jackson-mapper-asl-1.9.7.jar
+7f2fd23f5000-7f2fd23f9000 r--s 00034000 08:06 8392940                    /home/kwebb/.m2/repository/org/codehaus/jackson/jackson-core-asl/1.9.7/jackson-core-asl-1.9.7.jar
+7f2fd23f9000-7f2fd23fb000 r--s 0000c000 08:06 8434919                    /home/kwebb/.m2/repository/com/beust/jcommander/1.27/jcommander-1.27.jar
+7f2fd23fb000-7f2fd23fc000 r--s 00004000 08:06 8526292                    /home/kwebb/.m2/repository/com/jamesmurty/utils/java-xmlbuilder/0.4/java-xmlbuilder-0.4.jar
+7f2fd23fc000-7f2fd2402000 r--s 00045000 08:06 8390945                    /home/kwebb/.m2/repository/commons-httpclient/commons-httpclient/3.1/commons-httpclient-3.1.jar
+7f2fd2402000-7f2fd2404000 r--s 0000a000 08:06 8651284                    /home/kwebb/.m2/repository/commons-codec/commons-codec/1.3/commons-codec-1.3.jar
+7f2fd2404000-7f2fd240d000 r--s 00072000 08:06 8526291                    /home/kwebb/.m2/repository/net/java/dev/jets3t/jets3t/0.8.1/jets3t-0.8.1.jar
+7f2fd240d000-7f2fd2415000 r--s 00096000 08:06 8390526                    /home/kwebb/.m2/repository/hsqldb/hsqldb/1.8.0.7/hsqldb-1.8.0.7.jar
+7f2fd2415000-7f2fd2416000 r--s 001e7000 08:06 8526159                    /home/kwebb/.m2/repository/org/geotools/gt-epsg-hsql/8.0-M4/gt-epsg-hsql-8.0-M4.jar
+7f2fd2416000-7f2fd241f000 r--s 00045000 08:06 8526150                    /home/kwebb/.m2/repository/it/geosolutions/imageio-ext/imageio-ext-tiff/1.1.2/imageio-ext-tiff-1.1.2.jar
+7f2fd241f000-7f2fd2430000 r--s 00106000 08:06 8390495                    /home/kwebb/.m2/repository/javax/media/jai_imageio/1.1/jai_imageio-1.1.jar
+7f2fd2430000-7f2fd2431000 r--s 00006000 08:06 8526156                    /home/kwebb/.m2/repository/org/geotools/gt-geotiff/8.0-M4/gt-geotiff-8.0-M4.jar
+7f2fd2431000-7f2fd2433000 r--s 00010000 08:06 8526158                    /home/kwebb/.m2/repository/org/geotools/gt-data/8.0-M4/gt-data-8.0-M4.jar
+7f2fd2433000-7f2fd2437000 r--s 00034000 08:06 8526149                    /home/kwebb/.m2/repository/org/geotools/gt-shapefile/8.0-M4/gt-shapefile-8.0-M4.jar
+7f2fd2437000-7f2fd243b000 r--s 0003c000 08:06 8390493                    /home/kwebb/.m2/repository/javax/media/jai_codec/1.1.3/jai_codec-1.1.3.jar
+7f2fd243b000-7f2fd243c000 r--s 00009000 08:06 8526151                    /home/kwebb/.m2/repository/it/geosolutions/imageio-ext/imageio-ext-utilities/1.1.2/imageio-ext-utilities-1.1.2.jar
+7f2fd243c000-7f2fd243e000 r--s 0000b000 08:06 8526284                    /home/kwebb/.m2/repository/it/geosolutions/imageio-ext/imageio-ext-streams/1.1.2/imageio-ext-streams-1.1.2.jar
+7f2fd243e000-7f2fd2440000 r--s 00008000 08:06 8526283                    /home/kwebb/.m2/repository/it/geosolutions/imageio-ext/imageio-ext-arcgrid/1.1.2/imageio-ext-arcgrid-1.1.2.jar
+7f2fd2440000-7f2fd2444000 r--s 0002a000 08:06 8526172                    /home/kwebb/.m2/repository/org/jaitools/jt-utils/1.2.0/jt-utils-1.2.0.jar
+7f2fd2444000-7f2fd2445000 r--s 00004000 08:06 8526171                    /home/kwebb/.m2/repository/org/jaitools/jt-zonalstats/1.2.0/jt-zonalstats-1.2.0.jar
+7f2fd2445000-7f2fd244b000 r--s 00063000 08:06 8526144                    /home/kwebb/.m2/repository/org/geotools/gt-coverage/8.0-M4/gt-coverage-8.0-M4.jar
+7f2fd244b000-7f2fd244c000 r--s 00005000 08:06 8526282                    /home/kwebb/.m2/repository/org/geotools/gt-arcgrid/8.0-M4/gt-arcgrid-8.0-M4.jar
+7f2fd244c000-7f2fd2451000 r--s 00079000 08:06 8522079                    /home/kwebb/.m2/repository/mysql/mysql-connector-java/5.0.5/mysql-connector-java-5.0.5.jar
+7f2fd2451000-7f2fd2456000 r--s 0006f000 08:06 8522078                    /home/kwebb/.m2/repository/postgresql/postgresql/8.3-603.jdbc4/postgresql-8.3-603.jdbc4.jar
+7f2fd2456000-7f2fd245e000 r--s 0004a000 08:06 11012496                   /home/kwebb/.m2/repository/org/springframework/spring-orm/3.0.5.RELEASE/spring-orm-3.0.5.RELEASE.jar
+7f2fd245e000-7f2fd2465000 r--s 00032000 08:06 11012493                   /home/kwebb/.m2/repository/org/springframework/spring-tx/3.0.5.RELEASE/spring-tx-3.0.5.RELEASE.jar
+7f2fd2465000-7f2fd246f000 r--s 00055000 08:06 11012490                   /home/kwebb/.m2/repository/org/springframework/spring-jdbc/3.0.5.RELEASE/spring-jdbc-3.0.5.RELEASE.jar
+7f2fd246f000-7f2fd2475000 r--s 00068000 08:06 9571806                    /home/kwebb/.m2/repository/com/google/protobuf/protobuf-java/2.4.1/protobuf-java-2.4.1.jar
+7f2fd2475000-7f2fd2477000 r--s 00022000 08:06 8526290                    /home/kwebb/.m2/repository/crosby/binary/osmpbf/1.2.1/osmpbf-1.2.1.jar
+7f2fd2477000-7f2fd247b000 r--s 00020000 08:06 8390919                    /home/kwebb/.m2/repository/org/apache/commons/commons-compress/1.0/commons-compress-1.0.jar
+7f2fd247b000-7f2fd247e000 r--s 00010000 08:06 8522077                    /home/kwebb/.m2/repository/commons-discovery/commons-discovery/0.4/commons-discovery-0.4.jar
+7f2fd247e000-7f2fd2480000 r--s 00006000 08:06 8522076                    /home/kwebb/.m2/repository/org/apache/axis/axis-jaxrpc/1.4/axis-jaxrpc-1.4.jar
+7f2fd2480000-7f2fd2494000 r--s 00173000 08:06 8522075                    /home/kwebb/.m2/repository/org/apache/axis/axis/1.4/axis-1.4.jar
+7f2fd2494000-7f2fd24a4000 r--s 001a5000 08:06 8294490                    /home/kwebb/.m2/repository/org/projectlombok/lombok/0.11.2/lombok-0.11.2.jar
+7f2fd24a4000-7f2fd24bb000 r--s 00123000 08:06 8434916                    /home/kwebb/.m2/repository/org/apache/commons/commons-math3/3.0/commons-math3-3.0.jar
+7f2fd24bb000-7f2fd24bd000 r--s 0000d000 08:06 10881756                   /home/kwebb/.m2/repository/commons-codec/commons-codec/1.4/commons-codec-1.4.jar
+7f2fd24bd000-7f2fd24c2000 r--s 00028000 08:06 10491765                   /home/kwebb/.m2/repository/org/apache/httpcomponents/httpcore/4.1.2/httpcore-4.1.2.jar
+7f2fd24c2000-7f2fd24ca000 r--s 0004e000 08:06 9441809                    /home/kwebb/.m2/repository/org/apache/httpcomponents/httpclient/4.1.2/httpclient-4.1.2.jar
+7f2fd24ca000-7f2fd24cd000 r--s 00014000 08:06 8390524                    /home/kwebb/.m2/repository/net/java/dev/jsr-275/jsr-275/1.0-beta-2/jsr-275-1.0-beta-2.jar
+7f2fd24cd000-7f2fd24db000 r--s 00047000 08:06 8526148                    /home/kwebb/.m2/repository/org/geotools/gt-opengis/8.0-M4/gt-opengis-8.0-M4.jar
+7f2fd24db000-7f2fd24e4000 r--s 00073000 08:06 8526147                    /home/kwebb/.m2/repository/org/geotools/gt-metadata/8.0-M4/gt-metadata-8.0-M4.jar
+7f2fd24e4000-7f2fd24e7000 r--s 00015000 08:06 9700461                    /home/kwebb/.m2/repository/commons-pool/commons-pool/1.5.4/commons-pool-1.5.4.jar
+7f2fd24e7000-7f2fd24e9000 r--s 0003b000 08:06 8390483                    /home/kwebb/.m2/repository/java3d/vecmath/1.3.2/vecmath-1.3.2.jar
+7f2fd24e9000-7f2fd24f8000 r--s 00101000 08:06 8526146                    /home/kwebb/.m2/repository/org/geotools/gt-referencing/8.0-M4/gt-referencing-8.0-M4.jar
+7f2fd24f8000-7f2fd24fe000 r--s 00034000 08:06 9569012                    /home/kwebb/.m2/repository/junit/junit/4.8.1/junit-4.8.1.jar
+7f2fd24fe000-7f2fd2502000 r--s 00026000 08:06 10491757                   /home/kwebb/.m2/repository/org/springframework/spring-expression/3.0.5.RELEASE/spring-expression-3.0.5.RELEASE.jar
+7f2fd2502000-7f2fd2507000 r--s 0002a000 08:06 8390497                    /home/kwebb/.m2/repository/commons-beanutils/commons-beanutils/1.7.0/commons-beanutils-1.7.0.jar
+7f2fd2507000-7f2fd250a000 r--s 00014000 08:06 8783392                    /home/kwebb/.m2/repository/org/onebusaway/onebusaway-csv-entities/1.1.0/onebusaway-csv-entities-1.1.0.jar
+7f2fd250a000-7f2fd250e000 r--s 00019000 08:06 8783389                    /home/kwebb/.m2/repository/org/onebusaway/onebusaway-gtfs/1.3.0/onebusaway-gtfs-1.3.0.jar
+7f2fd250e000-7f2fd2511000 r--s 00027000 08:06 8522070                    /home/kwebb/.m2/repository/org/xerial/thirdparty/nestedvm/1.0/nestedvm-1.0.jar
+7f2fd2511000-7f2fd2516000 r--s 0023f000 08:06 8522069                    /home/kwebb/.m2/repository/org/xerial/sqlite-jdbc/3.6.16/sqlite-jdbc-3.6.16.jar
+7f2fd2516000-7f2fd251f000 r--s 00089000 08:06 8522068                    /home/kwebb/.m2/repository/javassist/javassist/3.8.0.GA/javassist-3.8.0.GA.jar
+7f2fd251f000-7f2fd2520000 r--s 00003000 08:06 8522067                    /home/kwebb/.m2/repository/javax/transaction/jta/1.1/jta-1.1.jar
+7f2fd2520000-7f2fd2525000 r--s 00016000 08:06 8522061                    /home/kwebb/.m2/repository/xml-apis/xml-apis/1.0.b2/xml-apis-1.0.b2.jar
+7f2fd2525000-7f2fd252a000 r--s 00048000 08:06 8522066                    /home/kwebb/.m2/repository/dom4j/dom4j/1.6.1/dom4j-1.6.1.jar
+7f2fd252a000-7f2fd2537000 r--s 0007c000 08:06 8522058                    /home/kwebb/.m2/repository/commons-collections/commons-collections/3.1/commons-collections-3.1.jar
+7f2fd2537000-7f2fd253d000 r--s 00067000 08:06 8522062                    /home/kwebb/.m2/repository/antlr/antlr/2.7.6/antlr-2.7.6.jar
+7f2fd253d000-7f2fd2560000 r--s 00211000 08:06 8522059                    /home/kwebb/.m2/repository/org/hibernate/hibernate-core/3.3.2.GA/hibernate-core-3.3.2.GA.jar
+7f2fd2560000-7f2fd2561000 r--s 00003000 08:06 11404184                   /home/kwebb/.m2/repository/net/sf/opencsv/opencsv/2.0/opencsv-2.0.jar
+7f2fd2561000-7f2fd257e000 r--s 0013a000 08:06 11404183                   /home/kwebb/.m2/repository/gov/sandia/foundry/gov-sandia-cognition-learning-core/3.3.2/gov-sandia-cognition-learning-core-3.3.2.jar
+7f2fd257e000-7f2fd2590000 r--s 00112000 08:06 11404182                   /home/kwebb/.m2/repository/net/sourceforge/f2j/arpack_combined_all/0.1/arpack_combined_all-0.1.jar
+7f2fd2590000-7f2fd2592000 r--s 0001f000 08:06 11404181                   /home/kwebb/.m2/repository/com/googlecode/netlib-java/netlib-java/0.9.3/netlib-java-0.9.3.jar
+7f2fd2592000-7f2fd2598000 r--s 00095000 08:06 11404180                   /home/kwebb/.m2/repository/com/googlecode/matrix-toolkits-java/mtj/0.9.14/mtj-0.9.14.jar
+7f2fd2598000-7f2fd259a000 r--s 00005000 08:06 8652877                    /home/kwebb/.m2/repository/xpp3/xpp3_min/1.1.4c/xpp3_min-1.1.4c.jar
+7f2fd259a000-7f2fd25a5000 r--s 0005f000 08:06 8652876                    /home/kwebb/.m2/repository/com/thoughtworks/xstream/xstream/1.3.1/xstream-1.3.1.jar
+7f2fd25a5000-7f2fd25ad000 r--s 0004e000 08:06 11404179                   /home/kwebb/.m2/repository/gov/sandia/foundry/gov-sandia-cognition-common-core/3.3.2/gov-sandia-cognition-common-core-3.3.2.jar
+7f2fd25ad000-7f2fd25b0000 r--s 00006000 08:06 9568975                    /home/kwebb/.m2/repository/com/google/code/findbugs/jsr305/1.3.9/jsr305-1.3.9.jar
+7f2fd25b0000-7f2fd25d0000 r--s 00173000 08:06 11404178                   /home/kwebb/.m2/repository/com/google/guava/guava/11.0.1/guava-11.0.1.jar
+7f2fd25d0000-7f2fd25d7000 r--s 00053000 08:06 8522090                    /home/kwebb/.m2/repository/log4j/log4j/1.2.14/log4j-1.2.14.jar
+7f2fd25d7000-7f2fd25d8000 r--s 00005000 08:06 8522089                    /home/kwebb/.m2/repository/org/slf4j/slf4j-api/1.5.8/slf4j-api-1.5.8.jar
+7f2fd25d8000-7f2fd25d9000 r--s 00002000 08:06 8522088                    /home/kwebb/.m2/repository/org/slf4j/slf4j-log4j12/1.5.8/slf4j-log4j12-1.5.8.jar
+7f2fd25d9000-7f2fd25dc000 r--s 0002b000 08:06 10618526                   /home/kwebb/.m2/repository/org/springframework/security/spring-security-config/3.0.5.RELEASE/spring-security-config-3.0.5.RELEASE.jar
+7f2fd25dc000-7f2fd25e3000 r--s 00035000 08:06 10881763                   /home/kwebb/.m2/repository/org/springframework/security/spring-security-web/3.0.5.RELEASE/spring-security-web-3.0.5.RELEASE.jar
+7f2fd25e3000-7f2fd25f9000 r--s 00178000 08:06 10364424                   /home/kwebb/.m2/repository/org/aspectj/aspectjweaver/1.6.8/aspectjweaver-1.6.8.jar
+7f2fd25f9000-7f2fd25fe000 r--s 00018000 08:06 10093542                   /home/kwebb/.m2/repository/org/aspectj/aspectjrt/1.6.8/aspectjrt-1.6.8.jar
+7f2fd25fe000-7f2fd2605000 r--s 00032000 08:06 11012621                   /home/kwebb/.m2/repository/org/springframework/spring-tx/3.0.3.RELEASE/spring-tx-3.0.3.RELEASE.jar
+7f2fd2605000-7f2fd2609000 r--s 00024000 08:06 10491603                   /home/kwebb/.m2/repository/org/springframework/spring-expression/3.0.3.RELEASE/spring-expression-3.0.3.RELEASE.jar
+7f2fd2609000-7f2fd2613000 r--s 00042000 08:06 9701637                    /home/kwebb/.m2/repository/org/springframework/security/spring-security-core/3.0.5.RELEASE/spring-security-core-3.0.5.RELEASE.jar
+7f2fd2613000-7f2fd261c000 r--s 00046000 08:06 10491751                   /home/kwebb/.m2/repository/org/springframework/spring-aop/3.0.5.RELEASE/spring-aop-3.0.5.RELEASE.jar
+7f2fd261c000-7f2fd261e000 r--s 00000000 08:06 8522096                    /home/kwebb/.m2/repository/aopalliance/aopalliance/1.0/aopalliance-1.0.jar
+7f2fd261e000-7f2fd2628000 r--s 00057000 08:06 10491485                   /home/kwebb/.m2/repository/org/springframework/spring-web/3.0.5.RELEASE/spring-web-3.0.5.RELEASE.jar
+7f2fd2628000-7f2fd263a000 r--s 00092000 08:06 10491740                   /home/kwebb/.m2/repository/org/springframework/spring-context/3.0.5.RELEASE/spring-context-3.0.5.RELEASE.jar
+7f2fd263a000-7f2fd2646000 r--s 0007c000 08:06 10491754                   /home/kwebb/.m2/repository/org/springframework/spring-beans/3.0.5.RELEASE/spring-beans-3.0.5.RELEASE.jar
+7f2fd2646000-7f2fd2648000 r--s 0000d000 08:06 8390525                    /home/kwebb/.m2/repository/commons-logging/commons-logging/1.1.1/commons-logging-1.1.1.jar
+7f2fd2648000-7f2fd2649000 r--s 0000c000 08:06 10491484                   /home/kwebb/.m2/repository/org/springframework/spring-asm/3.0.5.RELEASE/spring-asm-3.0.5.RELEASE.jar
+7f2fd2649000-7f2fd2652000 r--s 00055000 08:06 10491483                   /home/kwebb/.m2/repository/org/springframework/spring-core/3.0.5.RELEASE/spring-core-3.0.5.RELEASE.jar
+7f2fd2652000-7f2fd265c000 r--s 00067000 08:06 8522624                    /home/kwebb/.m2/repository/com/sun/jersey/jersey-core/1.11/jersey-core-1.11.jar
+7f2fd265c000-7f2fd265d000 r--s 0000a000 08:06 8522080                    /home/kwebb/.m2/repository/asm/asm/3.1/asm-3.1.jar
+7f2fd265d000-7f2fd266d000 r--s 00082000 08:06 8526293                    /home/kwebb/.m2/repository/com/sun/jersey/jersey-server/1.11/jersey-server-1.11.jar
+7f2fd266d000-7f2fd2671000 r--s 0001b000 08:06 8526298                    /home/kwebb/.m2/repository/com/sun/jersey/jersey-servlet/1.11/jersey-servlet-1.11.jar
+7f2fd2671000-7f2fd2673000 r--s 00003000 08:06 11147143                   /home/kwebb/.m2/repository/com/sun/jersey/contribs/jersey-spring/1.11/jersey-spring-1.11.jar
+7f2fd2673000-7f2fd2675000 r--s 0000a000 08:06 8522008                    /home/kwebb/.m2/repository/javax/ws/rs/jsr311-api/1.1.1/jsr311-api-1.1.1.jar
+7f2fd2675000-7f2fd2678000 r--s 00023000 08:06 8390151                    /home/kwebb/.m2/repository/jdom/jdom/1.0/jdom-1.0.jar
+7f2fd2678000-7f2fd268a000 r--s 000c9000 08:06 9700347                    /home/kwebb/.m2/repository/xerces/xercesImpl/2.4.0/xercesImpl-2.4.0.jar
+7f2fd268a000-7f2fd269b000 r--s 000ac000 08:06 8526170                    /home/kwebb/.m2/repository/com/vividsolutions/jts/1.12/jts-1.12.jar
+7f2fd269b000-7f2fd26a0000 r--s 0001f000 08:06 8526145                    /home/kwebb/.m2/repository/org/geotools/gt-api/8.0-M4/gt-api-8.0-M4.jar
+7f2fd26a0000-7f2fd26b8000 r--s 00162000 08:06 8526157                    /home/kwebb/.m2/repository/org/geotools/gt-main/8.0-M4/gt-main-8.0-M4.jar
+7f2fd26b8000-7f2fd26cc000 r--s 001bd000 08:06 8390492                    /home/kwebb/.m2/repository/javax/media/jai_core/1.1.3/jai_core-1.1.3.jar
+7f2fd26cc000-7f2fd26cd000 r--s 00003000 08:06 8526173                    /home/kwebb/.m2/repository/com/googlecode/json-simple/json-simple/1.1/json-simple-1.1.jar
+7f2fd26cd000-7f2fd26cf000 r--s 0000b000 08:06 8526154                    /home/kwebb/.m2/repository/org/geotools/gt-geojson/8.0-M4/gt-geojson-8.0-M4.jar
+7f2fd26cf000-7f2fd26f6000 r--s 00241000 08:06 8434909                    /home/kwebb/.m2/repository/net/sf/trove4j/trove4j/3.0.2/trove4j-3.0.2.jar
+7f2fd26f6000-7f2fd26fc000 r--s 00048000 08:06 8532685                    /home/kwebb/.m2/repository/org/apache/commons/commons-lang3/3.1/commons-lang3-3.1.jar
+7f2fd26fc000-7f2fd270f000 r--s 000df000 08:06 8434910                    /home/kwebb/.m2/repository/org/apache/commons/commons-math/2.2/commons-math-2.2.jar
+7f2fd270f000-7f2fd2713000 r--s 00038000 08:06 8655813                    /home/kwebb/.m2/repository/commons-lang/commons-lang/2.2/commons-lang-2.2.jar
+7f2fd2713000-7f2fd2716000 r--s 0003b000 08:06 8434924                    /home/kwebb/.m2/repository/com/jhlabs/javaproj/1.0/javaproj-1.0.jar
+7f2fd2716000-7f2fd2718000 r--s 00016000 08:06 11547279                   /home/kwebb/workspace-3.7/cebu-server/lib/opentripplanner-utils-0.7.10.jar
+7f2fd2718000-7f2fd2721000 r--s 00074000 08:06 11547278                   /home/kwebb/workspace-3.7/cebu-server/lib/opentripplanner-routing-0.7.10.jar
+7f2fd2721000-7f2fd2725000 r--s 00031000 08:06 11547277                   /home/kwebb/workspace-3.7/cebu-server/lib/opentripplanner-graph-builder-0.7.10.jar
+7f2fd2725000-7f2fd2727000 r--s 00008000 08:06 11547276                   /home/kwebb/workspace-3.7/cebu-server/lib/openstreetmap-0.7.10.jar
+7f2fd2727000-7f2fd2729000 r--s 0000d000 08:06 8655329                    /opt/play-1.2.4/framework/lib/commons-fileupload-1.2.2.jar
+7f2fd2729000-7f2fd2730000 r--s 00038000 08:06 8655357                    /opt/play-1.2.4/framework/lib/jj-wikitext.jar
+7f2fd2730000-7f2fd2738000 r--s 0008a000 08:06 8655351                    /opt/play-1.2.4/framework/lib/javassist-3.9.0.GA.jar
+7f2fd2738000-7f2fd2748000 r--s 000b2000 08:06 8655368                    /opt/play-1.2.4/framework/lib/netty-3.2.5.Final.jar
+7f2fd2748000-7f2fd274b000 r--s 00024000 08:06 8655330                    /opt/play-1.2.4/framework/lib/commons-io-2.0.1.jar
+7f2fd274b000-7f2fd274d000 r--s 00002000 08:06 8655361                    /opt/play-1.2.4/framework/lib/jta-1.1.jar
+7f2fd274d000-7f2fd2754000 r--s 0004d000 08:06 8655321                    /opt/play-1.2.4/framework/lib/async-http-client-1.6.5.jar
+7f2fd2754000-7f2fd2757000 r--s 00022000 08:06 8655350                    /opt/play-1.2.4/framework/lib/jamon-2.7.jar
+7f2fd2757000-7f2fd277c000 r--s 00172000 08:06 8655322                    /opt/play-1.2.4/framework/lib/bcprov-jdk15-1.45.jar
+7f2fd277c000-7f2fd277e000 r--s 0000d000 08:06 8655326                    /opt/play-1.2.4/framework/lib/commons-codec-1.4.jar
+7f2fd277e000-7f2fd278d000 r--s 000d9000 08:06 8655349                    /opt/play-1.2.4/framework/lib/ivy-2.2.0.jar
+7f2fd278d000-7f2fd2798000 r--s 00124000 08:06 8655340                    /opt/play-1.2.4/framework/lib/h2-1.3.149.jar
+7f2fd2798000-7f2fd27a7000 r--s 0007c000 08:06 8655358                    /opt/play-1.2.4/framework/lib/joda-time-2.0.jar
+7f2fd27a7000-7f2fd27ad000 r--s 00034000 08:06 8655362                    /opt/play-1.2.4/framework/lib/junit-4.8.1.jar
+7f2fd27ad000-7f2fd27ae000 r--s 00002000 08:06 8655374                    /opt/play-1.2.4/framework/lib/slf4j-log4j12-1.6.1.jar
+7f2fd27ae000-7f2fd27b3000 r--s 0002e000 08:06 8655320                    /opt/play-1.2.4/framework/lib/asm-all-3.3.1.jar
+7f2fd27b3000-7f2fd27b8000 r--s 00020000 08:06 8655354                    /opt/play-1.2.4/framework/lib/jj-imaging.jar
+7f2fd27b8000-7f2fd27ba000 r--s 00001000 08:06 8655360                    /opt/play-1.2.4/framework/lib/jsr107cache-1.0.jar
+7f2fd27ba000-7f2fd27bb000 r--s 00000000 08:06 8655352                    /opt/play-1.2.4/framework/lib/javax.inject-1.0.jar
+7f2fd27bb000-7f2fd27be000 r--s 00011000 08:06 8655336                    /opt/play-1.2.4/framework/lib/ezmorph-1.0.3.jar
+7f2fd27be000-7f2fd27c0000 r--s 0000e000 08:06 8655331                    /opt/play-1.2.4/framework/lib/commons-javaflow-1066591.jar
+7f2fd27c0000-7f2fd27c3000 r--s 0000f000 08:06 8655342                    /opt/play-1.2.4/framework/lib/hibernate-commons-annotations-3.2.0.Final.jar
+7f2fd27c3000-7f2fd27ca000 r--s 0006a000 08:06 8655365                    /opt/play-1.2.4/framework/lib/mail-1.4.3.jar
+7f2fd27ca000-7f2fd27cb000 r--s 00007000 08:06 8655328                    /opt/play-1.2.4/framework/lib/commons-email-1.2.jar
+7f2fd27cb000-7f2fd27d2000 r--s 000b7000 08:06 8655367                    /opt/play-1.2.4/framework/lib/mysql-connector-java-5.1.13.jar
+7f2fd27d2000-7f2fd27d4000 r--s 00005000 08:06 8655373                    /opt/play-1.2.4/framework/lib/slf4j-api-1.6.1.jar
+7f2fd27d4000-7f2fd27d9000 r--s 00041000 08:06 8655332                    /opt/play-1.2.4/framework/lib/commons-lang-2.6.jar
+7f2fd27d9000-7f2fd27e2000 r--s 0006d000 08:06 8655364                    /opt/play-1.2.4/framework/lib/log4j-1.2.16.jar
+7f2fd27e2000-7f2fd27e7000 r--s 00048000 08:06 8655334                    /opt/play-1.2.4/framework/lib/dom4j-1.6.1.jar
+7f2fd27e7000-7f2fd27ea000 r--s 0000f000 08:06 8655337                    /opt/play-1.2.4/framework/lib/geronimo-servlet_2.5_spec-1.2.jar
+7f2fd27ea000-7f2fd27f1000 r--s 00049000 08:06 8655370                    /opt/play-1.2.4/framework/lib/oval-1.50.jar
+7f2fd27f1000-7f2fd27f3000 r--s 0000d000 08:06 8655333                    /opt/play-1.2.4/framework/lib/commons-logging-1.1.1.jar
+7f2fd27f3000-7f2fd27fc000 r--s 0005d000 08:06 8655346                    /opt/play-1.2.4/framework/lib/hibernate-entitymanager-3.6.0.Final.jar
+7f2fd27fc000-7f2fd2807000 r--s 0005a000 08:06 8655376                    /opt/play-1.2.4/framework/lib/xstream-1.3.jar
+7f2fd2807000-7f2fd285b000 r--s 00520000 08:06 8655338                    /opt/play-1.2.4/framework/lib/groovy-all-1.7.10.jar
+7f2fd285b000-7f2fd2866000 r--s 0008b000 08:06 8655323                    /opt/play-1.2.4/framework/lib/c3p0-0.9.1.2.jar
+7f2fd2866000-7f2fd2898000 r--s 002c7000 08:06 8655344                    /opt/play-1.2.4/framework/lib/hibernate-core-3.6.1.Final.jar
+7f2fd2898000-7f2fd289e000 r--s 00040000 08:06 8655366                    /opt/play-1.2.4/framework/lib/memcached-2.6.jar
+7f2fd289e000-7f2fd28a0000 r--s 0000b000 08:06 8655356                    /opt/play-1.2.4/framework/lib/jj-textile.jar
+7f2fd28a0000-7f2fd28a4000 r--s 00027000 08:06 8655339                    /opt/play-1.2.4/framework/lib/gson-1.7.1.jar
+7f2fd28a4000-7f2fd28ae000 r--s 0006f000 08:06 8655335                    /opt/play-1.2.4/framework/lib/ehcache-core-2.0.0.jar
+7f2fd28ae000-7f2fd28b4000 r--s 00038000 08:06 8655375                    /opt/play-1.2.4/framework/lib/snakeyaml-1.7.jar
+7f2fd28b4000-7f2fd28ba000 r--s 00049000 08:06 8655324                    /opt/play-1.2.4/framework/lib/cglib-nodep-2.2.jar
+7f2fd28ba000-7f2fd28e4000 r--s 00427000 08:06 8655369                    /opt/play-1.2.4/framework/lib/org.eclipse.jdt.core-3.8.0.v_C03.jar
+7f2fd28e4000-7f2fd28e6000 r--s 00015000 08:06 8655359                    /opt/play-1.2.4/framework/lib/jregex-1.2_01.jar
+7f2fd28e6000-7f2fd28e8000 r--s 0000c000 08:06 8655318                    /opt/play-1.2.4/framework/lib/activation-1.1.1.jar
+7f2fd28e8000-7f2fd28f6000 r--s 0007f000 08:06 8655327                    /opt/play-1.2.4/framework/lib/commons-collections-3.2.1.jar
+7f2fd28f6000-7f2fd28f8000 r--s 00008000 08:06 8655372                    /opt/play-1.2.4/framework/lib/signpost-core-1.2.jar
+7f2fd28f8000-7f2fd28fe000 r--s 00067000 08:06 8655319                    /opt/play-1.2.4/framework/lib/antlr-2.7.6.jar
+7f2fd28fe000-7f2fd2903000 r--s 00014000 08:06 8655348                    /opt/play-1.2.4/framework/lib/hibernate-jpa-2.0-api-1.0.0.Final.jar
+7f2fd2903000-7f2fd2909000 r--s 0007e000 08:06 8655371                    /opt/play-1.2.4/framework/lib/postgresql-9.0.jar
+7f2fd2909000-7f2fd290b000 r--s 00015000 08:06 8655355                    /opt/play-1.2.4/framework/lib/jj-simplecaptcha.jar
+7f2fd290b000-7f2fd2911000 r--s 00032000 08:06 8655353                    /opt/play-1.2.4/framework/lib/jaxen-1.1.jar
+7f2fd2911000-7f2fd2916000 r--s 00034000 08:06 8655325                    /opt/play-1.2.4/framework/lib/commons-beanutils-1.8.3.jar
+7f2fd2916000-7f2fd291b000 r--s 00043000 08:06 11939120                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/akka-remote-2.0.3.jar
+7f2fd291b000-7f2fd291f000 r--s 0002f000 08:06 11939116                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/sjson_2.9.1-0.15.jar
+7f2fd291f000-7f2fd2931000 r--s 000c9000 08:06 11939114                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/xercesImpl-2.4.0.jar
+7f2fd2931000-7f2fd2939000 r--s 0004e000 08:06 11939112                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/gov-sandia-cognition-common-core-3.3.2.jar
+7f2fd2939000-7f2fd293c000 r--s 00023000 08:06 11938433                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/config-0.3.1.jar
+7f2fd293c000-7f2fd293f000 r--s 00016000 08:06 11937166                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/dispatch-json_2.9.1-0.8.5.jar
+7f2fd293f000-7f2fd2940000 r--s 00000000 08:06 11937008                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/guava-bootstrap-11.0.1.jar
+7f2fd2940000-7f2fd2944000 r--s 00034000 08:06 11937007                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/jackson-core-asl-1.9.5.jar
+7f2fd2944000-7f2fd29c2000 r--s 007f5000 08:06 11937006                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/scala-library-2.9.2.jar
+7f2fd29c2000-7f2fd29c4000 r--s 00014000 08:06 11937002                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/hibernate-spatial-1.1.1.jar
+7f2fd29c4000-7f2fd29c9000 r--s 00028000 08:06 11936995                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/httpcore-4.1.jar
+7f2fd29c9000-7f2fd29cb000 r--s 0001f000 08:06 11936994                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/netlib-java-0.9.3.jar
+7f2fd29cb000-7f2fd29cc000 r--s 00003000 08:06 11936993                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/hibernate-spatial-postgis-1.1.1.jar
+7f2fd29cc000-7f2fd29ce000 r--s 00007000 08:06 11936989                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/objenesis-1.2.jar
+7f2fd29ce000-7f2fd29d0000 r--s 0000b000 08:06 11936988                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/gt-geojson-8.0-M4.jar
+7f2fd29d0000-7f2fd29d1000 r--s 00003000 08:06 11936991                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/json-simple-1.1.jar
+7f2fd29d1000-7f2fd29e9000 r--s 00162000 08:06 11937004                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/gt-main-8.0-M4.jar
+7f2fd29e9000-7f2fd29ec000 r--s 00023000 08:06 11939118                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/jdom-1.0.jar
+7f2fd29ec000-7f2fd29fe000 r--s 00112000 08:06 11936986                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/arpack_combined_all-0.1.jar
+7f2fd29fe000-7f2fd2a0d000 r--s 000b0000 08:06 11936983                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/jackson-mapper-asl-1.9.5.jar
+7f2fd2a0d000-7f2fd2a10000 r--s 00011000 08:06 11936976                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/postgresql-9.0-801.jdbc4.jar
+7f2fd2a10000-7f2fd2a18000 r--s 0004e000 08:06 11936975                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/httpclient-4.1.jar
+7f2fd2a18000-7f2fd2a1d000 r--s 0001f000 08:06 11936974                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/gt-api-8.0-M4.jar
+7f2fd2a1d000-7f2fd2a2c000 r--s 00101000 08:06 11936978                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/gt-referencing-8.0-M4.jar
+7f2fd2a2c000-7f2fd2a35000 r--s 00073000 08:06 11936982                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/gt-metadata-8.0-M4.jar
+7f2fd2a35000-7f2fd2a4b000 r--s 00110000 08:06 11942448                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/xercesImpl-2.7.1.jar
+7f2fd2a4b000-7f2fd2a4e000 r--s 00011000 08:06 11936973                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/postgis-2.0.0SVN.jar
+7f2fd2a4e000-7f2fd2a54000 r--s 00068000 08:06 11936972                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/protobuf-java-2.4.1.jar
+7f2fd2a54000-7f2fd2a62000 r--s 00047000 08:06 11936970                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/gt-opengis-8.0-M4.jar
+7f2fd2a62000-7f2fd2a76000 r--s 001bd000 08:06 11938427                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/jai_core-1.1.3.jar
+7f2fd2a76000-7f2fd2a87000 r--s 000ac000 08:06 11936969                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/jts-1.12.jar
+7f2fd2a87000-7f2fd2aa2000 r--s 00188000 08:06 11936968                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/akka-actor-2.0.3.jar
+7f2fd2aa2000-7f2fd2ac2000 r--s 00173000 08:06 11936964                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/guava-11.0.1.jar
+7f2fd2ac2000-7f2fd2ac3000 ---p 00000000 00:00 0 
+7f2fd2ac3000-7f2fd2bc3000 rw-p 00000000 00:00 0 
+7f2fd2bc3000-7f2fd2bc6000 ---p 00000000 00:00 0 
+7f2fd2bc6000-7f2fd2cc4000 rw-p 00000000 00:00 0 
+7f2fd2cc4000-7f2fd2cc7000 ---p 00000000 00:00 0 
+7f2fd2cc7000-7f2fd2dc5000 rw-p 00000000 00:00 0 
+7f2fd2dc5000-7f2fd2dc8000 ---p 00000000 00:00 0 
+7f2fd2dc8000-7f2fd2ec6000 rw-p 00000000 00:00 0 
+7f2fd2ec6000-7f2fd2ec9000 ---p 00000000 00:00 0 
+7f2fd2ec9000-7f2fd2fc7000 rw-p 00000000 00:00 0 
+7f2fd2fc7000-7f2fd2fca000 ---p 00000000 00:00 0 
+7f2fd2fca000-7f2fd30c8000 rw-p 00000000 00:00 0 
+7f2fd30c8000-7f2fd30d4000 r-xp 00000000 08:06 6818233                    /lib/x86_64-linux-gnu/libnss_files-2.13.so
+7f2fd30d4000-7f2fd32d3000 ---p 0000c000 08:06 6818233                    /lib/x86_64-linux-gnu/libnss_files-2.13.so
+7f2fd32d3000-7f2fd32d4000 r--p 0000b000 08:06 6818233                    /lib/x86_64-linux-gnu/libnss_files-2.13.so
+7f2fd32d4000-7f2fd32d5000 rw-p 0000c000 08:06 6818233                    /lib/x86_64-linux-gnu/libnss_files-2.13.so
+7f2fd32d6000-7f2fd32d9000 r--s 00015000 08:06 11938428                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/commons-pool-1.5.4.jar
+7f2fd32d9000-7f2fd32db000 r--s 0003b000 08:06 11937003                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/vecmath-1.3.2.jar
+7f2fd32db000-7f2fd32f8000 r--s 0013a000 08:06 11936963                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/gov-sandia-cognition-learning-core-3.3.2.jar
+7f2fd32f8000-7f2fd32fc000 r-xp 00000000 08:06 266202                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libdt_socket.so
+7f2fd32fc000-7f2fd34fb000 ---p 00004000 08:06 266202                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libdt_socket.so
+7f2fd34fb000-7f2fd34fc000 r--p 00003000 08:06 266202                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libdt_socket.so
+7f2fd34fc000-7f2fd34fd000 rw-p 00004000 08:06 266202                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libdt_socket.so
+7f2fd34fd000-7f2fd3500000 ---p 00000000 00:00 0 
+7f2fd3500000-7f2fd35fe000 rw-p 00000000 00:00 0 
+7f2fd35fe000-7f2fd3601000 ---p 00000000 00:00 0 
+7f2fd3601000-7f2fd36ff000 rw-p 00000000 00:00 0 
+7f2fd36ff000-7f2fd3702000 ---p 00000000 00:00 0 
+7f2fd3702000-7f2fd3800000 rw-p 00000000 00:00 0 
+7f2fd3800000-7f2fd3801000 ---p 00000000 00:00 0 
+7f2fd3801000-7f2fd3c37000 rw-p 00000000 00:00 0 
+7f2fd3c37000-7f2fd3dc7000 r--s 037b3000 08:06 132881                     /usr/lib/jvm/java-6-openjdk/jre/lib/rt.jar
+7f2fd3dc7000-7f2fd3dc8000 ---p 00000000 00:00 0 
+7f2fd3dc8000-7f2fd3ec8000 rw-p 00000000 00:00 0 
+7f2fd3ec8000-7f2fd3ec9000 ---p 00000000 00:00 0 
+7f2fd3ec9000-7f2fd3fdd000 rw-p 00000000 00:00 0 
+7f2fd3fdd000-7f2fd411f000 rw-p 00000000 00:00 0 
+7f2fd411f000-7f2fd4138000 rw-p 00000000 00:00 0 
+7f2fd4138000-7f2fd4172000 rw-p 00000000 00:00 0 
+7f2fd4172000-7f2fd4186000 rw-p 00000000 00:00 0 
+7f2fd4186000-7f2fd42c7000 rw-p 00000000 00:00 0 
+7f2fd42c7000-7f2fd42da000 rw-p 00000000 00:00 0 
+7f2fd42da000-7f2fd42f0000 ---p 00000000 00:00 0 
+7f2fd42f0000-7f2fd4372000 rw-p 00000000 00:00 0 
+7f2fd4372000-7f2fd4389000 rw-p 00000000 00:00 0 
+7f2fd4389000-7f2fd4433000 rw-p 00000000 00:00 0 
+7f2fd4433000-7f2fd4993000 rwxp 00000000 00:00 0 
+7f2fd4993000-7f2fd7433000 rw-p 00000000 00:00 0 
+7f2fd7433000-7f2fd743a000 r-xp 00000000 08:06 266227                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libzip.so
+7f2fd743a000-7f2fd7639000 ---p 00007000 08:06 266227                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libzip.so
+7f2fd7639000-7f2fd763a000 r--p 00006000 08:06 266227                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libzip.so
+7f2fd763a000-7f2fd763b000 rw-p 00007000 08:06 266227                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libzip.so
+7f2fd763b000-7f2fd78e0000 r--p 00000000 08:06 11665551                   /usr/lib/locale/locale-archive
+7f2fd78e0000-7f2fd78e3000 r-xp 00000000 08:06 266222                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libnpt.so
+7f2fd78e3000-7f2fd7ae2000 ---p 00003000 08:06 266222                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libnpt.so
+7f2fd7ae2000-7f2fd7ae3000 r--p 00002000 08:06 266222                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libnpt.so
+7f2fd7ae3000-7f2fd7ae4000 rw-p 00003000 08:06 266222                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libnpt.so
+7f2fd7ae4000-7f2fd7aee000 r-xp 00000000 08:06 266205                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libinstrument.so
+7f2fd7aee000-7f2fd7ced000 ---p 0000a000 08:06 266205                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libinstrument.so
+7f2fd7ced000-7f2fd7cee000 r--p 00009000 08:06 266205                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libinstrument.so
+7f2fd7cee000-7f2fd7cef000 rw-p 0000a000 08:06 266205                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libinstrument.so
+7f2fd7cef000-7f2fd7d29000 r-xp 00000000 08:06 266213                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libjdwp.so
+7f2fd7d29000-7f2fd7f28000 ---p 0003a000 08:06 266213                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libjdwp.so
+7f2fd7f28000-7f2fd7f29000 r--p 00039000 08:06 266213                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libjdwp.so
+7f2fd7f29000-7f2fd7f2a000 rw-p 0003a000 08:06 266213                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libjdwp.so
+7f2fd7f2a000-7f2fd7f41000 r-xp 00000000 08:06 6818230                    /lib/x86_64-linux-gnu/libnsl-2.13.so
+7f2fd7f41000-7f2fd8140000 ---p 00017000 08:06 6818230                    /lib/x86_64-linux-gnu/libnsl-2.13.so
+7f2fd8140000-7f2fd8141000 r--p 00016000 08:06 6818230                    /lib/x86_64-linux-gnu/libnsl-2.13.so
+7f2fd8141000-7f2fd8142000 rw-p 00017000 08:06 6818230                    /lib/x86_64-linux-gnu/libnsl-2.13.so
+7f2fd8142000-7f2fd8144000 rw-p 00000000 00:00 0 
+7f2fd8144000-7f2fd8170000 r-xp 00000000 08:06 266210                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libjava.so
+7f2fd8170000-7f2fd836f000 ---p 0002c000 08:06 266210                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libjava.so
+7f2fd836f000-7f2fd8370000 r--p 0002b000 08:06 266210                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libjava.so
+7f2fd8370000-7f2fd8373000 rw-p 0002c000 08:06 266210                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libjava.so
+7f2fd8373000-7f2fd8381000 r-xp 00000000 08:06 266226                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libverify.so
+7f2fd8381000-7f2fd8580000 ---p 0000e000 08:06 266226                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libverify.so
+7f2fd8580000-7f2fd8582000 r--p 0000d000 08:06 266226                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libverify.so
+7f2fd8582000-7f2fd8583000 rw-p 0000f000 08:06 266226                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/libverify.so
+7f2fd8583000-7f2fd858a000 r-xp 00000000 08:06 6818240                    /lib/x86_64-linux-gnu/librt-2.13.so
+7f2fd858a000-7f2fd8789000 ---p 00007000 08:06 6818240                    /lib/x86_64-linux-gnu/librt-2.13.so
+7f2fd8789000-7f2fd878a000 r--p 00006000 08:06 6818240                    /lib/x86_64-linux-gnu/librt-2.13.so
+7f2fd878a000-7f2fd878b000 rw-p 00007000 08:06 6818240                    /lib/x86_64-linux-gnu/librt-2.13.so
+7f2fd878b000-7f2fd87a0000 r-xp 00000000 08:06 6815914                    /lib/x86_64-linux-gnu/libgcc_s.so.1
+7f2fd87a0000-7f2fd899f000 ---p 00015000 08:06 6815914                    /lib/x86_64-linux-gnu/libgcc_s.so.1
+7f2fd899f000-7f2fd89a0000 r--p 00014000 08:06 6815914                    /lib/x86_64-linux-gnu/libgcc_s.so.1
+7f2fd89a0000-7f2fd89a1000 rw-p 00015000 08:06 6815914                    /lib/x86_64-linux-gnu/libgcc_s.so.1
+7f2fd89a1000-7f2fd8a25000 r-xp 00000000 08:06 6818228                    /lib/x86_64-linux-gnu/libm-2.13.so
+7f2fd8a25000-7f2fd8c24000 ---p 00084000 08:06 6818228                    /lib/x86_64-linux-gnu/libm-2.13.so
+7f2fd8c24000-7f2fd8c25000 r--p 00083000 08:06 6818228                    /lib/x86_64-linux-gnu/libm-2.13.so
+7f2fd8c25000-7f2fd8c26000 rw-p 00084000 08:06 6818228                    /lib/x86_64-linux-gnu/libm-2.13.so
+7f2fd8c26000-7f2fd8d0e000 r-xp 00000000 08:06 11667301                   /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.14
+7f2fd8d0e000-7f2fd8f0d000 ---p 000e8000 08:06 11667301                   /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.14
+7f2fd8f0d000-7f2fd8f15000 r--p 000e7000 08:06 11667301                   /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.14
+7f2fd8f15000-7f2fd8f17000 rw-p 000ef000 08:06 11667301                   /usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.14
+7f2fd8f17000-7f2fd8f2c000 rw-p 00000000 00:00 0 
+7f2fd8f2c000-7f2fd9882000 r-xp 00000000 08:06 393294                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/server/libjvm.so
+7f2fd9882000-7f2fd9a81000 ---p 00956000 08:06 393294                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/server/libjvm.so
+7f2fd9a81000-7f2fd9b02000 r--p 00955000 08:06 393294                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/server/libjvm.so
+7f2fd9b02000-7f2fd9b1d000 rw-p 009d6000 08:06 393294                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/server/libjvm.so
+7f2fd9b1d000-7f2fd9b46000 rw-p 00000000 00:00 0 
+7f2fd9b46000-7f2fd9cd0000 r-xp 00000000 08:06 6818224                    /lib/x86_64-linux-gnu/libc-2.13.so
+7f2fd9cd0000-7f2fd9ed0000 ---p 0018a000 08:06 6818224                    /lib/x86_64-linux-gnu/libc-2.13.so
+7f2fd9ed0000-7f2fd9ed4000 r--p 0018a000 08:06 6818224                    /lib/x86_64-linux-gnu/libc-2.13.so
+7f2fd9ed4000-7f2fd9ed5000 rw-p 0018e000 08:06 6818224                    /lib/x86_64-linux-gnu/libc-2.13.so
+7f2fd9ed5000-7f2fd9edb000 rw-p 00000000 00:00 0 
+7f2fd9edb000-7f2fd9edd000 r-xp 00000000 08:06 6818227                    /lib/x86_64-linux-gnu/libdl-2.13.so
+7f2fd9edd000-7f2fda0dd000 ---p 00002000 08:06 6818227                    /lib/x86_64-linux-gnu/libdl-2.13.so
+7f2fda0dd000-7f2fda0de000 r--p 00002000 08:06 6818227                    /lib/x86_64-linux-gnu/libdl-2.13.so
+7f2fda0de000-7f2fda0df000 rw-p 00003000 08:06 6818227                    /lib/x86_64-linux-gnu/libdl-2.13.so
+7f2fda0df000-7f2fda0e3000 r-xp 00000000 08:06 266198                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/jli/libjli.so
+7f2fda0e3000-7f2fda2e2000 ---p 00004000 08:06 266198                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/jli/libjli.so
+7f2fda2e2000-7f2fda2e3000 r--p 00003000 08:06 266198                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/jli/libjli.so
+7f2fda2e3000-7f2fda2e4000 rw-p 00004000 08:06 266198                     /usr/lib/jvm/java-6-openjdk/jre/lib/amd64/jli/libjli.so
+7f2fda2e4000-7f2fda2fc000 r-xp 00000000 08:06 6818238                    /lib/x86_64-linux-gnu/libpthread-2.13.so
+7f2fda2fc000-7f2fda4fc000 ---p 00018000 08:06 6818238                    /lib/x86_64-linux-gnu/libpthread-2.13.so
+7f2fda4fc000-7f2fda4fd000 r--p 00018000 08:06 6818238                    /lib/x86_64-linux-gnu/libpthread-2.13.so
+7f2fda4fd000-7f2fda4fe000 rw-p 00019000 08:06 6818238                    /lib/x86_64-linux-gnu/libpthread-2.13.so
+7f2fda4fe000-7f2fda502000 rw-p 00000000 00:00 0 
+7f2fda502000-7f2fda519000 r-xp 00000000 08:06 6815786                    /lib/x86_64-linux-gnu/libz.so.1.2.3.4
+7f2fda519000-7f2fda718000 ---p 00017000 08:06 6815786                    /lib/x86_64-linux-gnu/libz.so.1.2.3.4
+7f2fda718000-7f2fda719000 r--p 00016000 08:06 6815786                    /lib/x86_64-linux-gnu/libz.so.1.2.3.4
+7f2fda719000-7f2fda71a000 rw-p 00017000 08:06 6815786                    /lib/x86_64-linux-gnu/libz.so.1.2.3.4
+7f2fda71a000-7f2fda73b000 r-xp 00000000 08:06 6818221                    /lib/x86_64-linux-gnu/ld-2.13.so
+7f2fda73b000-7f2fda73e000 r--s 00014000 08:06 11936971                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/jsr-275-1.0-beta-2.jar
+7f2fda73e000-7f2fda753000 r--s 000fe000 08:06 11936967                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/netty-3.5.3.Final.jar
+7f2fda753000-7f2fda756000 r--s 00006000 08:06 11936962                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/jsr305-1.3.9.jar
+7f2fda756000-7f2fda75c000 r--s 00095000 08:06 11936256                   /home/kwebb/workspace-3.7/openplans-tracking-tools/dc-server/lib/mtj-0.9.14.jar
+7f2fda75c000-7f2fda75f000 r--s 0007d000 08:06 134924                     /usr/lib/jvm/java-6-openjdk/jre/lib/jsse.jar
+7f2fda75f000-7f2fda7a0000 rw-p 00000000 00:00 0 
+7f2fda7a0000-7f2fda7da000 rw-p 00000000 00:00 0 
+7f2fda7da000-7f2fda80f000 r--s 00000000 08:06 1312216                    /var/cache/nscd/passwd
+7f2fda80f000-7f2fda812000 ---p 00000000 00:00 0 
+7f2fda812000-7f2fda915000 rw-p 00000000 00:00 0 
+7f2fda916000-7f2fda917000 rw-p 00000000 00:00 0 
+7f2fda917000-7f2fda923000 r--s 000c2000 08:06 8655381                    /opt/play-1.2.4/framework/play-1.2.4.jar
+7f2fda923000-7f2fda92b000 r--s 00066000 08:06 12063884                   /usr/share/java/gnome-java-bridge.jar
+7f2fda92b000-7f2fda92e000 r--s 0000f000 08:06 133778                     /usr/lib/jvm/java-6-openjdk/jre/lib/ext/pulse-java.jar
+7f2fda92e000-7f2fda936000 rw-s 00000000 08:06 9962725                    /tmp/hsperfdata_kwebb/5454
+7f2fda936000-7f2fda937000 rw-p 00000000 00:00 0 
+7f2fda937000-7f2fda938000 r--p 00000000 00:00 0 
+7f2fda938000-7f2fda93a000 rw-p 00000000 00:00 0 
+7f2fda93a000-7f2fda93b000 r--p 00020000 08:06 6818221                    /lib/x86_64-linux-gnu/ld-2.13.so
+7f2fda93b000-7f2fda93d000 rw-p 00021000 08:06 6818221                    /lib/x86_64-linux-gnu/ld-2.13.so
+7fffc106c000-7fffc1091000 rw-p 00000000 00:00 0                          [stack]
+7fffc11ff000-7fffc1200000 r-xp 00000000 00:00 0                          [vdso]
+ffffffffff600000-ffffffffff601000 r-xp 00000000 00:00 0                  [vsyscall]
+
+VM Arguments:
+jvm_args: -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -Dplay.debug=yes -Dplay.id= -Dapplication.path=/home/kwebb/workspace-3.7/cebu-server -Djava.endorsed.dirs=/opt/play-1.2.4/framework/endorsed -javaagent:/opt/play-1.2.4/framework/play-1.2.4.jar -Xmx1024m -Dfile.encoding=UTF-8 
+java_command: play.server.Server
+Launcher Type: SUN_STANDARD
+
+Environment Variables:
+PATH=/opt/play-1.2.4:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games
+USERNAME=kwebb
+LD_LIBRARY_PATH=/usr/lib/jvm/java-6-openjdk/jre/lib/amd64/server:/usr/lib/jvm/java-6-openjdk/jre/lib/amd64:/usr/lib/jvm/java-6-openjdk/jre/../lib/amd64
+SHELL=/bin/bash
+DISPLAY=:0.0
+
+Signal Handlers:
+SIGSEGV: [libjvm.so+0x7d1460], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGBUS: [libjvm.so+0x7d1460], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGFPE: [libjvm.so+0x683910], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGPIPE: [libjvm.so+0x683910], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGXFSZ: [libjvm.so+0x683910], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGILL: [libjvm.so+0x683910], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGUSR1: SIG_DFL, sa_mask[0]=0x00000000, sa_flags=0x00000000
+SIGUSR2: [libjvm.so+0x683ae0], sa_mask[0]=0x00000004, sa_flags=0x10000004
+SIGHUP: [libjvm.so+0x686480], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGINT: [libjvm.so+0x686480], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGTERM: [libjvm.so+0x686480], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+SIGQUIT: [libjvm.so+0x686480], sa_mask[0]=0x7ffbfeff, sa_flags=0x10000004
+
+
+---------------  S Y S T E M  ---------------
+
+OS:Ubuntu 11.04 (natty)
+uname:Linux 2.6.38-13-generic #56-Ubuntu SMP Tue Feb 14 12:39:59 UTC 2012 x86_64
+libc:glibc 2.13 NPTL 2.13 
+rlimit: STACK 8192k, CORE 0k, NPROC infinity, NOFILE 4096, AS infinity
+load average:0.29 0.25 0.30
+
+/proc/meminfo:
+MemTotal:        3819660 kB
+MemFree:           43444 kB
+Buffers:          127456 kB
+Cached:           938752 kB
+SwapCached:          208 kB
+Active:          2476204 kB
+Inactive:        1043236 kB
+Active(anon):    2034220 kB
+Inactive(anon):   441144 kB
+Active(file):     441984 kB
+Inactive(file):   602092 kB
+Unevictable:          16 kB
+Mlocked:              16 kB
+SwapTotal:       8372220 kB
+SwapFree:        8370040 kB
+Dirty:               224 kB
+Writeback:             0 kB
+AnonPages:       2453260 kB
+Mapped:           176096 kB
+Shmem:             22060 kB
+Slab:             111092 kB
+SReclaimable:      86332 kB
+SUnreclaim:        24760 kB
+KernelStack:        5112 kB
+PageTables:        41808 kB
+NFS_Unstable:          0 kB
+Bounce:                0 kB
+WritebackTmp:          0 kB
+CommitLimit:    10282048 kB
+Committed_AS:    5131508 kB
+VmallocTotal:   34359738367 kB
+VmallocUsed:       67872 kB
+VmallocChunk:   34359667004 kB
+HardwareCorrupted:     0 kB
+HugePages_Total:       0
+HugePages_Free:        0
+HugePages_Rsvd:        0
+HugePages_Surp:        0
+Hugepagesize:       2048 kB
+DirectMap4k:       71616 kB
+DirectMap2M:     3883008 kB
+
+
+CPU:total 2 (2 cores per cpu, 1 threads per core) family 6 model 37 stepping 5, cmov, cx8, fxsr, mmx, sse, sse2, sse3, ssse3
+
+Memory: 4k page, physical 3819660k(43444k free), swap 8372220k(8370040k free)
+
+vm_info: OpenJDK 64-Bit Server VM (20.0-b11) for linux-amd64 JRE (1.6.0_22-b22), built on Feb 21 2012 00:28:06 by "buildd" with gcc 4.5.2
+
+time: Sat Oct  6 06:18:42 2012
+elapsed time: 717 seconds
+

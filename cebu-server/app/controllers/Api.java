@@ -1,9 +1,8 @@
 package controllers;
 
 import play.*;
+import play.db.jpa.JPA;
 import play.mvc.*;
-
-import inference.InferenceService;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -11,11 +10,20 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static akka.pattern.Patterns.ask;
+
 import org.openplans.tools.tracking.impl.Observation;
+import org.openplans.tools.tracking.impl.ObservationData;
+import org.openplans.tools.tracking.impl.VehicleUpdate;
+import org.openplans.tools.tracking.impl.VehicleUpdateResponse;
 import org.openplans.tools.tracking.impl.util.OtpGraph;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
+import akka.dispatch.Future;
+import akka.dispatch.OnSuccess;
+import akka.event.Logging;
 import api.AuthResponse;
 import api.MessageResponse;
 
@@ -32,17 +40,17 @@ public class Api extends Controller {
 	public static final SimpleDateFormat sdf = new SimpleDateFormat(
 		      "yyyy-MM-dd hh:mm:ss");
 	
-	public static OtpGraph graph = new OtpGraph(
+	/*public static OtpGraph graph = new OtpGraph(
 		      Play.configuration.getProperty("application.otpGraphPath"), Play.configuration.getProperty("application.dcPath"));
 	
 	public static OtpGraph getGraph() {
 		return graph;
-	}
+	}*/
 		
 	private static List<Long> ConvetStringArrayToLongArray(String[] stringArray){
 		ArrayList<Long> longList = new ArrayList<Long>();
 
-		for(String str : stringArray){
+		for(String str : stringArray){	
 		longList.add(new Long(str));
 		}
 
@@ -72,15 +80,29 @@ public class Api extends Controller {
 			renderJSON(alerts);
 	}
 	
+	public static void clearMessages(Long phoneId) {
+		Phone phone = Phone.findById(phoneId);
+		phone.clearMessages();
+	}
+	
+	public static void sendMessage(Long phoneId, String message) {
+		Phone phone = Phone.findById(phoneId);
+		phone.sendMessage(message);
+	}
+	
+	
 	public static void activeTaxis() {
 			
 		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.MINUTE, -5);
+		cal.add(Calendar.MINUTE, -15);
 		Date recentDate = cal.getTime();
 		
-		//List<Phone> phones = Phone.find("lastUpdate > ? order by id", recentDate).fetch();
-			
-		List<Phone> phones = Phone.findAll();
+		List<Phone> phones = Phone.find("lastUpdate > ? order by id", recentDate).fetch();
+		
+		for(Phone phone : phones)
+		{
+			phone.populateUnreadMessages();
+		}
 		
 		if(request.format == "xml")
 			renderXml(phones);
@@ -89,11 +111,10 @@ public class Api extends Controller {
 	}
 	
 	
-	public static void messages(String imei, Long message_id, Double lat, Double lon, String body) {
-		
+	public static void messages(String imei, Long message_id, Double lat, Double lon, String content) {
+		Phone phone = Phone.find("imei = ?", imei).first();
 		if(request.method == "POST")
 		{
-			Phone phone = Phone.find("imei = ?", imei).first();
 			
 			if(phone != null)
 			{
@@ -112,7 +133,7 @@ public class Api extends Controller {
 				
 				message.location_lat = lat;
 				message.location_lon = lon;
-				message.body = body;
+				message.body = content;
 				
 				message.save();
 			}
@@ -127,12 +148,15 @@ public class Api extends Controller {
 		{
 			// TODO IMEI message lookup -- not useful for testing
 		
-			List<Message> messages = Message.find("fromphone_id IS NULL").fetch();
+			List<Message> messages = Message.find("toPhone = ? and read = false", phone).fetch();
 			
 			List<MessageResponse> messageResponses = new ArrayList<MessageResponse>();
 			
 			for(Message message : messages)
 			{
+				message.read = true;
+				message.save();
+				
 				messageResponses.add(new MessageResponse(message));
 			}
 			
@@ -142,6 +166,22 @@ public class Api extends Controller {
 				renderXml(messageResponses);
 			else
 				renderJSON(messageResponses);
+		}
+	}
+	
+	
+	public static void panic(String imei, Boolean panic)
+	{
+	
+		if(imei == null)
+			unauthorized("IMEI Required");
+		
+		Phone phone = Phone.find("imei = ?", imei).first();
+		
+		if(phone != null)
+		{
+			phone.panic = panic;
+			phone.save();
 		}
 	}
 	
@@ -185,6 +225,7 @@ public class Api extends Controller {
 			Logger.info("Unknown phone entry for IMEI " + imei); 
 			unauthorized("Unknown Phone IMEI");
 		}
+			
 	}
 	
 	public static void register(String imei, Long operator)
@@ -197,7 +238,13 @@ public class Api extends Controller {
 			{
 				Logger.info("Creating phone entry for IMEI " + imei); 
 				phone = new Phone();
+				
+				Operator operatorObj = Operator.findById(new Long(1));			
+				phone.operator = operatorObj;
 				phone.imei = imei;
+				
+	
+
 			}
 			
 			Operator operatorObj = Operator.findById(operator);
@@ -225,7 +272,7 @@ public class Api extends Controller {
 		}
 	}
 	
-	public static void login(String imei, String driver, String body)
+	public static void login(String imei, String driver, String vehicle)
 	{
 		if(imei == null)
 			unauthorized("IMEI Required");
@@ -234,8 +281,16 @@ public class Api extends Controller {
 		
 		if(phone == null)
 		{
-			Logger.info("Unknown phone entry for IMEI " + imei); 
-			unauthorized("Unknown Phone IMEI");
+			//Logger.info("Unknown phone entry for IMEI " + imei); 
+			//unauthorized("Unknown Phone IMEI");
+			
+			phone = new Phone();
+			
+			Operator operatorObj = Operator.findById(new Long(1));			
+			phone.imei = imei;
+			phone.operator = operatorObj;
+			
+			phone.save();
 		}
 		
 		if(driver == null)
@@ -253,17 +308,17 @@ public class Api extends Controller {
 		
 		}
 		
-		if(body == null)
+		if(vehicle == null)
 			badRequest();
 		
-		Vehicle veichie = Vehicle.find("bodyNumber = ?", body).first();
+		Vehicle veichie = Vehicle.find("bodyNumber = ?", vehicle).first();
 		
 		if(veichie == null)
 		{
-			Logger.info("Unknown vehicle, createing record for body number " + body); 
+			Logger.info("Unknown vehicle, createing record for body number " + vehicle); 
 			
 			veichie = new Vehicle();
-			veichie.bodyNumber = body;
+			veichie.bodyNumber = vehicle;
 			veichie.save();
 		}
 		
@@ -357,7 +412,7 @@ public class Api extends Controller {
     	
     	String[] lines = requestBody.split("\n");
     	 	
-    	ArrayList<Observation> observations = new ArrayList<Observation>();
+    	VehicleUpdate update = new VehicleUpdate(imei);
     	
     	for(String line : lines)
     	{
@@ -378,13 +433,11 @@ public class Api extends Controller {
 	    		Double heading = Double.parseDouble(lineParts[4]);
 	    		Double gpsError = Double.parseDouble(lineParts[5]);
 	    		
-	    		Observation observation = Observation.createObservation(imei, dateTime, new Coordinate(lat, lon), velocity, heading, gpsError);
-	    			    	
-	    		observations.add(observation);
-	    	
-	    		// using a local queue to handle logging/inference...for now.
-	    		ObservationHandler.addObservation(observation, now.toString() + " - " + imei +  " - " + line);	    		
-	   		
+	    		ObservationData observation = new ObservationData(imei, dateTime, new Coordinate(lon, lat), velocity, heading, gpsError);
+	    		Logger.info(dateTime.toGMTString());
+	    		update.addObservation(observation);
+	    		
+	    		LocationUpdate.natveInsert(LocationUpdate.em(), observation);
     		}
     		catch(Exception e)
     		{
@@ -393,11 +446,56 @@ public class Api extends Controller {
     			// couldn't parse results
     			badRequest();
     		}
-    	}
+    	}	
     	
-    	if(observations.size() > 0)
+    	if(update.getObservations().size() > 0)
     	{
-    		Observation observation = observations.get(observations.size() -1 );
+    		/*Future<Object> future = ask(Application.remoteObservationActor, update, 60000);
+    		
+    		future.onSuccess(new OnSuccess<Object>() {
+    			public void onSuccess(Object result) {
+    				
+    				if(result instanceof VehicleUpdateResponse)
+    				{
+    					//Application.updateVehicleStats((VehicleUpdateResponse)result);
+    					
+    					if(((VehicleUpdateResponse) result).pathList.size() == 0)
+    						return;
+    					
+    					Logger.info("update results returned: " + ((VehicleUpdateResponse) result).pathList.size());
+    				
+    					try 
+    					{ 
+    						// wrapping everything around a try catch
+    						if(JPA.local.get() == null)
+    			            {
+    							JPA.local.set(new JPA());
+    							JPA.local.get().entityManager = JPA.newEntityManager();
+    			            }
+    						JPA.local.get().entityManager.getTransaction().begin();
+
+    						for(ArrayList<Integer> edges : ((VehicleUpdateResponse) result).pathList)
+    						{
+    							String edgeIds = StringUtils.join(edges, ", ");
+    							String sql = "UPDATE streetedge SET inpath = inpath + 1 WHERE edgeid IN (" + edgeIds + ") ";
+    							Logger.info(edgeIds);
+    							JPA.local.get().entityManager.createNativeQuery(sql).executeUpdate();
+    						}
+    						
+    						JPA.local.get().entityManager.getTransaction().commit();	
+    					}
+    			        finally 
+    			        {
+    			            JPA.local.get().entityManager.close();
+    			            JPA.local.remove();
+    			        }
+    				}
+    			}
+    		});*/
+    		
+    		//Application.remoteObservationActor.ak(update);
+    		
+    		ObservationData observation = update.getObservations().get(update.getObservations().size() -1 );
     		
     		Phone phone = Phone.find("imei = ?", observation.getVehicleId()).first();
     		
@@ -409,20 +507,17 @@ public class Api extends Controller {
     			
     			phone.save();
     		}
-    		
-    		try
-        	{
-        		InferenceService.processRecord(observation);
-        	}
-        	catch(Exception e)
-    		{
-    			Logger.error("Unable to process records: ", e.toString());
-    		}
     	}
-    	
-    	
-    	
+    
         ok();
+    }
+    
+    
+    static public void traces()
+    {
+    	List<LocationUpdate> updates = LocationUpdate.find("order by timestamp desc").fetch(100);
+    	
+    	renderJSON(updates);
     }
 
 }

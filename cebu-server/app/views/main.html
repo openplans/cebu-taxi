@@ -24,6 +24,12 @@
     
     <title>Cebu Traffic</title>
 
+	<script>
+	
+		var defaultLatLon = [38.90961,-77.01576];
+	
+	</script>
+
 	<!-- leaflet -->
 	<script type="text/javascript" src="@{'/public/javascripts/jquery-1.7.1.min.js'}"></script>
 	<script type="text/javascript" src="@{'/public/javascripts/jquery-ui-1.8.23.custom.min.js'}"></script>
@@ -60,7 +66,7 @@
             <ul class="nav">
               <li #{if page == 'index'}class="active"#{/if}><a href="@{Application.index}">Current Conditions</a></li>
               <li #{if page == 'taxi'}class="active"#{/if}><a href="@{Application.taxi}">Taxi Dispatch</a></li>
-              <li #{if page == 'citom'}class="active"#{/if}><a href="@{Application.citom}">CITOM Portal</a></li>
+              <li #{if page == 'citom'}class="active"#{/if}><a href="@{Application.index}">CITOM Portal</a></li>
             </ul>
           </div><!--/.nav-collapse -->
         </div>

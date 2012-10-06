@@ -1,27 +1,9 @@
 
-var startLatLng = new L.LatLng(10.3181373, 123.8956844); 
 
-var mbUrl = 'http://{s}.tiles.mapbox.com/v3/openplans.map-g4j0dszr/{z}/{x}/{y}.png';
+var mbUrl = 'http://{s}.tiles.mapbox.com/v3/openplans.map-ky03eiac/{z}/{x}/{y}.png';
 
-var cebuUrl = '/tiles_avg/{z}/{x}/{y}.png';
+var overlayUrl = 'http://cebutraffic.org/tiles_avg{z}/{x}/{y}.png';
 
-var IncidentIcon = L.Icon.extend({
-    iconUrl: '/public/images/caraccident.png',
-    iconSize: new L.Point(32, 37),
-    iconAnchor: new L.Point(16, 37),
-    popupAnchor: new L.Point(0, -37)
-});
-
-var incidentIcon = new IncidentIcon();
-
-var FloodIcon = L.Icon.extend({
-	iconUrl: '/public/images/flood.png',
-    iconSize: new L.Point(32, 37),
-    iconAnchor: new L.Point(16, 37),
-    popupAnchor: new L.Point(0, -37)
-});
-
-var floodIcon = new FloodIcon();
 
 var mbAttrib = 'Traffic overlay powered by OpenPlans Vehicle Tracking Tools, Map tiles &copy; Mapbox (terms).';
 var mbOptions = {
@@ -39,71 +21,53 @@ function sizeContent() {
   $("#map").css("height", newHeight);
 }
 	
-var incidentLayer = new L.LayerGroup();
-var indcidentData = new Array();
-var incidentMarkers = {}
+var traceLayer = new L.LayerGroup();
+var traceData = new Array();
 
-function loadIncidents()
+function loadTraces()
 {
-	$.get('/api/alerts', function(data){
-		indcidentData = data;
+	$.get('/api/traces', function(data){
+		traceData = data;
 		
-		updateIncidents();
+		updateTraces();
 	});
 }
 
-function updateIncidents()
+function updateTraces()
 {
-	incidentLayer.clearLayers();
-	incidentMarkers = {}
+	traceLayer.clearLayers();
 	
-	for(var incident in indcidentData)
+	for(var trace in traceData)
 	{
-		var icon = null;
+		var error  = 2;
+		if(traceData[trace].gpsError > 0 )
+			error = traceData[trace].gpsError;
+		if (traceData[trace].gpsError < 50)
+			L.circle([traceData[trace].lat, traceData[trace].lon],  error).addTo(traceLayer);
 		
-		if(indcidentData[incident].type == "incident")
-			icon = incidentIcon;
-		else if(indcidentData[incident].type == "flood")
-			icon = floodIcon;
-		else
-			continue;
-
-		incidentMarkers[indcidentData[incident].id] = new L.Marker(new L.LatLng(indcidentData[incident].location_lat.toFixed(5), indcidentData[incident].location_lon.toFixed(5)), {icon: icon});
-		incidentMarkers[indcidentData[incident].id].bindPopup(indcidentData[incident].description);
-		
-		
-		incidentLayer.addLayer(incidentMarkers[indcidentData[incident].id]);
 	}
+}
+
+function refreshTiles()
+{
+	map.invalidateSize();
 }
 
 // main 
 
 $(document).ready(function() {
 	
-  map = new L.Map('map');
+  map = new L.map('map').setView(defaultLatLon, 13);
 
-  var mb = new L.TileLayer(mbUrl, mbOptions);
-  map.addLayer(mb);
-
-  var cebu = new L.TileLayer(cebuUrl, mbOptions);
-  map.addLayer(cebu);
-
-  var congestion = new L.TileLayer(cebuUrl, mbOptions);
+  L.tileLayer(mbUrl, mbOptions).addTo(map);
   
-  map.addLayer(incidentLayer);
+  L.tileLayer(overlayUrl, mbOptions).addTo(map);
   
-  map.setView(startLatLng, 15, true);
+  //traceLayer.addTo(map);
   
-  var overlays = {
-		    "Velocity": cebu,
-		    "Congestion": congestion,
-		    "Incidents": incidentLayer
-  };
- 
-  var layersControl = new L.Control.Layers(null, overlays);
-
-  map.addControl(layersControl);
+  //loadTraces();
   
-  loadIncidents();
+  //setInterval(loadTraces, 10000);
+  //setInterval(refreshTiles, 30000);
 
 });

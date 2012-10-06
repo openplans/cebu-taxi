@@ -6,15 +6,13 @@
 
 	<div class="span2">
 	<ul class="nav nav-list" id="taxi_list">
-	  <li class="nav-header">
+	  <li class="nav-header"> 
 	    Active Taxis
+	    <div style="display: none;" id="sendForm"><textarea style="width: 180px;" id="messageText"></textarea><button id="sendButton" onclick="sendMessage();">send</button></div>
 	  </li>
-		 <script type="text/x-handlebars">
-		  {{#each Taxi.vehicles}}
-    		<li class="vehicle">{{imei}}</li>
-  			{{/each}}
-  		
-		</script>
+	  
+	  
+		 
 	</ul>
 	</div>
 	<div class="span10" style="margin: 0px;"">
@@ -24,3 +22,7 @@
 </div>
 
 <script src="@{'/public/javascripts/cebu_taxi.js'}"></script>
+
+<script type="text/x-handlebars" data-template-name="message-view">
+    {{view.body}}
+</script>

@@ -1,29 +1,38 @@
 package controllers;
 
+import static akka.pattern.Patterns.ask;
 import akka.actor.*;
+import akka.dispatch.Future;
+import akka.dispatch.OnSuccess;
 import gov.sandia.cognition.math.matrix.Vector;
 import gov.sandia.cognition.math.matrix.VectorFactory;
-import inference.InferenceService;
 import play.*;
+import play.db.jpa.JPA;
 import play.mvc.*;
 import java.awt.Color;
 
-import jobs.CsvUploadActor;
-import jobs.CsvUploadActor.TraceParameters;
-
 import java.io.File;
+import java.math.BigInteger;
 import java.util.*;
 
+import javax.persistence.Query;
+
+import org.apache.commons.lang.StringUtils;
 import org.geotools.geometry.jts.JTS;
 import org.opengis.referencing.operation.MathTransform;
 import org.openplans.tools.tracking.impl.statistics.filters.VehicleTrackingFilter;
 import org.openplans.tools.tracking.impl.VehicleState.VehicleStateInitialParameters;
+import org.openplans.tools.tracking.impl.VehicleUpdate;
+import org.openplans.tools.tracking.impl.VehicleUpdateResponse;
 import org.openplans.tools.tracking.impl.graph.InferredEdge;
 import org.openplans.tools.tracking.impl.statistics.filters.VehicleTrackingBootstrapFilter;
 import org.openplans.tools.tracking.impl.statistics.filters.VehicleTrackingPLFilter;
 import org.openplans.tools.tracking.impl.util.GeoUtils;
+import org.openplans.tools.tracking.impl.util.OtpGraph;
+import org.opentripplanner.routing.graph.Edge;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -43,29 +52,47 @@ public class Application extends Controller {
 	
 	static Config myConfig = ConfigFactory.empty();
 	
-	static ActorSystem system = ActorSystem.create("MySystem", myConfig);
+	static Date lastTime = new Date();
+	
+	static ActorSystem system = ActorSystem.create("LookupApplication", ConfigFactory.parseFile(new File("conf/akka.conf")));
 
-	static ActorRef locationActor = system.actorOf(new Props(
-		      InferenceService.class), "locationActor");
+	static ActorRef remoteObservationActor = system.actorFor("akka://inferenceSystem@127.0.0.1:2552/user/observationActor");
 	
-	static ActorRef csvActor = system.actorOf(new Props(
-		      CsvUploadActor.class), "csvActor");
+	//public static OtpGraph graph = new OtpGraph(
+	//	      Play.configuration.getProperty("application.otpGraphPath"), null);
 	
-	 private static Map<String, Class<? extends VehicleTrackingFilter>> filtersMap = Maps.newHashMap();
-	  static {
-	    filtersMap.put(VehicleTrackingPLFilter.class.getName(), VehicleTrackingPLFilter.class);
-	    filtersMap.put(VehicleTrackingBootstrapFilter.class.getName(), VehicleTrackingBootstrapFilter.class);
-	  }
-	  
-	  public static Map<String, Class<? extends VehicleTrackingFilter>>
-	      getFilters() {
-	    return filtersMap;
-	  }
 	
-	  public static void setFilters(
-	    Map<String, Class<? extends VehicleTrackingFilter>> filters) {
-	    Application.filtersMap = filters;
-	  }
+	/*public static void updateVehicleStats(VehicleUpdateResponse result)
+	{
+		if(result.pathList.size() == 0)
+			return;
+			
+		try 
+		{ 
+			// wrapping everything around a try catch
+			if(JPA.local.get() == null)
+            {
+				JPA.local.set(new JPA());
+				JPA.local.get().entityManager = JPA.newEntityManager();
+            }
+			JPA.local.get().entityManager.getTransaction().begin();
+
+			for(ArrayList<Integer> edges : result.pathList)
+			{
+				String edgeIds = StringUtils.join(edges, ", ");
+				String sql = "UPDATE streetedge SET inpath = inpath + 1 WHERE edgeid IN (" + edgeIds + ") ";
+				
+				JPA.local.get().entityManager.createNativeQuery(sql).executeUpdate();
+			}
+			
+			JPA.local.get().entityManager.getTransaction().commit();	
+		}
+        finally 
+        {
+            JPA.local.get().entityManager.close();
+            JPA.local.remove();
+        }
+	}*/
 	
 	public static void index() {
 		render();
@@ -79,155 +106,157 @@ public class Application extends Controller {
 		render();
 	}
 	
-	
-	public static void upload() {
-		final Set<String> filters = filtersMap.keySet();
-		render(filters);
-	}
-	
-	public static void incidents() {
-		render();
-	}
-	
-	
-    public static void recent() {
-    	Queue history = ObservationHandler.historyQueue;
-    	response.setContentTypeIfNotSet("text/plain");
-        render(history);
-    }
-    
-    public static void uploadHandler(File csv,
-    	    String obs_variance_pair, String road_state_variance_pair,
-    	    String ground_state_variance_pair, String off_prob_pair,
-    	    String on_prob_pair, String numParticles_str, String seed_str,
-    	    String filterTypeName, String debugEnabled) {
-
-    	    if (csv != null) {
-    	      final String[] obsPair = obs_variance_pair.split(",");
-    	      final Vector obsVariance =
-    	          VectorFactory.getDefault().createVector2D(
-    	              Double.parseDouble(obsPair[0]),
-    	              Double.parseDouble(obsPair[1]));
-
-    	      final String[] roadStatePair =
-    	          road_state_variance_pair.split(",");
-    	      final Vector roadStateVariance =
-    	          VectorFactory.getDefault().createVector2D(
-    	              Double.parseDouble(roadStatePair[0]),
-    	              Double.parseDouble(roadStatePair[1]));
-
-    	      final String[] groundStatePair =
-    	          ground_state_variance_pair.split(",");
-    	      final Vector groundStateVariance =
-    	          VectorFactory.getDefault().createVector2D(
-    	              Double.parseDouble(groundStatePair[0]),
-    	              Double.parseDouble(groundStatePair[1]));
-
-    	      final String[] offPair = off_prob_pair.split(",");
-    	      final Vector offProbs =
-    	          VectorFactory.getDefault().createVector2D(
-    	              Double.parseDouble(offPair[0]),
-    	              Double.parseDouble(offPair[1]));
-
-    	      final String[] onPair = on_prob_pair.split(",");
-    	      final Vector onProbs =
-    	          VectorFactory.getDefault().createVector2D(
-    	              Double.parseDouble(onPair[0]),
-    	              Double.parseDouble(onPair[1]));
-
-    	      final long seed = Long.parseLong(seed_str);
-    	      final int numParticles = Integer.parseInt(numParticles_str);
-
-    	      final VehicleStateInitialParameters parameters =
-    	          new VehicleStateInitialParameters(obsVariance,
-    	              roadStateVariance, groundStateVariance, offProbs,
-    	              onProbs, filterTypeName, numParticles, seed);
-
-    	      final boolean debug_enabled =
-    	          Boolean.parseBoolean(debugEnabled);
-
-    	      final File dest = new File("/tmp/upload.csv");
-    	      csv.renameTo(dest);
-
-    	      final TraceParameters params =
-    	          new TraceParameters(dest, parameters, debug_enabled);
-    	      csvActor.tell(params);
-    	    }
-
-    	    index();
-    	  }
-    
-    public static void writedc() {
-    	Api.getGraph().writeDataCube(new File(Play.configuration.getProperty("application.dcPath")));
-    	
-    	ok();
-    }
-    
-    public static void benchmark() {
-    	
-    	
-    }
-    
-    
-    public static void velocities() {
-    	
-    	HashMap<Integer, Double> baseline = Api.getGraph().getDataCube().filterAndGroup(new HashMap<String, Integer>(), "edge");
-    	
-    	
-    	for(int interval = 0; interval < 24; interval++)
-    	{
-    		HashMap<String, Integer> filterParams = new HashMap<String, Integer>();
-        	
-        	filterParams.put("interval", interval);
-        	
-        	HashMap<Integer, Double> intervalData = Api.getGraph().getDataCube().filterAndGroup(filterParams, "edge");
-        	
-        	for(Integer edgeId : baseline.keySet())
-        	{
-        		if(intervalData.keySet().contains(edgeId))
-        		{
-        			Double v = intervalData.get(edgeId);
-        			
-        			StreetEdge.em().createNativeQuery("UPDATE streetedge SET v" + interval + " = ?, c" + interval + " = ? WHERE edgeid = ?")
-        				.setParameter(1, v)
-        				.setParameter(2, v - baseline.get(edgeId))
-        				.setParameter(3, edgeId).executeUpdate(); 
-        		}
-        	}
-    	}
-    
-    	
-//    	for(Integer edgeId : baseline.keySet())
-//  	{
-
-    		
-    		/* StreetEdge streetEdge = new StreetEdge();
-			streetEdge.edgeId = edgeId; 
-			
-			if(baseline.containsKey(edgeId))
+	public static void replay() {
+		
+		List<LocationUpdate> locations  = LocationUpdate.find("order by timestamp").fetch();
+		
+		HashMap<String, VehicleUpdate> traces = new HashMap<String, VehicleUpdate>(); 
+		
+		HashMap<String, Date> lastTimes = new HashMap<String, Date>();
+		
+		HashMap<String, Integer> duplicates = new HashMap<String, Integer>();
+		
+		for(LocationUpdate location : locations)
+		{
+			if(!traces.containsKey(location.imei))
 			{
-				Double meanVelocity = baseline.get(edgeId);
-				
-    			float hue = 120 * (30 / (float)meanVelocity.floatValue());
-    			Color edgeColor = Color.getHSBColor(hue, 1.0f, 0.5f);
-    			
-    			String rgb = Integer.toHexString(edgeColor.getRGB());
-    		    
-    			streetEdge.meanVelocity = meanVelocity;
-    			
-    			// TODO store variance in data cube;	    	
-    			streetEdge.velocityVarience = 1.0; // edge.getVelocityPrecisionDist().getMean().getElement(1);
-    			
-    			streetEdge.rbgColor = rgb.substring(2, rgb.length());
+				VehicleUpdate updates = new VehicleUpdate(location.imei);
+				traces.put(location.imei, updates);
+				duplicates.put(location.imei, 0);
 			}
+			
+			if(location.gpsError < 20 && (!lastTimes.containsKey(location.imei) || lastTimes.get(location.imei).before(location.timestamp)))
+				traces.get(location.imei).addObservation(location.getObservationData());
+			else
+				duplicates.put(location.imei, duplicates.get(location.imei) + 1 );
+			
+			lastTimes.put(location.imei, location.timestamp);
+			
+			lastTime = location.timestamp;	
+		}
+		
+		for(VehicleUpdate updates : traces.values())
+		{
+			Logger.info("Sending " + updates.getVehicleId() + " " + updates.getObservations().size() + " (" + duplicates.get(updates.getVehicleId()) + ")" );
+			
+			Future<Object> future = ask(Application.remoteObservationActor, updates, 1000000);
+			
+			future.onSuccess(new OnSuccess<Object>() {
+				public void onSuccess(Object result) {
+					
+					if(result instanceof VehicleUpdateResponse)
+					{
+						//Application.updateVehicleStats((VehicleUpdateResponse)result);
+						
+						Logger.info("Received " + ((VehicleUpdateResponse) result).vehicleId + " " + ((VehicleUpdateResponse) result).pathList.size());
+							
+						try 
+						{ 
+							// wrapping everything around a try catch
+							if(JPA.local.get() == null)
+				            {
+								JPA.local.set(new JPA());
+								JPA.local.get().entityManager = JPA.newEntityManager();
+				            }
+							JPA.local.get().entityManager.getTransaction().begin();
+	
+							for(ArrayList<Integer> edges : ((VehicleUpdateResponse) result).pathList)
+							{
+								String edgeIds = StringUtils.join(edges, ", ");
+								String sql = "UPDATE streetedge SET inpath = inpath + 1 WHERE edgeid IN (" + edgeIds + ") ";
+								
+								JPA.local.get().entityManager.createNativeQuery(sql).executeUpdate();
+							}
+							
+							JPA.local.get().entityManager.getTransaction().commit();	
+						}
+				        finally 
+				        {
+				            JPA.local.get().entityManager.close();
+				            JPA.local.remove();
+				        }
+					}
+				}
+			});
+		}
+		
+		index();
+	}
+	
+	public static void replay2() {
+		
+		List<LocationUpdate> locations  = LocationUpdate.find("timestamp > ? order by timestamp", lastTime).fetch();
+		
+		VehicleUpdate updates = new VehicleUpdate(locations.get(0).imei);
+		
+		for(LocationUpdate location : locations)
+		{
+			updates.addObservation(location.getObservationData());
+			
+			lastTime = location.timestamp;
+		}
+		
+		
+		Future<Object> future = ask(Application.remoteObservationActor, updates, 1000000);
+		
+		future.onSuccess(new OnSuccess<Object>() {
+			public void onSuccess(Object result) {
+				
+				if(result instanceof VehicleUpdateResponse)
+				{
+					//Application.updateVehicleStats((VehicleUpdateResponse)result);
+					
+					if(((VehicleUpdateResponse) result).pathList.size() == 0)
+						return;
+						
+					try 
+					{ 
+						// wrapping everything around a try catch
+						if(JPA.local.get() == null)
+			            {
+							JPA.local.set(new JPA());
+							JPA.local.get().entityManager = JPA.newEntityManager();
+			            }
+						JPA.local.get().entityManager.getTransaction().begin();
+
+						for(ArrayList<Integer> edges : ((VehicleUpdateResponse) result).pathList)
+						{
+							String edgeIds = StringUtils.join(edges, ", ");
+							String sql = "UPDATE streetedge SET inpath = inpath + 1 WHERE edgeid IN (" + edgeIds + ") ";
+							
+							JPA.local.get().entityManager.createNativeQuery(sql).executeUpdate();
+						}
+						
+						JPA.local.get().entityManager.getTransaction().commit();	
+					}
+			        finally 
+			        {
+			            JPA.local.get().entityManager.close();
+			            JPA.local.remove();
+			        }
+				}
+			}
+		});
+		
+		index();
+	}
+
+	public static void edges()
+	{
+		/*Multimap<Geometry, Edge> edgeMap = graph.getGeomEdgeMap();
+		
+		for(Edge edge : edgeMap.values())
+		{
+			Integer edgeId = graph.getInferredEdge(edge).getEdgeId();
 			
 			MathTransform transform;
 			
 		    try {
+		    	transform = GeoUtils.getTransform(new Coordinate(38.90911, -77.00932)).inverse();
 		    	
-		    	if (Api.getGraph().getEdge(edgeId).getGeometry() != null)
+		    	if (graph.getEdge(edgeId).getGeometry() != null)
 		    	{
-			        Coordinate[] oldCoords = Api.getGraph().getEdge(edgeId).getGeometry().getCoordinates();
+			        Coordinate[] oldCoords = graph.getEdge(edgeId).getGeometry().getCoordinates();
 			        int nCoords = oldCoords.length;
 			        Coordinate[] newCoords = new Coordinate[nCoords];
 			        
@@ -246,29 +275,38 @@ public class Application extends Controller {
 			            newCoords[i+1] = c1; //will get overwritten except at last iteration
 			        }
 			        
-			        
-			        transform = GeoUtils.getCRSTransform().inverse();
 				    final Geometry transformed = JTS.transform( gf.createLineString(newCoords), transform);
 				    transformed.setSRID(4326);
 					
-				    streetEdge.shape = (LineString)transformed;
+				    
+				    List<String> points = new ArrayList<String>();
+		        	
+		        	for(Coordinate coord : transformed.getCoordinates())
+		        	{
+		        		points.add(new Double(coord.x).toString() + " " + new Double(coord.y).toString());
+		        		
+		        	}
+		        	
+		        	String linestring = "LINESTRING(" + StringUtils.join(points, ", ") + ")";
+				    
+				    Query idQuery = StreetEdge.em().createNativeQuery("SELECT NEXTVAL('hibernate_sequence');");
+			    	BigInteger nextId = (BigInteger)idQuery.getSingleResult();
+			    	
+			    	StreetEdge.em().createNativeQuery("INSERT INTO streetedge (id, edgeid, shape)" +
+			        	"  VALUES(?, ?, ST_GeomFromText( ?, 4326));")
+			          .setParameter(1,  nextId)
+			          .setParameter(2,  edgeId)	            
+			          .setParameter(3,  linestring)
+			          .executeUpdate();
+				    
 		    	}
-		    	
-		      
 		    }
 		    catch(Exception e)
 		    {
 		    	Logger.error("Can't transform geom.");
-		    }
-			
-			streetEdge.save(); */
-    		
-    		
-    	//}
-    	
-    	ok();
-    	
-    	//renderJSON(baseline);
-    }
+		    } 
+
+		} */
+	}
 
 }

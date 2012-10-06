@@ -1,8 +1,15 @@
 package models;
 
-import javax.persistence.Entity;
+import java.math.BigInteger;
+import java.util.List;
 
+import javax.persistence.Entity;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.annotations.Type;
+import org.openplans.tools.tracking.impl.ObservationData;
 
 import com.vividsolutions.jts.geom.LineString;
 
@@ -15,6 +22,8 @@ public class StreetEdge extends Model {
     
     @Type(type = "org.hibernatespatial.GeometryUserType")
     public LineString shape;
+    
+    public Integer inPath;
     
     public Double meanVelocity;
     public Double velocityVarience;
@@ -71,5 +80,20 @@ public class StreetEdge extends Model {
     
     
     public String rbgColor;
+    
+    
+    static public void updatePathEdges(EntityManager em, List<Integer> edges)
+    {
+    	
+    	String edgesIds = StringUtils.join(edges, ", "); 
+    	em.getTransaction().begin();
+    	
+    	String sql = "UPDATE streetedge SET inPath = 1 WHERE edgeid IN (" + edgesIds + ");";
+    	
+    	em.createNativeQuery(sql)
+    			.executeUpdate();
+    	
+    	em.getTransaction().commit();
+    }
 }
 
