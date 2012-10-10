@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/configDialog"
+              android:orientation="vertical"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:padding="10dp"
+              >
+    <TextView android:id="@+id/serverUrlLabel"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="@string/server_url"
+              />
+    <EditText android:id="@+id/serverUrlField"
+              android:layout_width="250dip"
+              android:layout_height="fill_parent"
+              android:text="@string/server_url"
+              android:inputType="textNoSuggestions|textFilter"
+              />
+	<TextView android:id="@+id/frequencyLabel"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="@string/frequency"
+              />
+	<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:padding="10dp" android:baselineAligned="true">              
+      <com.cebu.NumberPicker
+              android:id="@+id/minutePicker"
+              android:orientation="vertical"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:textSize = "12dp"
+              />
+       <TextView android:id="@+id/minutesLabel"
+              android:layout_width="wrap_content"
+              android:layout_height="fill_parent"
+              android:text="@string/minutes"
+              android:gravity="center_vertical"              
+              />
+       <com.cebu.NumberPicker
+              android:id="@+id/secondPicker"
+              android:orientation="vertical"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              />
+       <TextView android:id="@+id/secondsLabel"
+              android:layout_width="wrap_content"
+              android:layout_height="fill_parent"
+              android:text="@string/seconds"
+              android:gravity="center_vertical"
+              />
+     </LinearLayout>
+     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:padding="10dp"
+              >
+        <Button
+              android:id="@+id/saveButton"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="@string/save"
+              />
+        <Button
+              android:id="@+id/cancelButton"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content"
+              android:text="@string/cancel"
+              />
+     </LinearLayout>
+</LinearLayout>
