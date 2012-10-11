@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+    <TableLayout
+        android:id="@+id/tbl"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:background="@layout/gradient"
+        android:onClick="centreMap"
+        android:stretchColumns="*" >
+           <TextView
+            android:id="@+id/loggedInAsLabel"
+        	android:textSize="12dip"
+            android:textStyle="normal"            
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </TableLayout>
+
+    <RelativeLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/Rel"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_below="@+id/tbl"
+        android:orientation="vertical" >
+
+        <org.osmdroid.views.MapView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/mapview"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_above="@+id/tablLay" >
+
+        </org.osmdroid.views.MapView>
+
+        <AbsoluteLayout 
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/tablLay"
+        android:layout_width="fill_parent"
+        android:background="@layout/gradient"
+        android:layout_height="40dp"        
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"        
+        android:orientation="vertical" >
+    
+                    <Button
+            android:id="@+id/button1"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:background="@layout/gradient"            
+            android:onClick="alert"
+            android:padding="10dp"
+            android:text="@string/Alerts"
+            android:textColor="#ffffff"
+            android:textSize="18dp"
+            android:textStyle="bold"
+            android:typeface="sans" />
+
+            <Button
+                android:id="@+id/message"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_x="211dp"
+                android:layout_y="0dp"
+                android:background="@layout/gradient"
+                android:onClick="message"
+                android:padding="10dp"
+                android:text="@string/Message"
+                android:textColor="#ffffff"
+                android:textSize="18dp"
+                android:textStyle="bold"
+                android:typeface="sans" />
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_x="131dp"
+                android:layout_y="0dp"
+                android:background="@layout/gradient"
+                android:onClick="info"
+                android:padding="10dp"
+                android:src="@drawable/info" />
+            
+        </AbsoluteLayout>
+
+        <Button
+            android:id="@+id/panicButton"
+            android:onClick="panicToggle"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:textSize="18dp"
+            android:textStyle="bold"
+           	android:typeface="sans" 
+            android:text="Panic" />
+
+        <org.osmdroid.views.MapView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/MapView01"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true" >
+        </org.osmdroid.views.MapView>
+
+    </RelativeLayout>
+
+</RelativeLayout>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="driverid">Driver Id</string>
+    <string name="vehiclebody">Vehicle Id</string>
+    <string name="app_name">Cebu Traffic</string>
+    <string name="login">Log in</string>
+    <string name="logout">Log out</string>
+    <string name="take_a_break">Take a break</string>
+    <string name="return_from_break">Return from break</string>
+    <string name="clear">Clear</string>
+    <string name="config">Configuration</string>
+    <string name="server_url">Server URL</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="frequency">Update server every</string>
+    <string name="minutes">minutes</string>
+    <string name="seconds">seconds</string>
+    <string name="operatorSel">Select an Operator</string>
+    <string name="Alerts">Alerts</string>
+    <string name="Message">Messages</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_message">MessageActivity</string>
+    <string name="change_settings">Settings</string>
+</resources>

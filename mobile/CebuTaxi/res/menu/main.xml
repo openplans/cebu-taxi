@@ -1,0 +1,6 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/change_settings"
+        android:title="@string/change_settings"
+        android:icon="@drawable/info"
+        android:orderInCategory="100" />
+</menu>

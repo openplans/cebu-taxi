@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView android:id="@+id/ScrollView01" 
+            android:layout_width="fill_parent" 
+            android:layout_height="fill_parent" 
+            xmlns:android="http://schemas.android.com/apk/res/android">
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/instructions_view"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:scrollbarAlwaysDrawVerticalTrack="true"
+    android:scrollbars="vertical" >
+
+<EditText
+    android:id="@+id/messageText"
+    android:layout_width="fill_parent"
+    android:gravity="top|left"
+    android:layout_height="100dp"
+    android:scrollbars="vertical"
+    android:inputType="textMultiLine" />
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/instructions_view"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="horizontal"
+    android:scrollbarAlwaysDrawVerticalTrack="true" >
+
+    <Button
+        android:id="@+id/sendMessageButton"
+        android:layout_width="171dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.09"
+        android:text="Send" />
+
+    <Button
+        android:id="@+id/cancelMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.17"
+        android:text="Cancel" />
+</LinearLayout>
+
+</LinearLayout>
+</ScrollView>

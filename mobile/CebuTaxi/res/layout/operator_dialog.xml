@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/operatorDialog"
+              android:orientation="vertical"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:padding="10dp"
+              >
+    <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dip"
+        android:text="Please select your taxi operator"
+    />
+    <Spinner 
+        android:id="@+id/spinner"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"        
+    />
+    
+     <LinearLayout
+         xmlns:android="http://schemas.android.com/apk/res/android"
+         android:layout_width="239dp"
+         android:layout_height="wrap_content"
+         android:orientation="horizontal"
+         android:padding="10dp" >
+
+         <Button
+             android:id="@+id/saveButton"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_weight="0.57"
+             android:text="@string/save" />
+
+         <Button
+             android:id="@+id/cancelButton"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:text="@string/cancel" />
+     </LinearLayout>
+
+</LinearLayout>

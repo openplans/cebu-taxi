@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+android:id="@+id/layout"
+android:layout_width="fill_parent"
+android:layout_height="fill_parent"
+android:orientation="vertical"
+xmlns:android="http://schemas.android.com/apk/res/android"
+>
+<TextView
+android:id="@+id/vehiclelabel"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:text="@string/vehiclebody"
+android:textSize="14sp"
+>
+</TextView>
+<AutoCompleteTextView
+android:id="@+id/vehicleField"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:textSize="18sp"
+android:hint="Vehicle ID"
+android:inputType="textNoSuggestions|textFilter"
+>
+</AutoCompleteTextView>
+<TextView
+android:id="@+id/driveridLabel"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:text="@string/driverid"
+android:textSize="14sp"
+>
+</TextView>
+<EditText
+android:id="@+id/driverIdField"
+android:layout_width="fill_parent"
+android:layout_height="wrap_content"
+android:textSize="18sp"
+android:hint="Driver ID"
+>
+</EditText>
+
+<LinearLayout
+android:id="@+id/layout"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:orientation="horizontal"
+xmlns:android="http://schemas.android.com/apk/res/android"
+>
+
+<Button
+    android:id="@+id/loginButton"
+    android:layout_width="201dp"
+    android:layout_height="wrap_content"
+    android:text="@string/login" >
+
+</Button>
+
+<Button
+    android:id="@+id/clearButton"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="@string/clear" />
+
+</LinearLayout>
+
+<ProgressBar
+android:id="@+id/loginProgressBar"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:visibility="invisible"
+>
+</ProgressBar>
+</LinearLayout>
