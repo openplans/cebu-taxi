@@ -82,6 +82,8 @@ Taxi.vehicles = Em.ArrayController.create({
     		
     	this._markerCache[id].setLatLng([vehicle.recentLon, vehicle.recentLat]);
     	
+    
+    	
     	if(this._panicState[id] != vehicle.panic)
     	{
     		if(vehicle.panic)
@@ -92,6 +94,7 @@ Taxi.vehicles = Em.ArrayController.create({
     
     	if(vehicle.messages.length > 0 && !this._panicState[id])
     	{
+    		this._markerCache[id].getIcon()
     		this._markerCache[id].setIcon(TaxiIconBlue);
     		this._panicState[id] = true;
     	}
@@ -106,16 +109,23 @@ Taxi.vehicles = Em.ArrayController.create({
     
     for(var i = 0; i < vehicle.messages.length; i++)
     {
-  	  messageText += "<br/>" + vehicle.messages[i].timestamp + "<br/>" + vehicle.messages[i].body;
+  	  messageText += "<br/>"+ vehicle.messages[i].timestamp + "<br/>" + vehicle.messages[i].body;
     }		
     
     if(messageText != "")
-    	messageText += '<br/><a href="#" onclick="clearMessages(' + vehicle.id + ');">clear messages</a>'
+    	messageText += '<br/><a href="#" onclick="clearMessages(' + vehicle.id + ');">clear messages</a>';
+    	
+    messageText += '<br/><a href="#" onclick="showSendForm( '+ vehicle.id + ', \'' + vehicle.driver.driverId + ' -- ' + vehicle.vehicle.bodyNumber + '\');">send message</a>';
     
     var vehicleName = vehicle.driver.driverId + ' -- ' + vehicle.vehicle.bodyNumber;
     	
-    $('#' + vehicle.id).html('<strong>' + vehicleName + '</strong>' + messageText + '<a href="#" onclick="showSendForm( '+ vehicle.id + ', \'' + vehicle.driver.driverId + ' -- ' + vehicle.vehicle.bodyNumber + '\');">send message</a>');
+    var headerStyle = "";
     
+    if(vehicle.panic)
+    	headerStyle = 'style="color: red;"'
+    	
+    
+    $('#' + vehicle.id).html(' <li class="divider"></li><li><strong><a href="#"  ' + headerStyle + ' onclick="map.setView([' + vehicle.recentLon + ', ' + vehicle.recentLat + '], 15);">' + vehicleName + '</strong></a>' + messageText + '</li>');    
     this._markerCache[id].bindPopup(vehicle.driver.driverId + " -- " + vehicle.vehicle.bodyNumber + messageText);
     
   },

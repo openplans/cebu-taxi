@@ -27,7 +27,7 @@ import org.openplans.tools.tracking.impl.VehicleUpdateResponse;
 import org.openplans.tools.tracking.impl.graph.InferredEdge;
 import org.openplans.tools.tracking.impl.statistics.filters.VehicleTrackingBootstrapFilter;
 import org.openplans.tools.tracking.impl.statistics.filters.VehicleTrackingPLFilter;
-import org.openplans.tools.tracking.impl.util.GeoUtils;
+//import org.openplans.tools.tracking.impl.util.GeoUtils;
 import org.openplans.tools.tracking.impl.util.OtpGraph;
 import org.opentripplanner.routing.graph.Edge;
 
@@ -100,6 +100,25 @@ public class Application extends Controller {
 	
 	public static void taxi() {
 		render();
+	}
+	
+	public static void taxi_status(String imei) {
+		
+		Integer visible;
+		List<Phone> phones;
+		
+		if(imei == null)
+		{
+			phones = Phone.all().fetch();
+			visible = 10;
+		}
+		else
+		{
+			phones = Phone.find("imei = ?", imei).fetch();
+			visible = 1000;
+		}
+		
+		render(phones, visible);
 	}
 	
 	public static void citom() {

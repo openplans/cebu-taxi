@@ -1,0 +1,37 @@
+#{extends 'main.html' /}
+
+#{set page:'taxi' /}
+
+<div class="row-fluid" style="background-color: #fff;">
+
+<ul>
+#{list items:phones, as:'phone'}
+	<strong>${phone.driver.driverId} -- ${phone.vehicle.bodyNumber} (${phone.imei})</strong> #{if visible == 10}<a href="@{Application.taxi_status}?imei=${phone.imei}">[more]</a>#{/if}
+	<br/>
+	Recent boots:
+	<ul>
+		#{list items:phone.getRecentBoot(visible), as:'boot'}
+			<span style="color: orange;">BOOT</span> ${boot.received.format('MM/dd HH:mm:ss')} (off for ${boot.getMinutesSinceLastUpdate()} mins)<br/>
+			
+		#{/list}
+	</ul>
+	
+	Recent network failures:
+	<ul>
+		#{list items:phone.getRecentNetwork(visible), as:'network'}
+			<span style="color: red;">NETWORK FAILURE</span> ${network.received.format('MM/dd HH:mm:ss')} (off for ${boot.getMinutesSinceLastGoodNetwork()} mins)<br/>
+			
+		#{/list}
+	</ul>
+	
+	Location updates:
+	<ul>
+		#{list items:phone.getRecentUpdates(visible), as:'update'}
+			#{if update.timestamp}<span style="color: green">GPS</span> ${update.timestamp.format('MM/dd HH:mm:ss')}#{/if}
+			#{else}<span style="color: red">NO GPS</span> ${update.received.format('MM/dd HH:mm:ss')}#{/else}:  #{if update.battery < 0.15}<span style="color:red">#{/if}#{elseif update.battery < 0.5}<span style="color:orange">#{/elseif}#{else}<span>#{/else} ${update.battery} #{if update.charging}charging#{/if}</span><br/>
+		#{/list}
+	</ul>
+#{/list}
+</ul>
+
+</div>

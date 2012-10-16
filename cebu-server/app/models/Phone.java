@@ -1,12 +1,16 @@
 package models;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
+
+import com.google.android.gcm.server.*;
 
 import play.db.jpa.Model;
 
@@ -31,6 +35,9 @@ public class Phone extends Model {
     public Double recentLat;
     public Double recentLon;
     
+    @Column(columnDefinition="TEXT")
+    public String gcmKey;
+    
     @Transient
     public List<MessageData> messages = new ArrayList<MessageData>();
     
@@ -44,6 +51,27 @@ public class Phone extends Model {
     	}
     }
     
+    public List<LocationUpdate> getRecentUpdates(Integer number)
+    {
+    	List<LocationUpdate> updates = LocationUpdate.find("imei = ? order by id desc", this.imei).fetch(number);
+    	
+    	return updates;
+    }
+    
+    public List<LocationUpdate> getRecentNetwork(Integer number)
+    {
+    	List<LocationUpdate> updates = LocationUpdate.find("imei = ? and failednetwork = true order by id desc", this.imei).fetch(number);
+    	
+    	return updates;
+    }
+    
+    public List<LocationUpdate> getRecentBoot(Integer number)
+    {
+    	List<LocationUpdate> updates = LocationUpdate.find("imei = ? and boot = true order by id desc", this.imei).fetch(number);
+    	
+    	return updates;
+    }
+    
     public void sendMessage(String message)
     {
     	Message m  = new Message();
@@ -54,6 +82,19 @@ public class Phone extends Model {
     	m.body = message;
     	
     	m.save();
+    	
+    	if(gcmKey != null && gcmKey != "")
+    	{
+    		Sender sender = new Sender("AIzaSyDeqnbKtFely_dw2nOmNloPg_KS5JclKLc");
+    		com.google.android.gcm.server.Message gcmMessage = new com.google.android.gcm.server.Message.Builder().addData("timestamp", m.timestamp.toLocaleString()).addData("message", m.body).build();
+    
+    		try {
+				Result result = sender.send(gcmMessage, gcmKey, 5);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
     }
     
     

@@ -29,6 +29,7 @@ import api.MessageResponse;
 
 import com.vividsolutions.jts.geom.Coordinate;
 
+
 import jobs.ObservationHandler;
 
 import models.*;
@@ -183,6 +184,25 @@ public class Api extends Controller {
 			phone.panic = panic;
 			phone.save();
 		}
+		
+		ok();
+	}
+	
+	public static void registerGCM(String imei, String gcmKey)
+	{
+	
+		if(imei == null)
+			unauthorized("IMEI Required");
+		
+		Phone phone = Phone.find("imei = ?", imei).first();
+		
+		if(phone != null)
+		{
+			phone.gcmKey = gcmKey;
+			phone.save();
+		}
+		
+		ok();
 	}
 	
 	public static void operator(String imei)
@@ -374,7 +394,7 @@ public class Api extends Controller {
 	}
 	
 	
-    public static void location(String imei, String content) throws IOException {
+    public static void location(String imei, String content, String timesent, Boolean charging, Double battery, Boolean boot, Boolean failednetwork) throws IOException {
     
     	// test request via curl:
     	// 
@@ -382,7 +402,7 @@ public class Api extends Controller {
     	
 		// check for valid request
     	
-    	Date now = new Date();
+    	Date timeReceivedDate = new Date();
 		
     	if(imei == null || imei.trim().isEmpty())
     		badRequest();
@@ -405,14 +425,45 @@ public class Api extends Controller {
 		
 		message = "location message received: imei=" + imei + " " + content;
     	
-    	if(requestBody == null || requestBody.isEmpty())
-    		badRequest();
+		Date timeSentDate = null;
+    	
+    	try
+    	{
+    		timeSentDate = sdf.parse(timesent.replace("T", " "));
+    	}
+    	catch(Exception e)
+    	{
+    		timeSentDate = new Date();
+    		// failed to parse local time, must fall back to time received for last update
     		
+    	}
+    	
+    	if(charging == null)
+    		charging = false;
+		
+    	if(boot == null)
+    		boot = false;
+    	
+    	if(battery == null)
+    		battery = -1.0;
+    	
+    	if(failednetwork == null)
+    		failednetwork = false;
+    	
+    	if(requestBody == null || requestBody.isEmpty())
+    	{
+    		Logger.info("Empty location update received for ", imei);
+    		LocationUpdate.natveInsert(LocationUpdate.em(), imei, null, charging, battery, timeSentDate, timeReceivedDate, boot, failednetwork);
+    		ok();
+    	}	
+    	
     	// requests can contain multiple requests, split on newline
     	
     	String[] lines = requestBody.split("\n");
     	 	
     	VehicleUpdate update = new VehicleUpdate(imei);
+    	
+    	
     	
     	for(String line : lines)
     	{
@@ -437,7 +488,7 @@ public class Api extends Controller {
 	    		Logger.info(dateTime.toGMTString());
 	    		update.addObservation(observation);
 	    		
-	    		LocationUpdate.natveInsert(LocationUpdate.em(), observation);
+	    		LocationUpdate.natveInsert(LocationUpdate.em(), imei, observation, charging, battery, timeSentDate, timeReceivedDate, boot, failednetwork);
     		}
     		catch(Exception e)
     		{
