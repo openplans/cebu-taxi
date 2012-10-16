@@ -130,6 +130,7 @@ public class CebuActivity extends Activity {
 	private MapView myMap;
 	private MyLocationOverlay myLocOverlay;
 	private TilesOverlay mTilesOverlay;
+	private MBTilesFileArchive mbtilesDb;  
 	
 	private MapTileProviderArray mProvider;
 	//private MapTileProviderBasic mProvider;
@@ -147,90 +148,6 @@ public class CebuActivity extends Activity {
 	
 	private Handler mHandler = new Handler();
 	
-	/*final int mapOverlayUpdatePeriod = 30000;
-	final Runnable messageRetrieveTask = new Runnable() {
-	    public void run() { 
-	    	
-	    	//mOverlayProvider.clearTileCache();
-	        //myMap.invalidate();	    	
-	    	//mHandler.postDelayed(this, mapOverlayUpdatePeriod);
-	    	
-	    	String url= apiRequestUrl + "/api/messages?imei=" + Utils.imeino(getApplicationContext());
-
-	    	try 
-	    	{  	HttpClient httpclient = new DefaultHttpClient();				
-				HttpGet httpgetrqst = new HttpGet(url);
-				HttpResponse response;			
-				response = httpclient.execute(httpgetrqst);
-				HttpEntity entity = response.getEntity();
-				int rspCode=response.getStatusLine().getStatusCode();
-				
-				if(rspCode==200)
-				{
-					String json = EntityUtils.toString(entity);
-					JSONArray jArray2;
-					try
-					{
-						String message = "";
-						jArray2 = new JSONArray(json);
-						for(int i=0;i<jArray2.length();i++)
-						{
-							try{
-							JSONObject json_data = jArray2.getJSONObject(i);
-								//if (json_data.getString("type").equalsIgnoreCase("dispatch"))
-								{	
-									message +="---"+json_data.getString("body");
-									message += json_data.getString("timestamp"); 								
-									
-								}
-							
-							}catch(Exception e){
-							}
-							message += "\n\n\n";
-							
-						}
-						
-						
-						if (message != "")
-						{
-							final Dialog dialog = new Dialog(CebuActivity.this);
-						
-							dialog.setContentView(R.layout.message_activity);
-							dialog.setTitle("Message Received");
-							dialog.setCancelable(false);
-							Button dialogButton = (Button) dialog.findViewById(R.id.messageOk);
-							
-							TextView text = (TextView) dialog.findViewById(R.id.textView1);
-							text.setText(message);
-						
-							dialogButton.setOnClickListener(new OnClickListener() {
-								public void onClick(View v) {
-									dialog.dismiss();
-								}
-							});
-							dialog.show();
-						}
-						}
-					catch(Exception e)
-					{
-						// json parse exception
-						e.printStackTrace();
-					}
-				}
-				else
-				{
-					toast("error response from server.");
-				}			
-			} catch (ClientProtocolException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-	
-	    	mHandler.postDelayed(messageRetrieveTask, mapOverlayUpdatePeriod);
-
-	    }
-	};*/
 	
 	private final BroadcastReceiver mHandleMessageReceiver =
             new BroadcastReceiver() {
@@ -240,6 +157,15 @@ public class CebuActivity extends Activity {
         	AlertDialog.Builder builder = new AlertDialog.Builder(CebuActivity.this);
     		AlertDialog alert = builder.setMessage(intent.getExtras().get("message").toString()).setTitle("Message").setNegativeButton("Close", null).create();
     		alert.show();
+        }
+    };
+    
+    private final BroadcastReceiver mExternalStorageReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+        	
+        	// load deferred map inititalizatoin
+            CebuActivity.this.initMyLocation();
         }
     };
 
@@ -253,6 +179,9 @@ public class CebuActivity extends Activity {
 		
 		registerReceiver(mHandleMessageReceiver,
                 new IntentFilter(DISPLAY_MESSAGE_ACTION));
+		
+		registerReceiver(mExternalStorageReceiver, 
+				new IntentFilter(Intent.ACTION_MEDIA_MOUNTED));
 		
 		GCMRegistrar.checkDevice(this);
 		GCMRegistrar.checkManifest(this);
@@ -280,14 +209,13 @@ public class CebuActivity extends Activity {
 				Log.i("failed to register gcm key", e.toString());
 			}
 		}
-		
-		//imeiNumber=Utils.imeino(getApplicationContext());	
-		
+
 		Intent intent = new Intent(CebuActivity.this, LocationService.class);
 		startService(intent);
 		serviceConnection = new LocationServiceConnection();
 		bindService(intent, serviceConnection, 0);
 		dialog = ProgressDialog.show(this, "", "Registering with server.", true);
+	
 	}
 
 
@@ -378,10 +306,14 @@ public class CebuActivity extends Activity {
 			UpdatePreferences("operatorid",operatorid);
 			UpdatePreferences("operatorname",operator);
 			loggedIn();
+			
 			if (loginScreeninvoker==1)
 			{
-				Intent intent = new Intent(CebuActivity.this, LocationService.class);
-				locationService.realStart(intent);				
+				if(!LocationService.isRunning())
+				{
+					Intent intent = new Intent(CebuActivity.this, LocationService.class);
+					locationService.realStart(intent);
+				}
 			}
 		}
 	}
@@ -826,16 +758,6 @@ public class CebuActivity extends Activity {
 		loginScreeninvoker=2;
 		switchToLogin();
 	}
-
-	
-	public void centreMap(View v)
-	{
-		try{
-			myMap.getController().setCenter(myLocOverlay.getMyLocation());
-		}catch(Exception e){
-			
-		}
-	}
 	
 	public void alert(View v) 
 	{
@@ -906,7 +828,11 @@ public class CebuActivity extends Activity {
 
 	public void centerView(View v)
 	{
-		myMap.getController().setCenter(myLocOverlay.getMyLocation()); //
+		
+		myLocOverlay.enableFollowLocation();
+		
+		//GeoPoint gp = new GeoPoint(10.2833,123.9000);
+		//myMap.getController().setCenter(gp); //
 	}
 	
 	@Override
@@ -1151,12 +1077,23 @@ public class CebuActivity extends Activity {
 	}
 
 	private void initMyLocation() {
-		
-		copyAssets();
+
+		if(this.myMap != null)
+			// map already initialized
+			return;
 		
         //this.mCustomTileSource = new XYTileSource("FietsRegionaal", null, 3, 18, 256, ".png",
         //                "http://overlay.openstreetmap.nl/openfietskaart-rcn/");
 		try{
+			
+		if(!Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED))
+    	{
+			// load deferred map inititalization
+    		toast("Loading map data...");
+    		return;
+    	}
+		
+		copyAssets();
 		
 		this.mOverlayProvider = new MapTileProviderBasic(getApplicationContext());
        
@@ -1181,14 +1118,19 @@ public class CebuActivity extends Activity {
 		
 		DefaultResourceProxyImpl mResourceProxy = new DefaultResourceProxyImpl(getApplicationContext());
     	SimpleRegisterReceiver simpleReceiver = new SimpleRegisterReceiver(this);
-    	    	
-    	File f = new File(Environment.getExternalStorageDirectory(), "/cebu/CebuBright16.mbtiles");
+    
     	
-    	IArchiveFile[] files = { MBTilesFileArchive.getDatabaseFileArchive(f) };    	
+    	File f = new File(context.getExternalFilesDir(null), "/CebuBright16.mbtiles");
+    	
+    	mbtilesDb = MBTilesFileArchive.getDatabaseFileArchive(f);
+    	
+    	IArchiveFile[] files = { mbtilesDb };    	
+    	
     	MapTileModuleProviderBase moduleProvider = new MapTileFileArchiveProvider(simpleReceiver, this.mCustomTileSource, files);
     	    	    	
+    	
 		mProvider = new MapTileProviderArray(this.mCustomTileSource, null, new MapTileModuleProviderBase[]{ moduleProvider });
-
+		
 		this.myMap = new MapView(this, 256, mResourceProxy, mProvider);
 		
         myLocOverlay = new MyLocationOverlay(this, myMap);
@@ -1231,7 +1173,7 @@ public class CebuActivity extends Activity {
 	    AssetManager assetManager = getAssets();
 	    String[] files = null;
 	    
-	    File cebuDirectory = new File(Environment.getExternalStorageDirectory(), "/cebu/");
+	    File cebuDirectory = new File(context.getExternalFilesDir(null), "/");
 	    cebuDirectory.mkdir();
 	    
 	    
@@ -1325,6 +1267,13 @@ public class CebuActivity extends Activity {
 	public void onDestroy() {
 		super.onDestroy();
 		unbindService(serviceConnection);
+	
+		//if(mbtilesDb != null)
+		//	mbtilesDb.closeDatabase();
+		
+		this.unregisterReceiver(mHandleMessageReceiver);
+		this.unregisterReceiver(mExternalStorageReceiver);
+		
 	}
 
 

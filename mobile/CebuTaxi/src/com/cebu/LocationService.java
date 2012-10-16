@@ -37,11 +37,13 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.BatteryManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -55,6 +57,13 @@ public class LocationService extends Service {
 	public static final String BREAK = "break";
 	public static final String ACTIVE = "active";
 	public static final String NOT_STARTED = "not started";
+	
+	private static Boolean running = false;
+	
+	private static Boolean justBooted = true;
+	
+	public static LocationService locService = null;
+	
 	private LocationServiceThread thread;
 	private LocalBinder binder = new LocalBinder();
 	private CebuActivity activity;
@@ -69,11 +78,21 @@ public class LocationService extends Service {
 	private String driverName;
 	public boolean UpdateSet=false;
 	private boolean readPreferences=false;
+
+	public static Boolean isRunning()
+	{
+		return running;
+	}
+	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
+		
+		locService = this;
+		
 		getPreferenceValues();
-		if( (!imeiNumber.equals("")) && operatorid!=-1)
+		if( (!imeiNumber.equals("")) && operatorid!=-1 && !running)
 		{
+			running = true;
 			readPreferences=true;
 			realStart(intent);
 		}
@@ -157,6 +176,7 @@ public class LocationService extends Service {
 		
 		private LocationManager locationManager;
 		private ArrayList<LocationUpdates> lastLocations = new ArrayList<LocationUpdates>();
+		private ArrayList<LocationUpdates> failedNetworkLocations = new ArrayList<LocationUpdates>();
 		private ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
 		private Runnable sendToServerTask = new Runnable() {
 			public void run() {
@@ -164,7 +184,7 @@ public class LocationService extends Service {
 				{
 					try
 					{
-						sendToServer();
+						sendToServer(false);
 						Log.i(TAG, "SEND to Server");
 					}
 					catch(Exception e)
@@ -247,15 +267,38 @@ public class LocationService extends Service {
 				}
 			}			
 		}
+		
+		private void addToFailedNetworkLocationArray()
+		{
+			if(lastLocation!=null)
+			{
+				synchronized (lastLocation) 
+				{
+					try
+					{
+						List<LocationUpdates> syncedLocationList = Collections.synchronizedList(failedNetworkLocations);
+						syncedLocationList.add(new LocationUpdates(lastLocation));
+					}
+					catch(Exception e)
+					{
+					}		
+				}
+			}			
+		}
 
-		private String getLocationURL()
+		private String getLocationURL(Boolean failedNetwork)
 		{
 			String cebuStr="";
 			try
 			{				
 
 				StringBuilder builder = new StringBuilder();
-				List<LocationUpdates> syncedLocationList = Collections.synchronizedList(lastLocations);
+				List<LocationUpdates> syncedLocationList;
+				
+				if(failedNetwork)
+					syncedLocationList = Collections.synchronizedList(failedNetworkLocations);
+				else
+					syncedLocationList = Collections.synchronizedList(lastLocations);
 				{
 					int size=syncedLocationList.size();
 					int i;
@@ -278,34 +321,64 @@ public class LocationService extends Service {
 			return cebuStr;
 		}		
 
-		private void sendToServer()
+		private void sendToServer(Boolean failedNetwork)
 		{
-			String locationStr=getLocationURL();
-			if(locationStr.length()<=0)
-				return;
-			//Log.e(TAG, locationStr);
-			//HttpClient client = Utils.getNewHttpClient();
+			String locationStr=getLocationURL(failedNetwork);
+						
+			
+			IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+			Intent batteryStatus = LocationService.locService.getApplicationContext().registerReceiver(null, ifilter);
+			
+			// Are we charging / charged?
+			int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+			Boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+			                     status == BatteryManager.BATTERY_STATUS_FULL;
+			
+			// Get battery charge level
+			int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+			int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+
+			Double batteryPct = level / (double)scale;
+			
 			HttpClient client = new DefaultHttpClient();
 			HttpPost request = new HttpPost(CebuActivity.apiRequestUrl + "/api/location");
 			try {
+				String timeSent = dateFormat.format(new Date());
+				
 				List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
 				nameValuePairs.add(new BasicNameValuePair("imei", imeiNumber));
+				nameValuePairs.add(new BasicNameValuePair("timesent", timeSent.replace(" ", "T")));
+				nameValuePairs.add(new BasicNameValuePair("battery", batteryPct.toString()));
+				nameValuePairs.add(new BasicNameValuePair("charging", isCharging.toString()));
+				nameValuePairs.add(new BasicNameValuePair("boot", LocationService.justBooted.toString()));
 				nameValuePairs.add(new BasicNameValuePair("content", locationStr));
+				nameValuePairs.add(new BasicNameValuePair("failedNetwork", failedNetwork.toString()));
+				
+				LocationService.justBooted = false;
+				
 				request.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 				HttpResponse response = client.execute(request);
 				if (response.getStatusLine().getStatusCode() == 200) 
 				{
 					Log.i(TAG, "Updated Server successfully ");
-										
+					
+					if(failedNetworkLocations.size() > 0)
+						sendToServer(true);
 				}
 				else
+				{
 					Log.e(TAG, "Server Updation Error");
+					addToFailedNetworkLocationArray();
+				}
 			} catch (ClientProtocolException e) {
 				Log.e(TAG, "protocol exception sending ping", e);
+				addToFailedNetworkLocationArray();
 			} catch (IOException e) {
 				Log.e(TAG, "IO exception sending ping", e);
+				addToFailedNetworkLocationArray();
 			} catch (Exception e) {
 				Log.e(TAG, "some other problem sending ping", e);
+				addToFailedNetworkLocationArray();
 			}
 			return;
 		}
@@ -352,7 +425,7 @@ public class LocationService extends Service {
 		public void startReceivingLocation() {
 			Log.i(TAG, "Requesting location updates with a minTime of 0s and min distance of 0m");			
 			locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2, 0, this);
-			locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2, 0, this);
+			//locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 2, 0, this);
 		}
 
 		public void stopReceivingLocation() {
