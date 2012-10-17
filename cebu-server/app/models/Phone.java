@@ -72,6 +72,13 @@ public class Phone extends Model {
     	return updates;
     }
     
+    public List<LocationUpdate> getRecentShutdown(Integer number)
+    {
+    	List<LocationUpdate> updates = LocationUpdate.find("imei = ? and shutdown = true order by id desc", this.imei).fetch(number);
+    	
+    	return updates;
+    }
+    
     public void sendMessage(String message)
     {
     	Message m  = new Message();

@@ -394,7 +394,7 @@ public class Api extends Controller {
 	}
 	
 	
-    public static void location(String imei, String content, String timesent, Boolean charging, Double battery, Boolean boot, Boolean failednetwork) throws IOException {
+    public static void location(String imei, String content, String timesent, Boolean charging, Double battery, Boolean boot, Boolean shutdown, Boolean failednetwork, Integer signal) throws IOException {
     
     	// test request via curl:
     	// 
@@ -404,6 +404,7 @@ public class Api extends Controller {
     	
     	Date timeReceivedDate = new Date();
 		
+    	
     	if(imei == null || imei.trim().isEmpty())
     		badRequest();
     
@@ -423,20 +424,42 @@ public class Api extends Controller {
               requestBody = params.get("body");
         }
 		
+		String[] lines = requestBody.split("\n");
+		
 		message = "location message received: imei=" + imei + " " + content;
     	
 		Date timeSentDate = null;
     	
+		Long timeDelta = null;
+		
     	try
     	{
     		timeSentDate = sdf.parse(timesent.replace("T", " "));
+   
+    		timeDelta = timeReceivedDate.getTime() - timeSentDate.getTime();
     	}
     	catch(Exception e)
     	{
-    		timeSentDate = new Date();
-    		// failed to parse local time, must fall back to time received for last update
-    		
+        	try
+        	{
+        		timeSentDate = new Date();
+        		// failed to parse local time, must fall back to time received for last update
+        		
+            	String[] lineParts = lines[lines.length-1].trim().split(",");
+        		
+        		Date lastUpdateDate = locationDateFormat.parse(lineParts[0].replace("T", " "));
+        		
+        		timeDelta = timeReceivedDate.getTime() - lastUpdateDate.getTime();
+        	}
+        	catch(Exception e1)
+            {
+        		// failed to parse last update timestamp, setting delta to 0
+        		
+        		timeDelta = new Long(0);
+            }
     	}
+    	
+    	
     	
     	if(charging == null)
     		charging = false;
@@ -444,8 +467,14 @@ public class Api extends Controller {
     	if(boot == null)
     		boot = false;
     	
+    	if(shutdown == null)
+    		shutdown = false;
+    	
     	if(battery == null)
     		battery = -1.0;
+    	
+    	if(signal == null)
+    		signal = -1;
     	
     	if(failednetwork == null)
     		failednetwork = false;
@@ -453,13 +482,19 @@ public class Api extends Controller {
     	if(requestBody == null || requestBody.isEmpty())
     	{
     		Logger.info("Empty location update received for ", imei);
-    		LocationUpdate.natveInsert(LocationUpdate.em(), imei, null, charging, battery, timeSentDate, timeReceivedDate, boot, failednetwork);
+    		
+    		Calendar calendar = Calendar.getInstance();
+    		calendar.setTimeInMillis(timeSentDate.getTime() + timeDelta);
+
+    		Date adjustedDate = calendar.getTime();
+    		
+    		LocationUpdate.natveInsert(LocationUpdate.em(), imei, charging, battery, timeSentDate, adjustedDate, timeSentDate, timeReceivedDate, boot, shutdown, failednetwork, signal);
     		ok();
     	}	
     	
     	// requests can contain multiple requests, split on newline
     	
-    	String[] lines = requestBody.split("\n");
+    	
     	 	
     	VehicleUpdate update = new VehicleUpdate(imei);
     	
@@ -477,18 +512,23 @@ public class Api extends Controller {
     	
     		try
     		{
-	    		Date dateTime = locationDateFormat.parse(lineParts[0].replace("T", " "));
+	    		Date dateTime = locationDateFormat.parse(lineParts[0].replace("T", " "));	
+	    		Calendar calendar = Calendar.getInstance();
+	    		calendar.setTimeInMillis(dateTime.getTime() + timeDelta);
+
+	    		Date adjustedDate = calendar.getTime();
+	    	    
 	    		Double lat = Double.parseDouble(lineParts[1]);
 	    		Double lon = Double.parseDouble(lineParts[2]);
 	    		Double velocity = Double.parseDouble(lineParts[3]);
 	    		Double heading = Double.parseDouble(lineParts[4]);
 	    		Double gpsError = Double.parseDouble(lineParts[5]);
 	    		
-	    		ObservationData observation = new ObservationData(imei, dateTime, new Coordinate(lon, lat), velocity, heading, gpsError);
+	    		ObservationData observation = new ObservationData(imei, adjustedDate,  new Coordinate(lon, lat), velocity, heading, gpsError);
 	    		Logger.info(dateTime.toGMTString());
 	    		update.addObservation(observation);
 	    		
-	    		LocationUpdate.natveInsert(LocationUpdate.em(), imei, observation, charging, battery, timeSentDate, timeReceivedDate, boot, failednetwork);
+	    		LocationUpdate.natveInsert(LocationUpdate.em(), imei, observation, charging, battery, dateTime, timeSentDate, timeReceivedDate, boot, shutdown, failednetwork, signal);
     		}
     		catch(Exception e)
     		{

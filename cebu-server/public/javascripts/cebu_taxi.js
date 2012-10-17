@@ -94,12 +94,16 @@ Taxi.vehicles = Em.ArrayController.create({
     
     	if(vehicle.messages.length > 0 && !this._panicState[id])
     	{
-    		this._markerCache[id].getIcon()
     		this._markerCache[id].setIcon(TaxiIconBlue);
     		this._panicState[id] = true;
     	}
     	else
+    	{
+    		if(vehicle.panic)
+    			this._markerCache[id].setIcon(PanicIcon);
+    		
     		this._panicState[id] = vehicle.panic;
+    	}
     	
    
     	

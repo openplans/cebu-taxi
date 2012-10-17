@@ -125,6 +125,19 @@ public class Application extends Controller {
 		render();
 	}
 	
+	public static void adjustTimes()
+	{
+		List<LocationUpdate> updates = LocationUpdate.find("sent is not null and received is not null").fetch();
+		
+		for(LocationUpdate update : updates)
+		{
+			update.calcAdjustedTime();
+		}
+	
+		ok();
+	}
+	
+	
 	public static void replay() {
 		
 		List<LocationUpdate> locations  = LocationUpdate.find("order by timestamp").fetch();
