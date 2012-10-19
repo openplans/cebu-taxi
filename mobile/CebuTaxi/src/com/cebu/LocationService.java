@@ -35,6 +35,7 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -48,7 +49,11 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
+import android.telephony.PhoneStateListener;
+import android.telephony.SignalStrength;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 
 public class LocationService extends Service {
@@ -63,6 +68,10 @@ public class LocationService extends Service {
 	private static Boolean justBooted = true;
 	
 	public static LocationService locService = null;
+	
+	private static Boolean shuttingDown = false;
+	
+	public static Integer signalStrength = 0;
 	
 	private LocationServiceThread thread;
 	private LocalBinder binder = new LocalBinder();
@@ -96,8 +105,24 @@ public class LocationService extends Service {
 			readPreferences=true;
 			realStart(intent);
 		}
+		
+		AppPhoneStateListener phoneStateListener  = new AppPhoneStateListener();
+		TelephonyManager telephonyManager = ( TelephonyManager )getSystemService(Context.TELEPHONY_SERVICE);
+		telephonyManager.listen(phoneStateListener ,PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
+		
 		return START_REDELIVER_INTENT;
 	}
+	
+	 private class AppPhoneStateListener extends PhoneStateListener
+	    {
+	
+	      @Override
+	      public void onSignalStrengthsChanged(SignalStrength signalStrength)
+	      {
+	    	  LocationService.signalStrength = signalStrength.getGsmSignalStrength();	        
+	      }
+
+	    };/* End of private Class */
 
 	public void getPreferenceValues()
 	{
@@ -174,10 +199,26 @@ public class LocationService extends Service {
 		private String status;
 		private volatile boolean active;
 		
+		private Intent shutdownStatus;
+		
+		PowerManager.WakeLock wl;
+		
 		private LocationManager locationManager;
 		private ArrayList<LocationUpdates> lastLocations = new ArrayList<LocationUpdates>();
 		private ArrayList<LocationUpdates> failedNetworkLocations = new ArrayList<LocationUpdates>();
 		private ScheduledThreadPoolExecutor scheduledThreadPoolExecutor;
+		
+		private final BroadcastReceiver mShutdownReceiver = new BroadcastReceiver() {
+	        @Override
+	        public void onReceive(Context context, Intent intent) {
+	        	
+	        	// load deferred map inititalization
+	        	
+	        	LocationService.shuttingDown = true;
+	            LocationServiceThread.this.sendToServer(false);
+	        }
+	    };
+		
 		private Runnable sendToServerTask = new Runnable() {
 			public void run() {
 				if (active) 
@@ -222,11 +263,24 @@ public class LocationService extends Service {
 			locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 			active = true;
 			scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(2);
+			
+			IntentFilter ifilter = new IntentFilter(Intent.ACTION_SHUTDOWN);
+			Intent shutdownStatus = LocationService.locService.getApplicationContext().registerReceiver(mShutdownReceiver, ifilter);
+			
+			PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
+			wl = pm.newWakeLock(PowerManager.SCREEN_DIM_WAKE_LOCK, "locationService Wake Lock");
+			
+			wl.acquire();
+			
 			setStatus(ACTIVE);
 		}
 
 		public void stop() {
 			scheduledThreadPoolExecutor.shutdown();
+			
+			wl.release();
+			
+			LocationService.locService.getApplicationContext().unregisterReceiver(mShutdownReceiver);
 		}
 
 
@@ -325,10 +379,10 @@ public class LocationService extends Service {
 		{
 			String locationStr=getLocationURL(failedNetwork);
 						
-			
 			IntentFilter ifilter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
 			Intent batteryStatus = LocationService.locService.getApplicationContext().registerReceiver(null, ifilter);
 			
+		
 			// Are we charging / charged?
 			int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
 			Boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
@@ -352,7 +406,11 @@ public class LocationService extends Service {
 				nameValuePairs.add(new BasicNameValuePair("charging", isCharging.toString()));
 				nameValuePairs.add(new BasicNameValuePair("boot", LocationService.justBooted.toString()));
 				nameValuePairs.add(new BasicNameValuePair("content", locationStr));
-				nameValuePairs.add(new BasicNameValuePair("failedNetwork", failedNetwork.toString()));
+				nameValuePairs.add(new BasicNameValuePair("failednetwork", failedNetwork.toString()));
+				nameValuePairs.add(new BasicNameValuePair("signal", LocationService.signalStrength.toString()));
+				
+				if(LocationService.shuttingDown)
+					nameValuePairs.add(new BasicNameValuePair("shutdown", LocationService.shuttingDown.toString()));
 				
 				LocationService.justBooted = false;
 				

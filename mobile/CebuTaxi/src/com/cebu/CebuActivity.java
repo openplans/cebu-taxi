@@ -105,7 +105,7 @@ public class CebuActivity extends Activity {
 	static final String DISPLAY_MESSAGE_ACTION =
             "com.cebu.	";
 	
-	public static String apiRequestUrl = "http://cebutraffic.org";
+	public static String apiRequestUrl = "http://23.21.67.127";
 	
 	public static String mapboxTilesUrl = "http://a.tiles.mapbox.com/v3/openplans.map-g4j0dszr/";
 	
