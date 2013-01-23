@@ -63,7 +63,7 @@ public class DistanceCache {
 			
 			play.Logger.info("Distance traveled for IMEI " + imei + ": " + distance + "(" + error + ")");
 			
-			if(distance < error)
+			if(distance < (error * 2))
 				distance = 0.0;
 			else
 				vechiclePositions.put(vehicle, newCoord);

@@ -19,7 +19,7 @@ public class Vehicle extends Model {
     {
     	Date today = DateUtils.truncate(new Date(), Calendar.DAY_OF_MONTH);
     	
-    	Query query= Vehicle.em().createQuery("SELECT SUM(v.distance) FROM VehicleDistance as v WHERE vehicle_id = ? and date > ?")
+    	Query query= Vehicle.em().createQuery("SELECT SUM(v.distance) FROM VehicleDistance as v WHERE vehicle_id = ? and date >= ?")
     			.setParameter(1, this.id)
     			.setParameter(2, today);
     	
