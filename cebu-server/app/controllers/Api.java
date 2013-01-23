@@ -3,6 +3,9 @@ package controllers;
 import play.*;
 import play.db.jpa.JPA;
 import play.mvc.*;
+import utils.DistanceCache;
+import utils.EncodedPolylineBean;
+import utils.StreetVelocityCache;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -12,22 +15,42 @@ import java.util.*;
 
 import static akka.pattern.Patterns.ask;
 
+import org.opengis.referencing.operation.MathTransform;
 import org.openplans.tools.tracking.impl.Observation;
 import org.openplans.tools.tracking.impl.ObservationData;
 import org.openplans.tools.tracking.impl.VehicleUpdate;
 import org.openplans.tools.tracking.impl.VehicleUpdateResponse;
+import org.openplans.tools.tracking.impl.util.GeoUtils;
 import org.openplans.tools.tracking.impl.util.OtpGraph;
+import org.opentripplanner.routing.algorithm.GenericAStar;
+import org.opentripplanner.routing.core.RoutingRequest;
+import org.opentripplanner.routing.core.TraverseMode;
+import org.opentripplanner.routing.core.TraverseModeSet;
+import org.opentripplanner.routing.edgetype.StreetEdge;
+import org.opentripplanner.routing.graph.Edge;
+import org.opentripplanner.routing.graph.Vertex;
+import org.opentripplanner.routing.impl.StreetVertexIndexServiceImpl;
+import org.opentripplanner.routing.spt.GraphPath;
+import org.opentripplanner.util.PolylineEncoder;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.geotools.geometry.jts.JTS;
 
 import akka.dispatch.Future;
 import akka.dispatch.OnSuccess;
 import akka.event.Logging;
 import api.AuthResponse;
 import api.MessageResponse;
+import api.Path;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Geometry;
 
 
 import jobs.ObservationHandler;
@@ -36,20 +59,28 @@ import models.*;
 
 public class Api extends Controller {
 
+	static public Integer CURRENT_APP_VERSION = 1;
+	
+	static DistanceCache distanceCache = new DistanceCache();
+	
+	static StreetVelocityCache edgeVelocities = new StreetVelocityCache();
+	
 	static SimpleDateFormat locationDateFormat = new SimpleDateFormat("yyyyMMdd HHmmss");
 	
 	public static final SimpleDateFormat sdf = new SimpleDateFormat(
 		      "yyyy-MM-dd hh:mm:ss");
 	
 	/*public static OtpGraph graph = new OtpGraph(
-		      Play.configuration.getProperty("application.otpGraphPath"), Play.configuration.getProperty("application.dcPath"));
-	
-	public static OtpGraph getGraph() {
-		return graph;
-	}*/
+			      Play.configuration.getProperty("application.otpGraphPath"), Play.configuration.getProperty("application.dcPath"));
 		
-	private static List<Long> ConvetStringArrayToLongArray(String[] stringArray){
-		ArrayList<Long> longList = new ArrayList<Long>();
+		public static OtpGraph getGraph() {
+			return graph;
+		}*/
+	
+		public static ObjectMapper jsonMapper = new ObjectMapper();
+			
+		private static List<Long> ConvetStringArrayToLongArray(String[] stringArray){
+			ArrayList<Long> longList = new ArrayList<Long>();
 
 		for(String str : stringArray){	
 		longList.add(new Long(str));
@@ -57,6 +88,12 @@ public class Api extends Controller {
 
 		return longList;
 		}
+	
+	
+	
+	
+	
+	
 	
 	public static void alerts(String imei, String type, String ids) {
 		
@@ -71,7 +108,7 @@ public class Api extends Controller {
 			alerts = Alert.em().createQuery("FROM Alert alert WHERE alert.id in (?1)").setParameter(1, ConvetStringArrayToLongArray(id_list)).getResultList(); 
 		}
 		else if(type == null || type.isEmpty() || type.toLowerCase().equals("all"))
-			alerts = Alert.all().fetch();
+			alerts = Alert.find("active = true").fetch();
 		else
 			alerts = Alert.find("type = ?", type.toLowerCase()).fetch();
 			
@@ -92,24 +129,7 @@ public class Api extends Controller {
 	}
 	
 	
-	public static void activeTaxis() {
-			
-		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.MINUTE, -15);
-		Date recentDate = cal.getTime();
-		
-		List<Phone> phones = Phone.find("lastUpdate > ? order by id", recentDate).fetch();
-		
-		for(Phone phone : phones)
-		{
-			phone.populateUnreadMessages();
-		}
-		
-		if(request.format == "xml")
-			renderXml(phones);
-		else
-			renderJSON(phones);
-	}
+	
 	
 	
 	public static void messages(String imei, Long message_id, Double lat, Double lon, String content) {
@@ -205,7 +225,7 @@ public class Api extends Controller {
 		ok();
 	}
 	
-	public static void operator(String imei)
+	public static void operator(String imei, String version)
 	{
 		Logger.info("Operator Auth request for IMEI " + imei); 
 		
@@ -234,6 +254,8 @@ public class Api extends Controller {
 			
 			authResponse.gpsInterval = 5;
 			authResponse.updateInterval = 30;
+			
+			authResponse.appVersion = CURRENT_APP_VERSION;
 			
 			if(request.format == "xml")
 				renderXml(authResponse);
@@ -331,19 +353,21 @@ public class Api extends Controller {
 		if(vehicle == null)
 			badRequest();
 		
-		Vehicle veichie = Vehicle.find("bodyNumber = ?", vehicle).first();
+		Vehicle vehicleObj = Vehicle.find("bodyNumber = ?", vehicle).first();
 		
-		if(veichie == null)
+		if(vehicleObj == null)
 		{
 			Logger.info("Unknown vehicle, createing record for body number " + vehicle); 
 			
-			veichie = new Vehicle();
-			veichie.bodyNumber = vehicle;
-			veichie.save();
+			vehicleObj = new Vehicle();
+			vehicleObj.bodyNumber = vehicle;
+			vehicleObj.save();
 		}
 		
+		distanceCache.linkImeiToVehicle(imei, vehicleObj);
+		
 		phone.driver = driverObj;
-		phone.vehicle = veichie;
+		phone.vehicle = vehicleObj;
 		
 		phone.save();
 
@@ -365,6 +389,8 @@ public class Api extends Controller {
 		
 		authResponse.gpsInterval = 5;
 		authResponse.updateInterval = 30;
+		
+		authResponse.appVersion = CURRENT_APP_VERSION;
 		
 		if(request.format == "xml")
 			renderXml(authResponse);
@@ -392,7 +418,6 @@ public class Api extends Controller {
 
 		ok();
 	}
-	
 	
     public static void location(String imei, String content, String timesent, Boolean charging, Double battery, Boolean boot, Boolean shutdown, Boolean failednetwork, Integer signal) throws IOException {
     
@@ -524,9 +549,13 @@ public class Api extends Controller {
 	    		Double heading = Double.parseDouble(lineParts[4]);
 	    		Double gpsError = Double.parseDouble(lineParts[5]);
 	    		
-	    		ObservationData observation = new ObservationData(imei, adjustedDate,  new Coordinate(lon, lat), velocity, heading, gpsError);
+	    		Coordinate locationCoord = new Coordinate(lon, lat);
+	    		
+	    		ObservationData observation = new ObservationData(imei, adjustedDate, locationCoord , velocity, heading, gpsError);
 	    		Logger.info(dateTime.toGMTString());
 	    		update.addObservation(observation);
+	    		
+	    		distanceCache.updateDistance(imei, locationCoord, gpsError);
 	    		
 	    		LocationUpdate.natveInsert(LocationUpdate.em(), imei, observation, charging, battery, dateTime, timeSentDate, timeReceivedDate, boot, shutdown, failednetwork, signal);
     		}
@@ -604,11 +633,72 @@ public class Api extends Controller {
     }
     
     
-    static public void traces()
+	    static public void traces()
+	    {
+	    	List<LocationUpdate> updates = LocationUpdate.find("order by timestamp desc").fetch(100);
+	    	
+	    	renderJSON(updates);
+	    }
+    
+    static public void network()
     {
-    	List<LocationUpdate> updates = LocationUpdate.find("order by timestamp desc").fetch(100);
+    	List<LocationUpdate> updates = LocationUpdate.find("failedNetwork = true").fetch();
     	
-    	renderJSON(updates);
+    	Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+    	
+    	renderJSON(gson.toJson(updates));
     }
+    
+    
+    public static void path(String lat1, String lon1, String lat2, String lon2)
+    		throws JsonGenerationException, JsonMappingException,
+    	      IOException 
+    	      
+    	      {
+	    	    final Coordinate coord1 =
+	    	        new Coordinate(Double.parseDouble(lat1), Double.parseDouble(lon1));
+	    	    final Coordinate coord2 =
+	    	        new Coordinate(Double.parseDouble(lat2), Double.parseDouble(lon2));
+	    	   
+	    	    Path path = new Path();
+	    	    
+	    	    path.edgeIds = Application.graph.getPathBetweenPoints(coord1, coord2);
+	    	    
+	    	    MathTransform transform;
+				
+			    try {
+			    	
+			    	transform = GeoUtils.getTransform(new Coordinate(10.298143, 123.894796)).inverse();
+	    	    
+			    	Double total = 0.0;
+			    	
+		    	    for(Integer edgeId : path.edgeIds)
+		    	    {  		
+		    	    	Edge edge = Application.graph.getBaseGraph().getEdgeById(edgeId);
+		    	    	Geometry geom = edge.getGeometry();
+		    	    	
+		    	    	path.distance += edge.getDistance();
+		    	    	
+		    	    	final Geometry transformed = JTS.transform( geom, transform);
+					    transformed.setSRID(4326);	
+		    	    	
+		    	    	org.opentripplanner.util.model.EncodedPolylineBean polylineBean =  PolylineEncoder.createEncodings(transformed);
+		    	    	
+		    	    	total += Api.edgeVelocities.getStreetVelocity(edgeId) * edge.getDistance();
+		    	    	
+		    	    	path.edgeGeoms.add(polylineBean.getPoints());
+		    	    }
+		    	    
+		    	    path.minSpeed = total / path.distance;
+		    	    path.maxSpeed = total / path.distance;
+		    	      	   
+		    	    renderJSON(path);
+		    	    
+			    }
+			    catch(Exception e)
+			    {
+			    	Logger.error("Can't transform geom.");
+			    } 
+    	  }
 
 }

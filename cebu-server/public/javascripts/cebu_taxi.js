@@ -143,7 +143,7 @@ Taxi.vehicles = Em.ArrayController.create({
 	
     // Poll Twitter
     var self = this;
-    var url = "/api/activeTaxis";
+    var url = "/taxi/activeTaxis";
     
    
     $.getJSON(url, function(data) {
@@ -275,7 +275,7 @@ var taxiMarkers = {}
 
 function loadTaxis()
 {
-	$.get('/api/activeTaxis', function(data){
+	$.get('/taxi/activeTaxis', function(data){
 		taxiData = data;
 		
 		updateTaxis();

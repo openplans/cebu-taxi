@@ -1,0 +1,98 @@
+#{extends 'main.html' /}
+
+#{set page:'citom' /}
+
+<script id="incidentSave" type="text/html">
+<h3>Create Incident</h3><br/> 	
+<select id="newIncidentType">
+	<option value="congestion">Congestion</option>
+	<option value="event">Event</option>
+	<option value="fire">Fire</option>	
+	<option value="flood">Flooding</option>
+	<option value="roadclosed">Road Closed</option>
+	<option value="construction">Road Construction</option>
+	<option value="enforcement">Traffic Enforcers</option>
+	<option value="trafficlight">Traffic Signal Problem</option>
+	<option value="incident">Traffic Incident</option>
+</select>
+<textarea id="newIncidentDescription"></textarea><br/>
+<button onclick="saveMarker();">Save</button> <button onclick="cancelMarker();">Cancel</button>
+</script>
+
+<script id="incident" type="text/html">
+<p><strong>{{ type }}: {{ description }}</strong> ({{account.username}})<br/> ({{ timestamp }})</p>
+<ul>
+{{#messages}}
+  <strong>{{description}}</strong> ({{account.username}})<br/>
+	 ({{ timestamp }})
+ <hr/>
+{{/messages}}
+</ul>
+<br/>
+
+New message:
+<textarea id="message{{ id }}"></textarea><br/>
+
+<button onclick="saveMessage({{ id }});">Save Message</button> <button onclick="clearAlert({{ id }});">Clear Alert</button>
+</script>
+
+
+<div class="row-fluid" style="background-color: #fff;  position: relative;">
+
+	<div id="map">
+	</div>
+	
+	<div style="position: absolute; top:10px; right:10px; width:250px;">
+		<div class="well well-small">
+		
+		<strong>Traffic Alerts</strong> <!-- <a href="#" style="float: right;">Generate Report</a>  -->
+		<hr style="margin: 5px 0;">
+		<p>Right-click map to add an alert.</p>
+		<strong>Filter</strong>
+		<div  data-toggle-name="showToggle" class="btn-group" data-toggle-name="is_private" data-toggle="buttons-radio" style="padding-bottom: 10px;" >
+ 			<button id="showAll" type="button" value="all" class="btn" onclick="setFilterToggle(false);">All</button>
+ 			<button id="showActive" value="active" class="btn"  onclick="setFilterToggle(true);">Active</button>
+		</div>
+
+	
+		<strong>For</strong><br/>
+		<select onchange="updateFilter();" id="filter" style="width: 120px">
+			<option value="today">Today</option>
+			<option value="yesterday">Yesterday</option>
+			<option value="week">This Week</option>
+			<option value="custom">Custom</option>
+		</select>
+		<br/>
+		<div id="customCompare">
+			<input onchange="updateFilter();" style="width: 100px;" type="text" value="11-01-2012" id="datepicker1"> to <input onchange="updateFilter();" style="width: 100px;" type="text" value="12-09-2012" id="datepicker2">
+		</div>
+		<strong>Type</strong>
+		<select onchange="updateFilter();" id="incidentType">
+			<option value="">All</option>
+			<option value="congestion">Congestion</option>
+			<option value="event">Event</option>
+			<option value="fire">Fire</option>	
+			<option value="flood">Flooding</option>
+			<option value="roadclosed">Road Closed</option>
+			<option value="construction">Road Construction</option>
+			<option value="enforcement">Traffic Enforcers</option>
+			<option value="trafficlight">Traffic Signal Problem</option>
+			<option value="incident">Traffic Incident</option>
+		</select>
+		
+		<hr style="margin: 5px 0;">
+		
+		<strong>Current Conditions</strong> <input type="checkbox"/ id="currentConditions" onclick="currentConditions();"> <!-- <a href="#" style="float: right;">Generate Report</a>  -->
+		
+		<table>
+			<tr><td style="background-color: red;">&nbsp;</td><td>&nbsp;&lt; 25km/h</td></tr>
+			<tr><td style="background-color: yellow;">&nbsp;</td><td>&nbsp;25-35km/h</td></tr>
+			<tr><td style="background-color: green;">&nbsp;</td><td>&nbsp;&gt; 35km/h</td></tr>
+		</table>
+		
+	</div>
+	
+</div>	 
+<script src="@{'/public/javascripts/jquery-ui-1.8.23.custom.min.js'}"></script>
+<script src="@{'/public/javascripts/bootstrap-datepicker.js'}"></script>
+<script src="@{'/public/javascripts/cebu_incidents.js'}"></script>

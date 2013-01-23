@@ -1,40 +1,38 @@
-<html>
+#{extends 'main.html' /}
 
-<head>
-<title>cebutraffic.org</title>
+#{set page:'citom' /}
 
-<!-- leaflet -->
+<script id="incidentSave" type="text/html">
+<h3>Create Incident</h3><br/> 	
+<select id="newIncidentType"><option value="incident">Traffic Incident</option><option value="flood">Flooding</option></select>
+<textarea id="newIncidentDescription"></textarea><br/>
+<button onclick="saveMarker();">Save</button> <button onclick="cancelMarker();">Cancel</button>
+</script>
 
-<script type="text/javascript" src="@{'/public/javascripts/jquery-1.7.1.min.js'}"></script>
-<script src="@{'/public/javascripts/leaflet.js'}"></script>
-<script src="@{'/public/javascripts/handlebars-1.0.0.beta.6.js'}"></script>
-<script src="@{'/public/javascripts/ember.min.js'}"></script>
-<script src="@{'/public/javascripts/ember-data.js'}"></script>
+<script id="incident" type="text/html">
+<p><strong>{{ description }}</strong><br/> ({{ timestamp }})</p>
+<ul>
+{{#messages}}
+  <b>{{description}}</b><br/>
+	 ({{ timestamp }})
+ <hr/>
+{{/messages}}
+</ul>
+<br/>
 
-<link rel="stylesheet" href="@{'/public/javascripts/leaflet.css'}" />
-<!-- jquery -->
+New message:
+<textarea id="message{{ id }}"></textarea><br/>
+
+<button onclick="saveMessage({{ id }});">Save Message</button> <button onclick="clearAlert({{ id }});">Clear Alert</button>
+</script>
 
 
-<script src="@{'/public/javascripts/ember_test.js'}"></script>
+<div class="row-fluid" style="background-color: #fff;">
 
-
-</head>	
-
-
+	<div id="map">
+	</div>
 	
-	<body style="margin: 0px; padding: 0px;">
 	
-	
-		<script type="text/x-handlebars">
-  			<ul class="alerts">
-  				{{#each alertController}}
- 				   <li class="alert">{{title}}</li>
-  				{{/each}}
- 			</ul>
-		</script>
-		
-		
-		
-	
-	</body>
-</html>
+</div>	 
+
+<script src="@{'/public/javascripts/cebu_incidents.js'}"></script>

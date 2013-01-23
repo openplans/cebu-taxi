@@ -31,7 +31,7 @@
 	<ul>
 		#{list items:phone.getRecentNetwork(visible), as:'network'}
 			#{if network.adjustedTimestamp}
-				<span style="color: red;">NETWORK FAILURE</span> ${network.adjustedTimestamp.format('MM/dd HH:mm:ss')} (off for ${boot.getMinutesSinceLastGoodNetwork()} mins)<br/>
+				<span style="color: red;">NETWORK FAILURE</span> ${network.adjustedTimestamp.format('MM/dd HH:mm:ss')} (off for ${network.getMinutesSinceLastGoodNetwork()} mins)<br/>
 			#{/if}
 		#{/list}
 	</ul>

@@ -9,5 +9,6 @@ public class AuthResponse {
 	public String bodyNumber;
 	public Integer gpsInterval;
 	public Integer updateInterval;
+	public Integer appVersion;
 }
 	

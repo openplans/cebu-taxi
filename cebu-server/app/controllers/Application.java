@@ -58,9 +58,15 @@ public class Application extends Controller {
 
 	static ActorRef remoteObservationActor = system.actorFor("akka://inferenceSystem@127.0.0.1:2552/user/observationActor");
 	
-	//public static OtpGraph graph = new OtpGraph(
-	//	      Play.configuration.getProperty("application.otpGraphPath"), null);
+	public static OtpGraph graph = new OtpGraph(
+		      Play.configuration.getProperty("application.otpGraphPath"), null);
 	
+	@Before
+    static void setConnectedUser() {
+        if(Security.isConnected()) {
+            renderArgs.put("user", Security.connected());
+        }
+    }
 	
 	/*public static void updateVehicleStats(VehicleUpdateResponse result)
 	{
@@ -98,30 +104,86 @@ public class Application extends Controller {
 		render();
 	}
 	
-	public static void taxi() {
+	public static void resetPassword(String username) {
+		
+		if(username != null)
+		{
+			Boolean sent = Account.initiatePasswordReset(username);
+			if(sent)
+				Application.passwordResetSent();
+			else
+				Application.invalidPasswordResetToken();
+		}
+
 		render();
 	}
 	
-	public static void taxi_status(String imei) {
-		
-		Integer visible;
-		List<Phone> phones;
-		
-		if(imei == null)
+	public static void emailPasswordReset(String token, String password) {
+
+		if(token != null && password != null)
 		{
-			phones = Phone.all().fetch();
-			visible = 10;
+			Boolean reset = Account.completePasswordReset(token, password);
+			if(reset)
+				Application.passwordResetComplete();
+			else
+				Application.invalidPasswordResetToken();
 		}
-		else
+		else if(token != null)
 		{
-			phones = Phone.find("imei = ?", imei).fetch();
-			visible = 1000;
+			if(Account.validPasswordResetToken(token))
+				render(token);
+			else
+				Application.invalidPasswordResetToken();
 		}
-		
-		render(phones, visible);
+	
+		Application.index();
 	}
 	
-	public static void citom() {
+	public static void invalidPasswordResetToken() {
+		
+		render();
+	}
+	
+	public static void passwordResetComplete() {
+		
+		render();
+	}
+	
+	public static void passwordResetSent() {
+		
+		render();
+	}
+	
+	public static void changePassword(String currentPassword, String newPassword) {
+		
+		if(Security.isConnected())
+		{
+			if(currentPassword != null && newPassword != null)
+			{
+				Boolean changed = Account.changePassword(Security.connected(), currentPassword, newPassword);
+				
+				if(changed)
+					Application.passwordChanged();
+				else
+				{
+					Boolean badPassword = true;
+					render(badPassword);
+				}
+			}	
+			else
+				render();
+		}
+		else
+			Application.index();
+	}
+	
+	public static void passwordChanged() {
+		
+		render();
+	}
+	
+	public static void network_status() {
+		
 		render();
 	}
 	
@@ -137,10 +199,17 @@ public class Application extends Controller {
 		ok();
 	}
 	
+	public static void sendMessage(String message)
+	{
+		Future<Object> future = ask(Application.remoteObservationActor, message, 1000000);
+	}
+	
 	
 	public static void replay() {
 		
-		List<LocationUpdate> locations  = LocationUpdate.find("order by timestamp").fetch();
+		// '351737058270416', '351737058521628', '351737058756950', '351737057145197', '351737059995524', '351737059985061','351737058270432', '351737058270358', '351737059995409', '351737056957840', '351737056964853', '351737056981766'
+		
+		List<LocationUpdate> locations  = LocationUpdate.find("imei in ('351737058270358') order by timestamp").fetch(5);
 		
 		HashMap<String, VehicleUpdate> traces = new HashMap<String, VehicleUpdate>(); 
 		
@@ -150,6 +219,9 @@ public class Application extends Controller {
 		
 		for(LocationUpdate location : locations)
 		{
+			if(location.gpsError == null || location.lat == null || location.lon == null)
+				continue;
+			
 			if(!traces.containsKey(location.imei))
 			{
 				VehicleUpdate updates = new VehicleUpdate(location.imei);
@@ -308,7 +380,7 @@ public class Application extends Controller {
 			        }
 			        
 				    final Geometry transformed = JTS.transform( gf.createLineString(newCoords), transform);
-				    transformed.setSRID(4326);
+				    transformed.setSRID(4326);	
 					
 				    
 				    List<String> points = new ArrayList<String>();

@@ -95,5 +95,11 @@ public class StreetEdge extends Model {
     	
     	em.getTransaction().commit();
     }
+    
+    static public List getEdgeVelocityList()
+    {
+    	Query q = StreetEdge.em().createNativeQuery("SELECT edgeid, meanvelocity FROM streetedge;");    	
+    	return q.getResultList();
+    }
 }
 
