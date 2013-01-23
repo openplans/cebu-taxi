@@ -95,7 +95,7 @@ public class Taxi extends Controller {
 		if(Security.getAccount().operator == null)
 			phones = Phone.find("order by lastUpdate").fetch();
 		else
-			phones = Phone.find("operatator = ? order by lastUpdate desc", Security.getAccount().operator).fetch();
+			phones = Phone.find("operatator = ? and not lastUpdate is null order by lastUpdate asc", Security.getAccount().operator).fetch();
 			
 		for(Phone phone : phones)
 		{
