@@ -12,6 +12,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 
 import akka.event.Logging;
 
+import models.Phone;
 import models.StreetEdge;
 import models.Vehicle;
 import models.VehicleDistance;
@@ -36,6 +37,18 @@ public class DistanceCache {
 		
 		Vehicle vehicle = vehicleImeiLinks.get(imei);
 		
+		if(vehicle == null)
+		{
+			Phone phone = Phone.find("imei = ?", imei).first();
+			
+			if(phone == null)
+				return 0.0;
+			
+			vehicle = phone.vehicle;
+					
+			vehicleImeiLinks.put(imei, vehicle);
+		}	
+		
 		if(vechiclePositions.containsKey(vehicle))
 		{
 			Coordinate oldCoord = vechiclePositions.get(vehicle);
@@ -52,6 +65,8 @@ public class DistanceCache {
 			
 			if(distance < error)
 				distance = 0.0;
+			else
+				vechiclePositions.put(vehicle, newCoord);
 			
 			synchronized(vehicleDistance)
 			{
@@ -62,8 +77,8 @@ public class DistanceCache {
 			}
 						
 		}
-		
-		vechiclePositions.put(vehicle, newCoord);
+		else
+			vechiclePositions.put(vehicle, newCoord);
 	
 		flushDistances();
 		
