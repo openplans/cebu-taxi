@@ -73,7 +73,7 @@ public class LocationUpdate extends Model {
     {
     	LocationUpdate lastUpdate = LocationUpdate.find("imei = ? and id < ? order by id desc", this.imei, this.id).first();
     	
-    	if(lastUpdate != null)
+    	if(lastUpdate != null && this.received != null)
     	{
     		return (this.received.getTime() - lastUpdate.received.getTime()) / 1000 / 60;  
     	}
