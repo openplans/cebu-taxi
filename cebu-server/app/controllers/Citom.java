@@ -4,6 +4,7 @@ import static akka.pattern.Patterns.ask;
 import akka.actor.*;
 import akka.dispatch.Future;
 import akka.dispatch.OnSuccess;
+import au.com.bytecode.opencsv.CSVWriter;
 import gov.sandia.cognition.math.matrix.Vector;
 import gov.sandia.cognition.math.matrix.VectorFactory;
 import play.*;
@@ -13,6 +14,7 @@ import play.mvc.*;
 import java.awt.Color;
 
 import java.io.File;
+import java.io.StringWriter;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -178,6 +180,115 @@ public class Citom extends Controller {
 			renderXml(alerts);
 		else
 			renderJSON(alerts);
+	}
+	
+	
+public static void alertsCsv(Boolean active, String filter, String fromDate, String toDate, String type) {
+		
+		List<Alert> alerts = null;
+		
+		Date from = new Date();
+		Date to = new Date();
+		
+		
+		if(filter == null || filter.isEmpty() || filter.equals("today"))
+		{
+			Calendar cal = Calendar.getInstance();
+			cal.add(Calendar.HOUR, -24);
+			from = cal.getTime();
+		}
+		else if(filter.equals("yesterday"))
+		{
+			Calendar cal = Calendar.getInstance();
+			cal.add(Calendar.HOUR, -24);
+			to = cal.getTime();
+			
+			cal = Calendar.getInstance();
+			cal.add(Calendar.HOUR, -48);
+			from = cal.getTime();
+			
+		}
+		else if(filter.equals("week"))
+		{
+			Calendar cal = Calendar.getInstance();
+			cal.add(Calendar.HOUR, -168);
+			from = cal.getTime();
+		}
+		else if(filter.equals("custom"))
+		{	
+			try
+			{
+				from = Citom.sdf.parse(fromDate + " 00:00:01");
+				to = Citom.sdf.parse(toDate + " 23:59:59");
+			}
+			catch(Exception e)
+			{
+				Logger.info(e.toString());
+			}
+		}
+		else
+		{
+			Calendar cal = Calendar.getInstance();
+			cal.add(Calendar.HOUR, -24);
+			from = cal.getTime();
+		}
+		
+		if(active != null && active)
+		{
+			if(type != null && !type.isEmpty())
+				alerts = Alert.find("active = true and timestamp >= ? and timestamp <= ? and type = ? order by timestamp", from, to, type).fetch();
+			else
+				alerts = Alert.find("active = true and timestamp >= ? and timestamp <= ? order by timestamp", from, to).fetch();
+		}
+		else
+		{
+			if(type != null && !type.isEmpty())
+				alerts = Alert.find("timestamp >= ? and timestamp <= ? and type = ? order by timestamp", from, to, type).fetch();
+			else
+				alerts = Alert.find("timestamp >= ? and timestamp <= ? order by timestamp", from, to).fetch();
+		}
+		
+		StringWriter csvString = new StringWriter();
+		CSVWriter csvWriter = new CSVWriter(csvString);
+		
+		String[] headerBase = "type, timestamp, user, active, description, lat, lon".split(",");
+		
+		csvWriter.writeNext(headerBase);
+		 
+		for(Alert alert : alerts)
+		{
+			String[] dataFields = new String[7];
+			dataFields[0] = alert.type;
+			dataFields[1] = alert.timestamp.toString();
+			dataFields[2] = alert.account.username;
+			dataFields[3] = alert.active.toString();
+			dataFields[4] = alert.description;
+			dataFields[5] = alert.location_lat.toString();
+			dataFields[6] = alert.location_lon.toString();
+			
+			csvWriter.writeNext(dataFields);
+			
+			List<AlertMessage> messages = AlertMessage.find("alert = ?", alert).fetch();
+			
+			for(AlertMessage message : messages)
+			{
+				String[] messageFields = new String[7];
+				
+				messageFields[0] = "-";
+				messageFields[1] = message.timestamp.toString();
+				messageFields[2] = message.account.username;
+				messageFields[4] = message.description;
+				
+				csvWriter.writeNext(messageFields);
+			}
+			
+			
+		}
+		
+		response.setHeader("Content-Disposition", "attachment; filename=\"alert_data.csv\"");
+		response.setHeader("Content-type", "text/csv");
+		
+		renderText(csvString);
 	}
 	
 	

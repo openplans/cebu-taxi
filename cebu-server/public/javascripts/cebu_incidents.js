@@ -305,6 +305,11 @@ $(document).ready(function() {
 	map.on('contextmenu', mapClick);
 	
 	loadIncidents();
+	
+	$('#downloadReport').click(function(e) {
+	    e.preventDefault();  //stop the browser from following
+	    window.location.href = '/citom/alertsCsv?active=' + active + '&type=' + $('#incidentType').val() + '&filter=' + $('#filter').val() + '&fromDate=' + $('#datepicker1').val() + '&toDate=' + $('#datepicker2').val();
+	});
  
 });
 
