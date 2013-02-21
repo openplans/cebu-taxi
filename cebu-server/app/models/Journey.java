@@ -13,11 +13,11 @@ public class Journey extends Model {
 	
 	public String name;
 	
-	public Double origin_lat;
-    public Double origin_lon;
+	public Double originLat;
+    public Double originLon;
     
-    public Double destination_lat;
-    public Double destination_lon;
+    public Double destinationLat;
+    public Double destinationLon;
     
     public Double distance;
     public Double speed;

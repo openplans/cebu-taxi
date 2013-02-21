@@ -13,15 +13,19 @@ public class Alert extends Model {
 	
     public String type;
     public String title;
-    public Date timestamp;
+    public Date activeFrom;
+    public Date activeTo;
     
-    public Boolean active;
+    public Boolean publiclyVisible;
     
-    public Double location_lat;
-    public Double location_lon;
+    public Double locationLat;
+    public Double locationLon;
     
     @Column(columnDefinition="TEXT")
     public String description;
+
+    @Column(columnDefinition="TEXT")
+    public String publicDescription;
     
     @ManyToOne
     public Account account;

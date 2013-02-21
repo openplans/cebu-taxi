@@ -44,6 +44,7 @@ import com.vividsolutions.jts.geom.LineString;
 import jobs.ObservationHandler;
 
 import models.*;
+import api.*;
 
 @With(Secure.class)
 public class Taxi extends Controller {
@@ -59,16 +60,17 @@ public class Taxi extends Controller {
 	
 	public static void activeTaxis() {
 		
+
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.MINUTE, -15);
 		Date recentDate = cal.getTime();
 		
 		List<Phone> phones;
 		
-		if(Security.getAccount().operator == null)
-			phones = Phone.find("lastUpdate > ? order by id", recentDate).fetch();
-		else
-			phones = Phone.find("lastUpdate > ? and operator = ? order by id", recentDate, Security.getAccount().operator).fetch();
+		//if(Security.getAccount().operator == null)
+			phones = Phone.find("recentLat is not null AND recentLon is not null AND lastUpdate > ? order by id", recentDate).fetch();
+		//else
+		//	phones = Phone.find("lastUpdate > ? and operator = ? order by id", recentDate, Security.getAccount().operator).fetch();
 		
 		for(Phone phone : phones)
 		{
@@ -85,7 +87,80 @@ public class Taxi extends Controller {
 			
 		render();
 	}
+
+	public static void clearMessages(Long phoneId) {
+		Phone phone = Phone.findById(phoneId);
+		phone.clearMessages();
+	}
+
+	public static void clearPanic(Long phoneId) {
+		Phone phone = Phone.findById(phoneId);
+		phone.panic = false;
+		phone.save();
+	}
 	
+	public static void sendMessage(Long phoneId, String message) {
+		Phone phone = Phone.findById(phoneId);
+		phone.sendMessage(message);
+	}
+
+	public static void taxis(String type) {
+	
+		if(type == null)
+			type = "all"; 
+
+		List<Phone> phones;
+
+		String sql = "recentLat is not null AND recentLon is not null";	
+		
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.MINUTE, -15);
+		Date recentDate = cal.getTime();
+
+		if(type.equals("active"))
+		{
+			phones = Phone.find(sql + " AND lastUpdate > ? order by id", recentDate).fetch();
+		}
+		else // active
+		{	
+
+			phones = Phone.find(sql).fetch();
+		
+		}
+
+		List<PhoneSimple> phoneData = new ArrayList<PhoneSimple>(); 
+
+		for(Phone p : phones)
+		{
+			Boolean include = true;
+			
+			// check if operator matches
+			if(Security.getAccount().operator != null && (p.operator == null || p.operator.id != Security.getAccount().operator.id))
+			{
+				// operator not allowed
+				include = false;
+			}
+
+			// check for messages
+			if(include)
+			{
+				p.populateUnreadMessages();
+
+				// if message query filter locations without messages
+				if(type.equals("messages") && p.messages.size() < 1)
+					include = false;
+			}
+
+			if(include)
+				phoneData.add(new PhoneSimple(p, recentDate));
+		}
+		
+		if(request.format == "xml")
+			renderXml(phoneData);
+		else
+			renderJSON(phoneData);
+	}
+
 	
 	public static void omReport() {
 		

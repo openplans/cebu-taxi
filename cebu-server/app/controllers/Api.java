@@ -118,18 +118,7 @@ public class Api extends Controller {
 			renderJSON(alerts);
 	}
 	
-	public static void clearMessages(Long phoneId) {
-		Phone phone = Phone.findById(phoneId);
-		phone.clearMessages();
-	}
-	
-	public static void sendMessage(Long phoneId, String message) {
-		Phone phone = Phone.findById(phoneId);
-		phone.sendMessage(message);
-	}
-	
-	
-	
+
 	
 	
 	public static void messages(String imei, Long message_id, Double lat, Double lon, String content) {
@@ -621,8 +610,8 @@ public class Api extends Controller {
     		
     		if(phone != null)
     		{
-    			phone.recentLat = observation.getObsCoordsLatLon().x;
-    			phone.recentLon = observation.getObsCoordsLatLon().y;
+    			phone.recentLat = observation.getObsCoordsLatLon().y;
+    			phone.recentLon = observation.getObsCoordsLatLon().x;
     			phone.lastUpdate = new Date();
     			
     			phone.save();
