@@ -192,16 +192,16 @@ public class Citom extends Controller {
 				query = "%" +  query.toLowerCase() + "%";
 
 				if(type != null && !type.isEmpty())
-					alerts = Alert.find("(lower(description) like ? or lower(publicdescription) like ? or lower(title) like ?) and (activeFrom >= ? and activeFrom <= ? and (activeTo is null)) and type = ?", query, query, query, from, to, type).fetch();
+					alerts = Alert.find("(lower(description) like ? or lower(publicdescription) like ? or lower(title) like ?) and (activeFrom >= ? and (activeTo is null)) and type = ?", query, query, query, from, type).fetch();
 				else
-					alerts = Alert.find("(lower(description) like ? or lower(publicdescription) like ? or lower(title) like ?) and (activeFrom >= ? and activeFrom <= ? and (activeTo is null)) ", query, query, query, from, to).fetch();
+					alerts = Alert.find("(lower(description) like ? or lower(publicdescription) like ? or lower(title) like ?) and (activeFrom >= ? and (activeTo is null)) ", query, query, query, from).fetch();
 			}
 			else
 			{
 				if(type != null && !type.isEmpty()) 
-					alerts = Alert.find("activeFrom >= ? and activeFrom <= ? and  activeTo is null  and type = ?", from, to, type).fetch();
+					alerts = Alert.find("activeFrom >= ? and  activeTo is null  and type = ?", from, type).fetch();
 				else
-					alerts = Alert.find("activeFrom >= ? and activeFrom <= ? and  activeTo is null", from, to).fetch();
+					alerts = Alert.find("activeFrom >= ? and  activeTo is null", from).fetch();
 			}
 		}
 		else
@@ -211,16 +211,16 @@ public class Citom extends Controller {
 				query = "%" +  query.toLowerCase() + "%";
 
 				if(type != null && !type.isEmpty())
-					alerts = Alert.find("(lower(description) like ? or lower(publicdescription) like ? or lower(title) like ?) and (activeFrom >= ? and activeFrom <= ? and (activeTo <= ? or activeTo is null)) and type = ?", query, query, query, from, to, to, type).fetch();
+					alerts = Alert.find("(lower(description) like ? or lower(publicdescription) like ? or lower(title) like ?) and (activeFrom >= ? and (activeTo <= ? or activeTo is null)) and type = ?", query, query, query, from, to, type).fetch();
 				else
-					alerts = Alert.find("(lower(description) like ? or lower(publicdescription) like ? or lower(title) like ?) and (activeFrom >= ? and activeFrom <= ? and (activeTo <= ? or activeTo is null)) ", query, query, query, from, to, to).fetch();
+					alerts = Alert.find("(lower(description) like ? or lower(publicdescription) like ? or lower(title) like ?) and (activeFrom >= ? and (activeTo <= ? or activeTo is null)) ", query, query, query, from, to).fetch();
 			}
 			else
 			{
 				if(type != null && !type.isEmpty()) 
-					alerts = Alert.find("activeFrom >= ? and activeFrom <= ? and  (activeTo <= ? or activeTo is null) and type = ?", from, to, to, type).fetch();
+					alerts = Alert.find("activeFrom >= ? and  (activeTo <= ? or activeTo is null) and type = ?", from, to, type).fetch();
 				else
-					alerts = Alert.find("activeFrom >= ? and activeFrom <= ? and  (activeTo <= ? or activeTo is null) ", from, to, to).fetch();
+					alerts = Alert.find("activeFrom >= ? and  (activeTo <= ? or activeTo is null) ", from, to).fetch();
 			}
 		}
 
