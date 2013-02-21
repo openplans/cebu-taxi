@@ -139,7 +139,16 @@ var AlertCollection =  Backbone.Collection.extend({
               this.fetch({data: $.param(this.dataParam), update: true, success: this.onSuccess});
             else
               this.fetch({update: true});
+          },
+
+          downloadCsv: function() {
+              var csvParams = _.clone(this.dataParam);
+              csvParams.csv = true;
+              window.location.href = this.url + '?' + $.param(csvParams);
+
           }
+
+
 
     });  
 
@@ -153,6 +162,8 @@ var AlertFilterView = Backbone.View.extend({
       'click #filterYesterday': 'yesterday',
       'click #filterThisWeek': 'thisWeek',
       'click #updateFilter': 'updateFilter',
+      'click #showActive': 'showActive',
+      'click #showAll': 'showAll',
       'click #downloadCsv': 'downloadCsv'
     },
    
@@ -168,6 +179,16 @@ var AlertFilterView = Backbone.View.extend({
       this.filterPanel.html(this.$el[0]);
 
       this.render();
+    },
+
+    showAll: function() {
+      $("#dataRangeFilter").show();
+
+    },
+
+    showActive: function() {
+      $("#dataRangeFilter").hide();
+
     },
 
     today: function() {
@@ -237,6 +258,7 @@ var AlertFilterView = Backbone.View.extend({
 
       this.updateFilter();
 
+      this.collection.downloadCsv();
 
     },
 
@@ -260,6 +282,8 @@ var AlertFilterView = Backbone.View.extend({
           formatSelection: format,
           escapeMarkup: function(m) { return m; }
       });
+
+      $("#dataRangeFilter").hide();
 
       this.updateFilter();
 

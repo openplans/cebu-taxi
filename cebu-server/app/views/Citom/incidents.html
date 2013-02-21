@@ -134,21 +134,24 @@
 
 		<hr style="margin: 5px 0;">
 
-		<strong>Date Range</strong><br/>
-		
+		<div class="row-fluid" id="dataRangeFilter">
+			<strong>Date Range</strong><br/>
+			
 
-		<div class="input-append date" id="dateFrom">
-		  <input class="span5" size="16" type="text">
-		  <span class="add-on"><i class="icon-th"></i></span>
+			<div class="input-append date" id="dateFrom">
+			  <input class="span5" size="16" type="text">
+			  <span class="add-on"><i class="icon-th"></i></span>
+			</div>
+			<div class="input-append date" id="dateTo">
+			  <input class="span5" size="16" type="text">
+			  <span class="add-on"><i class="icon-th"></i></span>
+			</div>
+
+
+			<button  class="btn btn-mini" id="filterToday">Today</button> <button  class="btn btn-mini" id="filterYesterday">Yesterday</button> <button  class="btn btn-mini" id="filterThisWeek">This Week</button>
+			<hr style="margin: 5px 0;">
+
 		</div>
-		<div class="input-append date" id="dateTo">
-		  <input class="span5" size="16" type="text">
-		  <span class="add-on"><i class="icon-th"></i></span>
-		</div>
-
-		<button  class="btn btn-mini" id="filterToday">Today</button> <button  class="btn btn-mini" id="filterYesterday">Yesterday</button> <button  class="btn btn-mini" id="filterThisWeek">This Week</button>
-		<hr style="margin: 5px 0;">
-
 		<button id="updateFilter" class="btn btn-primary">Filter</button> <button id="downloadCsv" class="btn">Download Report</button>
 		
 		<hr style="margin: 5px 0;">

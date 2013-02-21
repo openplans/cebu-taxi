@@ -133,7 +133,7 @@ public class Citom extends Controller {
 		Citom.journey();
 	}
 	
-	public static void alerts(String fromDate, String toDate, String type, String query, Boolean active) {
+	public static void alerts(String fromDate, String toDate, String type, String query, Boolean active, Boolean csv) {
 		
 		List<Alert> alerts = null;
 		
@@ -192,16 +192,16 @@ public class Citom extends Controller {
 				query = "%" +  query.toLowerCase() + "%";
 
 				if(type != null && !type.isEmpty())
-					alerts = Alert.find("(lower(description) like ? or lower(publicdescription) like ? or lower(title) like ?) and (activeFrom >= ? and (activeTo is null)) and type = ?", query, query, query, from, type).fetch();
+					alerts = Alert.find("(lower(description) like ? or lower(publicdescription) like ? or lower(title) like ?) and activeTo is null and type = ?", query, query, query, type).fetch();
 				else
-					alerts = Alert.find("(lower(description) like ? or lower(publicdescription) like ? or lower(title) like ?) and (activeFrom >= ? and (activeTo is null)) ", query, query, query, from).fetch();
+					alerts = Alert.find("(lower(description) like ? or lower(publicdescription) like ? or lower(title) like ?) and activeTo is null ", query, query, query).fetch();
 			}
 			else
 			{
 				if(type != null && !type.isEmpty()) 
-					alerts = Alert.find("activeFrom >= ? and  activeTo is null  and type = ?", from, type).fetch();
+					alerts = Alert.find("activeTo is null  and type = ?", type).fetch();
 				else
-					alerts = Alert.find("activeFrom >= ? and  activeTo is null", from).fetch();
+					alerts = Alert.find("activeTo is null").fetch();
 			}
 		}
 		else
@@ -233,6 +233,60 @@ public class Citom extends Controller {
 	
 		if(request.format == "xml")
 			renderXml(data);
+		else if(csv != null && csv)
+		{
+
+			StringWriter csvString = new StringWriter();
+			CSVWriter csvWriter = new CSVWriter(csvString);
+			
+			String[] headerBase = "type, activeFrom, activeTo, user, description, publicDescription,  lat, lon".split(",");
+			
+			csvWriter.writeNext(headerBase);
+			 
+			for(Alert alert : alerts)
+			{
+				String[] dataFields = new String[8];
+				dataFields[0] = alert.type;
+				dataFields[1] = alert.activeFrom.toString();
+				if(alert.activeTo != null)
+					dataFields[2] = alert.activeTo.toString();
+				else
+					dataFields[2] = "";
+				dataFields[3] = alert.account.username;
+				if(alert.description != null)
+					dataFields[4] = alert.description;
+				else
+					dataFields[4] = "";
+				if(alert.publicDescription != null)
+					dataFields[5] = alert.publicDescription;
+				else
+					dataFields[5] = "";
+				dataFields[6] = alert.locationLat.toString();
+				dataFields[7] = alert.locationLon.toString();
+				
+				csvWriter.writeNext(dataFields);
+				
+				List<AlertMessage> messages = AlertMessage.find("alert = ?", alert).fetch();
+				
+				for(AlertMessage message : messages)
+				{
+					String[] messageFields = new String[7];
+					
+					messageFields[0] = "-";
+					messageFields[1] = message.timestamp.toString();
+					messageFields[3] = message.account.username;
+					messageFields[5] = message.description;
+					
+					csvWriter.writeNext(messageFields);
+				}
+			
+			}
+			
+			response.setHeader("Content-Disposition", "attachment; filename=\"alert_data.csv\"");
+			response.setHeader("Content-type", "text/csv");
+			
+			renderText(csvString);
+		}
 		else
 		{
 			try
