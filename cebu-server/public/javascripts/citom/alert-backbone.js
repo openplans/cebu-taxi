@@ -261,6 +261,8 @@ var AlertFilterView = Backbone.View.extend({
           escapeMarkup: function(m) { return m; }
       });
 
+      this.updateFilter();
+
     }
 
   });
