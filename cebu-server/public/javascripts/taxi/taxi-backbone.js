@@ -287,7 +287,7 @@ var TaxiMapView = Backbone.View.extend({
     },
 
     onModelChange: function(model) {
-    	this.taxiLayers[model.id].setLatLng([model.get('recentLon'), model.get('recentLat')]);
+    	this.taxiLayers[model.id].setLatLng([model.get('recentLat'), model.get('recentLon')]);
 
       if(model.get('panic'))
         this.taxiLayers[model.id].setIcon(this.panicIcon);
@@ -330,8 +330,8 @@ var TaxiMapView = Backbone.View.extend({
 
         if(model.get('recentLon') == null)
           console.log(model.get('id'));
-        this.taxiLayers[model.id] = markerLayer = L.marker([model.get('recentLon'),
-          model.get('recentLat')], {
+        this.taxiLayers[model.id] = markerLayer = L.marker([model.get('recentLat'),
+          model.get('recentLon')], {
             draggable: false,
             id: model.id,
             icon: markerIcon
