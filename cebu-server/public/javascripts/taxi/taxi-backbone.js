@@ -26,7 +26,7 @@ var Taxi = Backbone.Model.extend({
 var TaxiCollection =  Backbone.Collection.extend({  
         
         model : Taxi,  
-        url: 'http://localhost:9001/taxi/taxis',
+        url: '/taxi/taxis',
 
        initialize: function( opts ){
 
