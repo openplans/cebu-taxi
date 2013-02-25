@@ -539,7 +539,7 @@ public class Api extends Controller {
 	    		Coordinate locationCoord = new Coordinate(lon, lat);
 	    		
 	    		ObservationData observation = new ObservationData(imei, adjustedDate, locationCoord , velocity, heading, gpsError);
-	    		Logger.info(dateTime.toGMTString());
+	    		
 	    		update.addObservation(observation);
 	    		
 	    		distanceCache.updateDistance(imei, locationCoord, gpsError);
