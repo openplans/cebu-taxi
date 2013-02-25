@@ -225,7 +225,7 @@ public class Api extends Controller {
 		{
 			AuthResponse authResponse = new AuthResponse();
 			
-			authResponse.id = new Long(100);
+			authResponse.id = phone.id;
 			authResponse.name = phone.operator.name;
 			
 			if(phone.driver != null)
