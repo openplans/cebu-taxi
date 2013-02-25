@@ -33,12 +33,17 @@ public class Ws extends WebSocketController {
 	                	  	
 	                	  	models.LocationUpdate.pbLocationUpdate(locationUpdate);
 	                  }
-	                  else
+	                  else {
+	                	  
 	                	  Logger.info("Websocket text frame recieved: " + frame.textData);
+	                	  
+	                	  if(frame.textData.equals("CONNECTION_TEST"))
+	                		  outbound.send("CONNECTED");
+	                  }
 		                  
 	             }
 	             if(e instanceof WebSocketClose) {
-	                 Logger.info("Socket closed!");
+	                 Logger.info("Socket closed");
 	             }
 				
 			}
