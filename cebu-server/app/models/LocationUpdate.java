@@ -115,6 +115,9 @@ public class LocationUpdate extends Model {
     	 
     	Long intitialTimestamp = locationUpdate.getTime();
     	
+    	Double lat = null;
+    	Double lon = null;
+    	
     	for(Location location : locationUpdate.getLocationList())
     	{
    
@@ -122,8 +125,8 @@ public class LocationUpdate extends Model {
     		{
 	    		Date observationTime = new Date(intitialTimestamp + location.getTimeoffset());
 	    		
-	    		Double lat = new Double(location.getLat());
-	    		Double lon = new Double(location.getLon());
+	    		lat = new Double(location.getLat());
+	    		lon = new Double(location.getLon());
 	    		Double velocity = new Double(location.getVelocity());
 	    		Double heading = new Double(location.getHeading());
 	    		Double gpsError = new Double(location.getAccuracy());
@@ -132,16 +135,50 @@ public class LocationUpdate extends Model {
 	    		
 	    		ObservationData observation = new ObservationData(phone.imei, observationTime, locationCoord , velocity, heading, gpsError);
 	    		
-	    		Api.distanceCache.updateDistance(phone.imei, locationCoord, gpsError);
+	    		//Api.distanceCache.updateDistance(phone.imei, locationCoord, gpsError);
 	    		
-	    		LocationUpdate.natveInsert(LocationUpdate.em(), phone.imei, observation, null, null, observationTime, observationTime, timeReceived, null, null, null, null);
+	    		LocationUpdate.natveInsert(LocationUpdate.em(), phone.imei, observation, observationTime, observationTime, timeReceived, false);
     		}
     		catch(Exception e)
     		{
     			Logger.error("Could not inersert location update: " + e);
     			e.printStackTrace();
     		}
-    	}	
+    	}
+    	
+    	if(lat != null && lon != null)
+    	{
+			phone.recentLat = lat;
+			phone.recentLon = lon;
+			phone.lastUpdate = new Date();
+			phone.save();
+    	}
+    }
+    
+    
+    static public void natveInsert(EntityManager em, String imei, ObservationData obs, Date original, Date sent, Date received, Boolean websocket)
+    {
+    	Query idQuery = em().createNativeQuery("SELECT NEXTVAL('hibernate_sequence');");
+    	BigInteger nextId = (BigInteger)idQuery.getSingleResult();
+    	
+
+    	em.createNativeQuery("INSERT INTO locationupdate (id, imei, adjustedtimestamp, lat, lon, velocity, heading, gpserror, shape, websocket, timestamp, received)" +
+    			"  VALUES(?, ?, ?, ?, ?, ?, ?, ?, ST_GeomFromText( ?, 4326), ?, ?, ?);")
+    			.setParameter(1,  nextId)
+    			.setParameter(2,  obs.getVehicleId())
+    			.setParameter(3,  obs.getTimestamp())
+    			.setParameter(4,  obs.getObsCoordsLatLon().y)
+    			.setParameter(5,  obs.getObsCoordsLatLon().x)
+    			.setParameter(6,  obs.getVelocity())
+    			.setParameter(7,  obs.getHeading())
+    			.setParameter(8,  obs.getAccuracy())
+    			.setParameter(9,  "POINT(" + obs.getObsCoordsLatLon().y +  " " + obs.getObsCoordsLatLon().x + ")")
+    			.setParameter(10,  websocket)
+    			.setParameter(11,  original)
+    			.setParameter(12,  received)
+    			
+    			.executeUpdate();
+  
     }
     
     static public void natveInsert(EntityManager em, String imei, ObservationData obs, Boolean charging, Double battery, Date original, Date sent, Date received, Boolean boot, Boolean shutdown, Boolean failedNetwork, Integer signal)
