@@ -2,6 +2,10 @@
 # This file defines all application routes (Higher priority routes first)
 # ~~~~
 
+
+# Websocket handler	
+WS 		/ws/location							Ws.location
+
 # Home page
 GET     /                                       Application.index
 GET     /recent                                 Application.recent

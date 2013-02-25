@@ -12,10 +12,14 @@ import javax.persistence.Query;
 import org.hibernate.annotations.Type;
 import org.openplans.tools.tracking.impl.ObservationData;
 
+import com.conveyal.trafficprobe.TrafficProbeProtos.LocationUpdate.Location;
 import com.google.gson.annotations.Expose;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Point;
 
+import controllers.Api;
+
+import play.Logger;
 import play.db.jpa.Model;
 
 @Entity
@@ -62,6 +66,8 @@ public class LocationUpdate extends Model {
     @Type(type = "org.hibernatespatial.GeometryUserType")
     public Point shape;
     
+    public Boolean websocket;
+    
     public ObservationData getObservationData()
     {
     	ObservationData obsData = new ObservationData(this.imei, this.timestamp, new Coordinate(this.lat, this.lon), this.velocity, this.heading, this.gpsError);
@@ -91,6 +97,51 @@ public class LocationUpdate extends Model {
     	}
     	else 
     		return new Long(0);
+    }
+    
+    static public void pbLocationUpdate(com.conveyal.trafficprobe.TrafficProbeProtos.LocationUpdate locationUpdate)
+    {
+    	Date timeReceived = new Date();
+    	
+    	Long phoneId = locationUpdate.getPhone();
+    	
+    	Phone phone = Phone.findById(phoneId);
+    	
+    	if(phone == null)
+    	{
+    		Logger.info("Phone " + phoneId + " not found.");
+    		return;
+    	}
+    	 
+    	Long intitialTimestamp = locationUpdate.getTime();
+    	
+    	for(Location location : locationUpdate.getLocationList())
+    	{
+   
+    		try
+    		{
+	    		Date observationTime = new Date(intitialTimestamp + location.getTimeoffset());
+	    		
+	    		Double lat = new Double(location.getLat());
+	    		Double lon = new Double(location.getLon());
+	    		Double velocity = new Double(location.getVelocity());
+	    		Double heading = new Double(location.getHeading());
+	    		Double gpsError = new Double(location.getAccuracy());
+	    		
+	    		Coordinate locationCoord = new Coordinate(lon, lat);
+	    		
+	    		ObservationData observation = new ObservationData(phone.imei, observationTime, locationCoord , velocity, heading, gpsError);
+	    		
+	    		Api.distanceCache.updateDistance(phone.imei, locationCoord, gpsError);
+	    		
+	    		LocationUpdate.natveInsert(LocationUpdate.em(), phone.imei, observation, null, null, observationTime, observationTime, timeReceived, null, null, null, null);
+    		}
+    		catch(Exception e)
+    		{
+    			Logger.error("Could not inersert location update: " + e);
+    			e.printStackTrace();
+    		}
+    	}	
     }
     
     static public void natveInsert(EntityManager em, String imei, ObservationData obs, Boolean charging, Double battery, Date original, Date sent, Date received, Boolean boot, Boolean shutdown, Boolean failedNetwork, Integer signal)

@@ -61,7 +61,7 @@ public class Api extends Controller {
 
 	static public Integer CURRENT_APP_VERSION = 1;
 	
-	static DistanceCache distanceCache = new DistanceCache();
+	public static DistanceCache distanceCache = new DistanceCache();
 	
 	static StreetVelocityCache edgeVelocities = new StreetVelocityCache();
 	
@@ -77,21 +77,19 @@ public class Api extends Controller {
 			return graph;
 		}*/
 	
-		public static ObjectMapper jsonMapper = new ObjectMapper();
-			
-		private static List<Long> ConvetStringArrayToLongArray(String[] stringArray){
-			ArrayList<Long> longList = new ArrayList<Long>();
+	public static ObjectMapper jsonMapper = new ObjectMapper();
+		
+	private static List<Long> ConvetStringArrayToLongArray(String[] stringArray){
+		ArrayList<Long> longList = new ArrayList<Long>();
 
-		for(String str : stringArray){	
-		longList.add(new Long(str));
-		}
+	for(String str : stringArray){	
+	longList.add(new Long(str));
+	}
 
-		return longList;
-		}
-	
-	
-	
-	
+	return longList;
+	}
+
+
 	
 	
 	
@@ -362,7 +360,7 @@ public class Api extends Controller {
 
 		AuthResponse authResponse = new AuthResponse();
 		
-		authResponse.id = new Long(100);
+		authResponse.id = phone.id;
 		authResponse.name = phone.operator.name;
 		
 		if(phone.driver != null)
