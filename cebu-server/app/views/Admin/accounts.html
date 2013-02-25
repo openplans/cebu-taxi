@@ -237,9 +237,15 @@ var validUsername = false;
 var validCreateAccount = false;
 var validEditAccount = false;
 
+var createAccountTemplate = Handlebars.compile($("#createAccount").html());
+var editAccountTemplate = Handlebars.compile($("#editAccount").html());
+var resetPasswordTemplate = Handlebars.compile($("#resetPassword").html());
+
 function createAccount()
 {
-	html = ich.createAccount();
+
+
+	html = createAccountTemplate();
 	
 	$('#createAccountButton').addClass("disabled");
 	
@@ -269,7 +275,7 @@ function editAccount(username)
 		 statusCode: {
 			  
 			    200: function(data) {
-			    	html = ich.editAccount(data);
+			    	html = editAccountTemplate(data);
 			    	
 			    	$('#editAccountModal > .modal-body').html(html);
 			    	
@@ -302,7 +308,7 @@ function resetPassword(username)
 		 statusCode: {
 			  
 			    200: function(data) {
-			    	html = ich.resetPassword(data);
+			    	html = resetPasswordTemplate(data);
 			    	
 			    	$('#resetPasswordButton').addClass("disabled");
 			    	
