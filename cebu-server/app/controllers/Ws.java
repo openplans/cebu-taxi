@@ -37,8 +37,8 @@ public class Ws extends WebSocketController {
 	                	  
 	                	  Logger.info("Websocket text frame recieved: " + frame.textData);
 	                	  
-	                	  if(frame.textData.equals("CONNECTION_TEST"))
-	                		  outbound.send("CONNECTED");
+	                	 // if(frame.textData.equals("CONNECTION_TEST"))
+	                	 //	  outbound.send("CONNECTED");
 	                  }
 		                  
 	             }

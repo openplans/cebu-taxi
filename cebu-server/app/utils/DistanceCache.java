@@ -61,7 +61,7 @@ public class DistanceCache {
 			
 			}
 			
-			play.Logger.info("Distance traveled for IMEI " + imei + ": " + distance + "(" + error + ")");
+			//play.Logger.info("Distance traveled for IMEI " + imei + ": " + distance + "(" + error + ")");
 			
 			if(distance < (error * 4) || error > 50)
 				distance = 0.0;
