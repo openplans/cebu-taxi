@@ -137,7 +137,7 @@ public class LocationUpdate extends Model {
 	    		
 	    		//Api.distanceCache.updateDistance(phone.imei, locationCoord, gpsError);
 	    		
-	    		LocationUpdate.natveInsert(LocationUpdate.em(), phone.imei, observation, observationTime, observationTime, timeReceived, false);
+	    		LocationUpdate.natveInsert(LocationUpdate.em(), phone.imei, observation, observationTime, observationTime, timeReceived, true);
     		}
     		catch(Exception e)
     		{
