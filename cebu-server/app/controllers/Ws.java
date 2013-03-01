@@ -12,6 +12,23 @@ import play.mvc.WebSocketController;
 
 public class Ws extends WebSocketController {
 
+	static void processPbFrame(byte[] data, String source) {
+		try {
+			LocationUpdate locationUpdate = LocationUpdate.parseFrom(data);
+		  	
+		  	Logger.info(source + " binary frame recieved: " + locationUpdate.getLocationList().size() + " updates/" + data.length + " bytes from phone " + locationUpdate.getPhone());
+		  	
+		  	// print diagnostic data
+		  	if(locationUpdate.hasLevel())
+		  		Logger.info("battery charging: " + locationUpdate.getCharging() + " battery level: " + locationUpdate.getLevel() + " network signal: " + locationUpdate.getNetwork() + " gps status: "  + locationUpdate.getGps() );
+		  	
+		  	models.LocationUpdate.pbLocationUpdate(locationUpdate);
+		}
+		catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
 	public static void location() {
 	
 		while(inbound.isOpen()) {
@@ -27,11 +44,7 @@ public class Ws extends WebSocketController {
 	                	  
 	                	  	byte[] data = frame.binaryData;
 	                	  	
-	                	  	LocationUpdate locationUpdate = LocationUpdate.parseFrom(data);
-	                	  	
-	                	  	Logger.info("Websocket binary frame recieved: " + locationUpdate.getLocationList().size() + " updates/" + data.length + " bytes from phone " + locationUpdate.getPhone());
-	                	  	
-	                	  	models.LocationUpdate.pbLocationUpdate(locationUpdate);
+	                	  	processPbFrame(data, "websocket");
 	                  }
 	                  else {
 	                	  

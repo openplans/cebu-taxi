@@ -58,8 +58,8 @@ public class Application extends Controller {
 
 	static ActorRef remoteObservationActor = system.actorFor("akka://inferenceSystem@127.0.0.1:2552/user/observationActor");
 	
-	public static OtpGraph graph = new OtpGraph(
-		      Play.configuration.getProperty("application.otpGraphPath"), null);
+	//public static OtpGraph graph = new OtpGraph(
+	//	      Play.configuration.getProperty("application.otpGraphPath"), null);
 	
 	@Before
     static void setConnectedUser() {

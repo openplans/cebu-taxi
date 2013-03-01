@@ -7,6 +7,10 @@ import utils.DistanceCache;
 import utils.EncodedPolylineBean;
 import utils.StreetVelocityCache;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.text.DateFormat;
@@ -406,6 +410,28 @@ public class Api extends Controller {
 		ok();
 	}
 	
+	public static void locationPb(File data) {
+	
+		try {
+			
+			DataInputStream dataInputStream = new DataInputStream(new BufferedInputStream(new FileInputStream(data)));
+			
+			byte[] dataFrame = new byte[(int)data.length()];;
+			dataInputStream.read(dataFrame);
+			Ws.processPbFrame(dataFrame, "http " + request.headers.get("user-agent"));
+			
+			dataInputStream.close();
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			
+			badRequest();
+		}
+		
+		ok();
+	}
+	
     public static void location(String imei, String content, String timesent, Boolean charging, Double battery, Boolean boot, Boolean shutdown, Boolean failednetwork, Integer signal) throws IOException {
     
     	// test request via curl:
@@ -637,7 +663,7 @@ public class Api extends Controller {
     }
     
     
-    public static void path(String lat1, String lon1, String lat2, String lon2)
+   /* public static void path(String lat1, String lon1, String lat2, String lon2)
     		throws JsonGenerationException, JsonMappingException,
     	      IOException 
     	      
@@ -686,6 +712,6 @@ public class Api extends Controller {
 			    {
 			    	Logger.error("Can't transform geom.");
 			    } 
-    	  }
+    	  } */
 
 }
