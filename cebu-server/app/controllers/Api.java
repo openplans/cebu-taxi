@@ -3,6 +3,7 @@ package controllers;
 import play.*;
 import play.db.jpa.JPA;
 import play.mvc.*;
+import utils.DateUtils;
 import utils.DistanceCache;
 import utils.EncodedPolylineBean;
 import utils.StreetVelocityCache;
@@ -69,10 +70,10 @@ public class Api extends Controller {
 	
 	static StreetVelocityCache edgeVelocities = new StreetVelocityCache();
 	
-	static SimpleDateFormat locationDateFormat = new SimpleDateFormat("yyyyMMdd HHmmss");
+	//static SimpleDateFormat locationDateFormat = new SimpleDateFormat("yyyyMMdd HHmmss");
 	
-	public static final SimpleDateFormat sdf = new SimpleDateFormat(
-		      "yyyy-MM-dd hh:mm:ss");
+	//public static final SimpleDateFormat sdf = new SimpleDateFormat(
+	//	      "yyyy-MM-dd hh:mm:ss");
 	
 	/*public static OtpGraph graph = new OtpGraph(
 			      Play.configuration.getProperty("application.otpGraphPath"), Play.configuration.getProperty("application.dcPath"));
@@ -472,7 +473,7 @@ public class Api extends Controller {
 		
     	try
     	{
-    		timeSentDate = sdf.parse(timesent.replace("T", " "));
+    		timeSentDate = DateUtils.parseBasic(timesent.replace("T", " "));
    
     		timeDelta = timeReceivedDate.getTime() - timeSentDate.getTime();
     	}
@@ -485,7 +486,7 @@ public class Api extends Controller {
         		
             	String[] lineParts = lines[lines.length-1].trim().split(",");
         		
-        		Date lastUpdateDate = locationDateFormat.parse(lineParts[0].replace("T", " "));
+        		Date lastUpdateDate = DateUtils.parseLocationUpdate(lineParts[0].replace("T", " "));
         		
         		timeDelta = timeReceivedDate.getTime() - lastUpdateDate.getTime();
         	}
@@ -550,7 +551,7 @@ public class Api extends Controller {
     	
     		try
     		{
-	    		Date dateTime = locationDateFormat.parse(lineParts[0].replace("T", " "));	
+	    		Date dateTime = DateUtils.parseLocationUpdate(lineParts[0].replace("T", " "));	
 	    		Calendar calendar = Calendar.getInstance();
 	    		calendar.setTimeInMillis(dateTime.getTime() + timeDelta);
 

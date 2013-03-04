@@ -10,6 +10,7 @@ import gov.sandia.cognition.math.matrix.VectorFactory;
 import play.*;
 import play.db.jpa.JPA;
 import play.mvc.*;
+import utils.DateUtils;
 
 import java.awt.Color;
 
@@ -62,8 +63,8 @@ public class Citom extends Controller {
 	private static ObjectMapper mapper = new ObjectMapper(); //.configure(SerializationConfig.Feature.WRITE_DATES_AS_TIMESTAMPS, false);
 	private static JsonFactory jf = new JsonFactory();
 
-	public static final SimpleDateFormat sdf = new SimpleDateFormat(
-		      "MM/dd/yyyy HH:mm:ss");
+//	public static final SimpleDateFormat sdf = new SimpleDateFormat(
+//		     "MM/dd/yyyy HH:mm:ss");
 
 	private static String toJson(Object pojo, boolean prettyPrint)
     throws JsonMappingException, JsonGenerationException, IOException {
@@ -177,8 +178,8 @@ public class Citom extends Controller {
 
 		try
 		{
-			from = Citom.sdf.parse(fromDate + " 00:00:01");
-			to = Citom.sdf.parse(toDate + " 23:59:59");
+			from = DateUtils.parseDisplay(fromDate + " 00:00:01");
+			to = DateUtils.parseDisplay(toDate + " 23:59:59");
 		}
 		catch(Exception e)
 		{
