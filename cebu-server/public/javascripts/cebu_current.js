@@ -2,7 +2,7 @@
 
 var mbUrl = 'http://{s}.tiles.mapbox.com/v3/openplans.map-ky03eiac/{z}/{x}/{y}.png';
 
-var overlayUrl = 'http://cebutraffic.org/tiles_avg/{z}/{x}/{y}.png';
+var overlayUrl = 'http://{s}.tiles.mapbox.com/v3/conveyal.map-p0tdb7j3/{z}/{x}/{y}.png';
 
 
 var mbAttrib = 'Traffic overlay powered by OpenPlans Vehicle Tracking Tools, Map tiles &copy; Mapbox (terms).';
@@ -59,7 +59,7 @@ $(document).ready(function() {
 	
   map = new L.map('map').setView(defaultLatLon, 13);
 
-  L.tileLayer(mbUrl, mbOptions).addTo(map);
+  //L.tileLayer(mbUrl, mbOptions).addTo(map);
   
   L.tileLayer(overlayUrl, mbOptions).addTo(map);
   
