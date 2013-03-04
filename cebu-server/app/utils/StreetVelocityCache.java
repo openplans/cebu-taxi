@@ -1,5 +1,6 @@
 package utils;
 
+import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.List;
 
@@ -9,17 +10,17 @@ import org.codehaus.groovy.tools.shell.util.Logger;
 
 import akka.event.Logging;
 
-import models.StreetEdge;
+import models.StatsEdge;
 
 
 public class StreetVelocityCache {
 
-	HashMap<Integer,Double> streetVelocities = new HashMap<Integer,Double>();
+	HashMap<BigInteger,Double> streetVelocities = new HashMap<BigInteger,Double>();
 	
 	Double meanVelocity;
 	public StreetVelocityCache()
 	{	
-		List edges = StreetEdge.getEdgeVelocityList();
+		List edges = StatsEdge.getEdgeVelocityList();
 		
 		Double total = 0.0;
 		
@@ -28,13 +29,13 @@ public class StreetVelocityCache {
 			Object[] r = (Object[])o;	
 			total += (Double)r[1];
 			
-			streetVelocities.put((Integer)r[0], (Double)r[1]);
+			streetVelocities.put((BigInteger)r[0], (Double)r[1]);
 		}
 		
 		meanVelocity = total / edges.size();
 	}
 
-	public Double getStreetVelocity(Integer edgeId)
+	public Double getStreetVelocity(BigInteger edgeId)
 	{
 		if(streetVelocities.containsKey(edgeId))
 			return streetVelocities.get(edgeId);

@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import org.openplans.tools.tracking.impl.Observation;
-
 import com.jamonapi.utils.Logger;
 
 import play.Play;
@@ -17,7 +15,7 @@ import play.jobs.Job;
 @Every("5s")
 	public class ObservationHandler extends Job {
 		
-	static Queue<Observation> observationQueue = new ConcurrentLinkedQueue<Observation>();
+	/*static Queue<Observation> observationQueue = new ConcurrentLinkedQueue<Observation>();
 	public static Queue<String> historyQueue = new ConcurrentLinkedQueue<String>();
 
 	public static void addObservation(Observation observation, String loggerMessage)
@@ -41,5 +39,5 @@ import play.jobs.Job;
 		
 		observationLog.flush();
 		observationLog.close();
-    }
+    } */
 }

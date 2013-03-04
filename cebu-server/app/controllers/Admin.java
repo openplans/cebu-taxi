@@ -21,15 +21,8 @@ import javax.persistence.Query;
 import org.apache.commons.lang.StringUtils;
 import org.geotools.geometry.jts.JTS;
 import org.opengis.referencing.operation.MathTransform;
-import org.openplans.tools.tracking.impl.statistics.filters.VehicleTrackingFilter;
-import org.openplans.tools.tracking.impl.VehicleState.VehicleStateInitialParameters;
-import org.openplans.tools.tracking.impl.VehicleUpdate;
-import org.openplans.tools.tracking.impl.VehicleUpdateResponse;
-import org.openplans.tools.tracking.impl.graph.InferredEdge;
-import org.openplans.tools.tracking.impl.statistics.filters.VehicleTrackingBootstrapFilter;
-import org.openplans.tools.tracking.impl.statistics.filters.VehicleTrackingPLFilter;
+
 //import org.openplans.tools.tracking.impl.util.GeoUtils;
-import org.openplans.tools.tracking.impl.util.OtpGraph;
 import org.opentripplanner.routing.graph.Edge;
 
 import com.google.common.collect.Maps;

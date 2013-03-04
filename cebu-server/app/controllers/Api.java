@@ -6,6 +6,7 @@ import play.mvc.*;
 import utils.DateUtils;
 import utils.DistanceCache;
 import utils.EncodedPolylineBean;
+import utils.Observation;
 import utils.StreetVelocityCache;
 
 import java.io.BufferedInputStream;
@@ -14,6 +15,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.math.BigInteger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -21,12 +23,6 @@ import java.util.*;
 import static akka.pattern.Patterns.ask;
 
 import org.opengis.referencing.operation.MathTransform;
-import org.openplans.tools.tracking.impl.Observation;
-import org.openplans.tools.tracking.impl.ObservationData;
-import org.openplans.tools.tracking.impl.VehicleUpdate;
-import org.openplans.tools.tracking.impl.VehicleUpdateResponse;
-import org.openplans.tools.tracking.impl.util.GeoUtils;
-import org.openplans.tools.tracking.impl.util.OtpGraph;
 import org.opentripplanner.routing.algorithm.GenericAStar;
 import org.opentripplanner.routing.core.RoutingRequest;
 import org.opentripplanner.routing.core.TraverseMode;
@@ -52,6 +48,9 @@ import api.AuthResponse;
 import api.MessageResponse;
 import api.Path;
 
+import com.conveyal.traffic.graph.TrafficEdge;
+import com.conveyal.traffic.graph.TrafficGraph;
+import com.conveyal.traffic.graph.utils.GeoUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -75,12 +74,11 @@ public class Api extends Controller {
 	//public static final SimpleDateFormat sdf = new SimpleDateFormat(
 	//	      "yyyy-MM-dd hh:mm:ss");
 	
-	/*public static OtpGraph graph = new OtpGraph(
-			      Play.configuration.getProperty("application.otpGraphPath"), Play.configuration.getProperty("application.dcPath"));
+	public static TrafficGraph graph = new TrafficGraph(Play.configuration.getProperty("application.otpGraphPath"));
 		
-		public static OtpGraph getGraph() {
-			return graph;
-		}*/
+	public static TrafficGraph getGraph() {
+		return graph;
+	}
 	
 	public static ObjectMapper jsonMapper = new ObjectMapper();
 		
@@ -535,9 +533,9 @@ public class Api extends Controller {
     	
     	
     	 	
-    	VehicleUpdate update = new VehicleUpdate(imei);
+    	//VehicleUpdate update = new VehicleUpdate(imei);
     	
-    	
+    	Observation observation = null;
     	
     	for(String line : lines)
     	{
@@ -565,9 +563,9 @@ public class Api extends Controller {
 	    		
 	    		Coordinate locationCoord = new Coordinate(lon, lat);
 	    		
-	    		ObservationData observation = new ObservationData(imei, adjustedDate, locationCoord , velocity, heading, gpsError);
+	    		observation = new Observation(imei, adjustedDate, locationCoord , velocity, heading, gpsError);
 	    		
-	    		update.addObservation(observation);
+	    		//update.addObservation(observation);
 	    		
 	    		distanceCache.updateDistance(imei, locationCoord, gpsError);
 	    		
@@ -582,8 +580,22 @@ public class Api extends Controller {
     		}
     	}	
     	
-    	if(update.getObservations().size() > 0)
-    	{
+    	
+    	if(observation != null) {
+	    	Phone phone = Phone.find("imei = ?", observation.getVehicleId()).first();
+			
+			if(phone != null)
+			{
+				phone.recentLat = observation.getObsCoordsLatLon().y;
+				phone.recentLon = observation.getObsCoordsLatLon().x;
+				phone.lastUpdate = new Date();
+				
+				phone.save();
+			}
+    	}
+    	
+    	//if(update.getObservations().size() > 0)
+    	//{
     		/*Future<Object> future = ask(Application.remoteObservationActor, update, 60000);
     		
     		future.onSuccess(new OnSuccess<Object>() {
@@ -629,19 +641,8 @@ public class Api extends Controller {
     		
     		//Application.remoteObservationActor.ak(update);
     		
-    		ObservationData observation = update.getObservations().get(update.getObservations().size() -1 );
     		
-    		Phone phone = Phone.find("imei = ?", observation.getVehicleId()).first();
-    		
-    		if(phone != null)
-    		{
-    			phone.recentLat = observation.getObsCoordsLatLon().y;
-    			phone.recentLon = observation.getObsCoordsLatLon().x;
-    			phone.lastUpdate = new Date();
-    			
-    			phone.save();
-    		}
-    	}
+    	//}
     
         ok();
     }
@@ -663,42 +664,31 @@ public class Api extends Controller {
     	renderJSON(gson.toJson(updates));
     }
     
-    
-   /* public static void path(String lat1, String lon1, String lat2, String lon2)
+   public static void path(String lat1, String lon1, String lat2, String lon2)
     		throws JsonGenerationException, JsonMappingException,
-    	      IOException 
-    	      
-    	      {
+    	      IOException {
 	    	    final Coordinate coord1 =
-	    	        new Coordinate(Double.parseDouble(lat1), Double.parseDouble(lon1));
+	    	        new Coordinate(Double.parseDouble(lon1), Double.parseDouble(lat1));
 	    	    final Coordinate coord2 =
-	    	        new Coordinate(Double.parseDouble(lat2), Double.parseDouble(lon2));
+	    	        new Coordinate(Double.parseDouble(lon2), Double.parseDouble(lat2));
 	    	   
 	    	    Path path = new Path();
 	    	    
-	    	    path.edgeIds = Application.graph.getPathBetweenPoints(coord1, coord2);
-	    	    
-	    	    MathTransform transform;
+	    	    List<Integer> edgeIds = Api.graph.getEdgesBetweenPoints(coord1, coord2);
+	    	 
 				
-			    try {
-			    	
-			    	transform = GeoUtils.getTransform(new Coordinate(10.298143, 123.894796)).inverse();
-	    	    
 			    	Double total = 0.0;
 			    	
-		    	    for(Integer edgeId : path.edgeIds)
+		    	    for(Integer edgeId : edgeIds)
 		    	    {  		
-		    	    	Edge edge = Application.graph.getBaseGraph().getEdgeById(edgeId);
+		    	    	TrafficEdge edge = Api.graph.getTrafficEdge(edgeId);
 		    	    	Geometry geom = edge.getGeometry();
 		    	    	
-		    	    	path.distance += edge.getDistance();
+		    	    	path.distance += edge.geLength();
+		    	   
 		    	    	
-		    	    	final Geometry transformed = JTS.transform( geom, transform);
-					    transformed.setSRID(4326);	
-		    	    	
-		    	    	org.opentripplanner.util.model.EncodedPolylineBean polylineBean =  PolylineEncoder.createEncodings(transformed);
-		    	    	
-		    	    	total += Api.edgeVelocities.getStreetVelocity(edgeId) * edge.getDistance();
+		    	    	org.opentripplanner.util.model.EncodedPolylineBean polylineBean =  PolylineEncoder.createEncodings(geom);
+		    	    	total += Api.edgeVelocities.getStreetVelocity( BigInteger.valueOf(edgeId.longValue())) * edge.geLength();
 		    	    	
 		    	    	path.edgeGeoms.add(polylineBean.getPoints());
 		    	    }
@@ -708,11 +698,6 @@ public class Api extends Controller {
 		    	      	   
 		    	    renderJSON(path);
 		    	    
-			    }
-			    catch(Exception e)
-			    {
-			    	Logger.error("Can't transform geom.");
-			    } 
-    	  } */
-
+			   
+    	  } 
 }

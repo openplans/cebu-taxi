@@ -13,7 +13,6 @@ import com.vividsolutions.jts.geom.Coordinate;
 import akka.event.Logging;
 
 import models.Phone;
-import models.StreetEdge;
 import models.Vehicle;
 import models.VehicleDistance;
 

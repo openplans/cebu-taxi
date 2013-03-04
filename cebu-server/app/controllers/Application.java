@@ -20,15 +20,9 @@ import javax.persistence.Query;
 import org.apache.commons.lang.StringUtils;
 import org.geotools.geometry.jts.JTS;
 import org.opengis.referencing.operation.MathTransform;
-import org.openplans.tools.tracking.impl.statistics.filters.VehicleTrackingFilter;
-import org.openplans.tools.tracking.impl.VehicleState.VehicleStateInitialParameters;
-import org.openplans.tools.tracking.impl.VehicleUpdate;
-import org.openplans.tools.tracking.impl.VehicleUpdateResponse;
-import org.openplans.tools.tracking.impl.graph.InferredEdge;
-import org.openplans.tools.tracking.impl.statistics.filters.VehicleTrackingBootstrapFilter;
-import org.openplans.tools.tracking.impl.statistics.filters.VehicleTrackingPLFilter;
+
 //import org.openplans.tools.tracking.impl.util.GeoUtils;
-import org.openplans.tools.tracking.impl.util.OtpGraph;
+
 import org.opentripplanner.routing.graph.Edge;
 
 import com.google.common.collect.Maps;
@@ -58,8 +52,6 @@ public class Application extends Controller {
 
 	static ActorRef remoteObservationActor = system.actorFor("akka://inferenceSystem@127.0.0.1:2552/user/observationActor");
 	
-	//public static OtpGraph graph = new OtpGraph(
-	//	      Play.configuration.getProperty("application.otpGraphPath"), null);
 	
 	@Before
     static void setConnectedUser() {
@@ -209,7 +201,7 @@ public class Application extends Controller {
 		
 		// '351737058270416', '351737058521628', '351737058756950', '351737057145197', '351737059995524', '351737059985061','351737058270432', '351737058270358', '351737059995409', '351737056957840', '351737056964853', '351737056981766'
 		
-		List<LocationUpdate> locations  = LocationUpdate.find("imei in ('351737058270358') order by timestamp").fetch(5);
+		/*List<LocationUpdate> locations  = LocationUpdate.find("imei in ('351737058270358') order by timestamp").fetch(5);
 		
 		HashMap<String, VehicleUpdate> traces = new HashMap<String, VehicleUpdate>(); 
 		
@@ -282,14 +274,14 @@ public class Application extends Controller {
 					}
 				}
 			});
-		}
+		}*/
 		
 		index();
 	}
 	
 	public static void replay2() {
 		
-		List<LocationUpdate> locations  = LocationUpdate.find("timestamp > ? order by timestamp", lastTime).fetch();
+		/*List<LocationUpdate> locations  = LocationUpdate.find("timestamp > ? order by timestamp", lastTime).fetch();
 		
 		VehicleUpdate updates = new VehicleUpdate(locations.get(0).imei);
 		
@@ -340,7 +332,7 @@ public class Application extends Controller {
 			        }
 				}
 			}
-		});
+		}); */
 		
 		index();
 	}

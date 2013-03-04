@@ -10,8 +10,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Query;
 
 import org.hibernate.annotations.Type;
-import org.openplans.tools.tracking.impl.ObservationData;
 
+import com.conveyal.traffic.graph.utils.GeoUtils;
+import com.conveyal.traffic.graph.utils.ProjectedCoordinate;
 import com.conveyal.trafficprobe.TrafficProbeProtos.LocationUpdate.Location;
 import com.google.gson.annotations.Expose;
 import com.vividsolutions.jts.geom.Coordinate;
@@ -21,6 +22,7 @@ import controllers.Api;
 
 import play.Logger;
 import play.db.jpa.Model;
+import utils.Observation;
 
 @Entity
 public class LocationUpdate extends Model {
@@ -68,9 +70,9 @@ public class LocationUpdate extends Model {
     
     public Boolean websocket;
     
-    public ObservationData getObservationData()
+    public Observation getObservationData()
     {
-    	ObservationData obsData = new ObservationData(this.imei, this.timestamp, new Coordinate(this.lat, this.lon), this.velocity, this.heading, this.gpsError);
+    	Observation obsData = new Observation(this.imei, this.timestamp, new Coordinate(this.lat, this.lon), this.velocity, this.heading, this.gpsError);
     	
     	return obsData;
     }
@@ -132,8 +134,7 @@ public class LocationUpdate extends Model {
 	    		Double gpsError = new Double(location.getAccuracy());
 	    		
 	    		Coordinate locationCoord = new Coordinate(lon, lat);
-	    		
-	    		ObservationData observation = new ObservationData(phone.imei, observationTime, locationCoord , velocity, heading, gpsError);
+	    		Observation observation = new Observation(phone.imei, observationTime, locationCoord, velocity, heading, gpsError);
 	    		
 	    		//Api.distanceCache.updateDistance(phone.imei, locationCoord, gpsError);
 	    		
@@ -156,7 +157,7 @@ public class LocationUpdate extends Model {
     }
     
     
-    static public void natveInsert(EntityManager em, String imei, ObservationData obs, Date original, Date sent, Date received, Boolean websocket)
+    static public void natveInsert(EntityManager em, String imei, Observation obs, Date original, Date sent, Date received, Boolean websocket)
     {
     	Query idQuery = em().createNativeQuery("SELECT NEXTVAL('hibernate_sequence');");
     	BigInteger nextId = (BigInteger)idQuery.getSingleResult();
@@ -181,7 +182,7 @@ public class LocationUpdate extends Model {
   
     }
     
-    static public void natveInsert(EntityManager em, String imei, ObservationData obs, Boolean charging, Double battery, Date original, Date sent, Date received, Boolean boot, Boolean shutdown, Boolean failedNetwork, Integer signal)
+    static public void natveInsert(EntityManager em, String imei, Observation obs, Boolean charging, Double battery, Date original, Date sent, Date received, Boolean boot, Boolean shutdown, Boolean failedNetwork, Integer signal)
     {
     	Query idQuery = em().createNativeQuery("SELECT NEXTVAL('hibernate_sequence');");
     	BigInteger nextId = (BigInteger)idQuery.getSingleResult();
