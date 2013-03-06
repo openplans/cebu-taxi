@@ -92,8 +92,8 @@ public class Phone extends Model {
     	
     	if(gcmKey != null && gcmKey != "")
     	{
-    		Sender sender = new Sender("AIzaSyDeqnbKtFely_dw2nOmNloPg_KS5JclKLc");
-    		com.google.android.gcm.server.Message gcmMessage = new com.google.android.gcm.server.Message.Builder().addData("timestamp", m.timestamp.toLocaleString()).addData("message", m.body).build();
+    		Sender sender = new Sender("AIzaSyDJKs_nzAsdvhtiAdRzQoiz6V_rNq0-Uq4");
+    		com.google.android.gcm.server.Message gcmMessage = new com.google.android.gcm.server.Message.Builder().addData("id", m.id.toString()).addData("timestamp", m.timestamp.toLocaleString()).addData("message", m.body).build();
     
     		try {
 				Result result = sender.send(gcmMessage, gcmKey, 5);

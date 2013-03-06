@@ -69,10 +69,6 @@ public class Api extends Controller {
 	
 	static StreetVelocityCache edgeVelocities = new StreetVelocityCache();
 	
-	//static SimpleDateFormat locationDateFormat = new SimpleDateFormat("yyyyMMdd HHmmss");
-	
-	//public static final SimpleDateFormat sdf = new SimpleDateFormat(
-	//	      "yyyy-MM-dd hh:mm:ss");
 	
 	public static TrafficGraph graph = new TrafficGraph(Play.configuration.getProperty("application.otpGraphPath"));
 		
@@ -92,10 +88,6 @@ public class Api extends Controller {
 	return longList;
 	}
 
-
-	
-	
-	
 	public static void alerts(String imei, String type, String ids) {
 		
 		List<Alert> alerts = null;
