@@ -98,8 +98,12 @@ var TaxiPopupView = Backbone.View.extend({
     },
 
     sendMessage: function(target) {
-	var message = this.$("#messageText").val();
-        $.post('/taxi/sendMessage', {phoneId: this.model.id, message: message});
+	if(this.$("#messageText").val() != "") {
+		var message = this.$("#messageText").val();
+	        $.post('/taxi/sendMessage', {phoneId: this.model.id, message: message});
+
+		this.$("#messageText").val("");
+	}
     },
 
     clearMessages: function(target) {
