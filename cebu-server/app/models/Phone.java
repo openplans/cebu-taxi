@@ -93,7 +93,25 @@ public class Phone extends Model {
     	if(gcmKey != null && gcmKey != "")
     	{
     		Sender sender = new Sender("AIzaSyDJKs_nzAsdvhtiAdRzQoiz6V_rNq0-Uq4");
-    		com.google.android.gcm.server.Message gcmMessage = new com.google.android.gcm.server.Message.Builder().addData("id", m.id.toString()).addData("timestamp", m.timestamp.toLocaleString()).addData("message", m.body).build();
+    		com.google.android.gcm.server.Message gcmMessage = new com.google.android.gcm.server.Message.Builder().addData("type", "message").addData("id", m.id.toString()).addData("timestamp", m.timestamp.toLocaleString()).addData("message", m.body).build();
+    
+    		try {
+				Result result = sender.send(gcmMessage, gcmKey, 5);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    	}
+    }
+    
+    public void clearPanic()
+    {
+    	this.panic = false;
+    	
+    	if(gcmKey != null && gcmKey != "")
+    	{
+    		Sender sender = new Sender("AIzaSyDJKs_nzAsdvhtiAdRzQoiz6V_rNq0-Uq4");
+    		com.google.android.gcm.server.Message gcmMessage = new com.google.android.gcm.server.Message.Builder().addData("type", "clearPanic").build();
     
     		try {
 				Result result = sender.send(gcmMessage, gcmKey, 5);

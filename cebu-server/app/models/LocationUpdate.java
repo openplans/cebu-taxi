@@ -1,14 +1,25 @@
 package models;
 
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.ManyToOne;
 import javax.persistence.Query;
 
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.hibernate.annotations.Type;
 
 import com.conveyal.traffic.graph.utils.GeoUtils;
@@ -120,6 +131,7 @@ public class LocationUpdate extends Model {
     	Double lat = null;
     	Double lon = null;
     	
+    	
     	for(Location location : locationUpdate.getLocationList())
     	{
    
@@ -137,6 +149,21 @@ public class LocationUpdate extends Model {
 	    		Observation observation = new Observation(phone.imei, observationTime, locationCoord, velocity, heading, gpsError);
 	    		
 	    		//Api.distanceCache.updateDistance(phone.imei, locationCoord, gpsError);
+	    		
+	    		DefaultHttpClient httpclient = new DefaultHttpClient();
+	        	HttpPost httpPost = new HttpPost("http://localhost:9001/application/sendData");
+	        	List <BasicNameValuePair> nvps = new ArrayList <BasicNameValuePair>();
+	        	nvps.add(new BasicNameValuePair("lat", lat.toString()));
+	        	nvps.add(new BasicNameValuePair("lon", lon.toString()));
+	        	nvps.add(new BasicNameValuePair("id", phoneId.toString()));
+	        	nvps.add(new BasicNameValuePair("time", new Long(observationTime.getTime()).toString()));
+	     
+	        	try {
+	        		httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+	    			httpclient.execute(httpPost);
+	    		} catch (Exception e) {
+	    			e.printStackTrace();
+	    		}
 	    		
 	    		LocationUpdate.natveInsert(LocationUpdate.em(), phone.imei, observation, observationTime, observationTime, timeReceived, true);
     		}

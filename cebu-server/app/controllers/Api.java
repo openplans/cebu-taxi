@@ -36,6 +36,10 @@ import org.opentripplanner.util.PolylineEncoder;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BasicNameValuePair;
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -421,6 +425,23 @@ public class Api extends Controller {
 		}
 		
 		ok();
+	}
+	
+	public static void sendTest() {
+		DefaultHttpClient httpclient = new DefaultHttpClient();
+    	HttpPost httpPost = new HttpPost("http://localhost:9001/application/sendData");
+    	List <BasicNameValuePair> nvps = new ArrayList <BasicNameValuePair>();
+    	nvps.add(new BasicNameValuePair("lat", new Double(10.0).toString()));
+    	nvps.add(new BasicNameValuePair("lon", new Double(30.0).toString()));
+    	nvps.add(new BasicNameValuePair("id", new Long(10).toString()));
+    	nvps.add(new BasicNameValuePair("time", new Long(10).toString()));
+ 
+    	try {
+    		httpPost.setEntity(new UrlEncodedFormEntity(nvps));
+			httpclient.execute(httpPost);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
     public static void location(String imei, String content, String timesent, Boolean charging, Double battery, Boolean boot, Boolean shutdown, Boolean failednetwork, Integer signal) throws IOException {

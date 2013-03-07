@@ -80,18 +80,23 @@ public class Taxi extends Controller {
 	}
 
 	public static void clearMessages(Long phoneId) {
+		
 		Phone phone = Phone.findById(phoneId);
+		
 		phone.clearMessages();
 	}
 
 	public static void clearPanic(Long phoneId) {
+		
 		Phone phone = Phone.findById(phoneId);
-		phone.panic = false;
-		phone.save();
+		
+		phone.clearPanic();
 	}
 	
 	public static void sendMessage(Long phoneId, String message) {
+		
 		Phone phone = Phone.findById(phoneId);
+		
 		phone.sendMessage(message);
 	}
 
