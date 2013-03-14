@@ -96,25 +96,33 @@ public class Api extends Controller {
 	public static void alerts(String imei, String type, String ids) {
 	
 		List<Alert> alerts = null;
-		ArrayList<AlertSimple> data = new ArrayList<AlertSimple>();
+		Boolean showPublicAlertsOnly = true;
 		
 		Date now = new Date();
 		
 		if(imei != null && !imei.isEmpty()){
 			Phone phone = Phone.find("imei = ?", imei).first();
 			if(phone != null && phone.operator != null && phone.operator.name.equals("CITOM")) {
-				alerts = Alert.find("activeFrom <= ? and (activeTo is null or activeTo >= ?)", now, now).fetch();
-			
-				for(Alert alert : alerts)
-				{
-					data.add(new AlertSimple(alert, true));
-				}
+				
+				showPublicAlertsOnly = false;
 			}
 			
 		}
-		else {
+		
+		ArrayList<AlertSimple> data = new ArrayList<AlertSimple>();
+		
+		if(showPublicAlertsOnly){
 			alerts = Alert.find("activeFrom <= ? and (activeTo is null or activeTo >= ?) and publiclyVisible = true", now, now).fetch();
 			
+			for(Alert alert : alerts)
+			{
+				data.add(new AlertSimple(alert, true));
+			}
+		}
+		else {
+		
+			alerts = Alert.find("activeFrom <= ? and (activeTo is null or activeTo >= ?)", now, now).fetch();
+		
 			for(Alert alert : alerts)
 			{
 				data.add(new AlertSimple(alert, false));
