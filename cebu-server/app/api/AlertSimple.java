@@ -29,7 +29,8 @@ public class AlertSimple {
     public List<AlertMessageSimple> messages;
 
     
-    public AlertSimple(Alert alert)
+    
+    public AlertSimple(Alert alert, Boolean shareAll)
     {
     	this.id = alert.id;
         this.type = alert.type;
@@ -38,23 +39,25 @@ public class AlertSimple {
         this.activeFrom = alert.activeFrom;
         this.activeTo = alert.activeTo;
 
-    	this.publiclyVisible = alert.publiclyVisible;
-
     	this.locationLat = alert.locationLat;
         this.locationLon = alert.locationLon;
 
-    	this.description = alert.description;
         this.publicDescription = alert.publicDescription;
-
-        this.account = alert.account.username;
-
-        List<AlertMessage> messageList = AlertMessage.find("alert = ?", alert).fetch();
+        this.publiclyVisible = alert.publiclyVisible;
         
-        this.messages = new ArrayList<AlertMessageSimple>();
-            
-        for(AlertMessage message : messageList)
-        {
-            this.messages.add(new AlertMessageSimple(message));
+        if(shareAll) {
+	    	this.description = alert.description;
+	       
+	        this.account = alert.account.username;
+	
+	        List<AlertMessage> messageList = AlertMessage.find("alert = ?", alert).fetch();
+	        
+	        this.messages = new ArrayList<AlertMessageSimple>();
+	            
+	        for(AlertMessage message : messageList)
+	        {
+	            this.messages.add(new AlertMessageSimple(message));
+	        }
         }
 
     }

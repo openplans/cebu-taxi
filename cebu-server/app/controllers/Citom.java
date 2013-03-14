@@ -220,7 +220,7 @@ public class Citom extends Controller {
 
 		for(Alert alert : alerts)
 		{
-			data.add(new AlertSimple(alert));
+			data.add(new AlertSimple(alert, true));
 		}
 	
 		if(request.format == "xml")
@@ -447,6 +447,8 @@ public static void alertsCsv(Boolean active, String filter, String fromDate, Str
 	public static void createAlert() {
 		
 		AlertSimple alert;
+		
+		Phone.updateAlerts();
 
         try {
         	alert = mapper.readValue(params.get("body"), AlertSimple.class);
@@ -466,7 +468,7 @@ public static void alertsCsv(Boolean active, String filter, String fromDate, Str
 			
 			newAlert.save();
 			//ok();
-            renderJSON(Citom.toJson(new AlertSimple(newAlert), false));
+            renderJSON(Citom.toJson(new AlertSimple(newAlert, true), false));
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -478,6 +480,8 @@ public static void alertsCsv(Boolean active, String filter, String fromDate, Str
 	public static void updateAlert() {
 		
 		AlertSimple alert;
+		
+		Phone.updateAlerts();
 
         try {
         	alert = mapper.readValue(params.get("body"), AlertSimple.class);

@@ -48,6 +48,7 @@ import org.geotools.geometry.jts.JTS;
 import akka.dispatch.Future;
 import akka.dispatch.OnSuccess;
 import akka.event.Logging;
+import api.AlertSimple;
 import api.AuthResponse;
 import api.MessageResponse;
 import api.Path;
@@ -93,26 +94,41 @@ public class Api extends Controller {
 	}
 
 	public static void alerts(String imei, String type, String ids) {
-		
+	
 		List<Alert> alerts = null;
+		ArrayList<AlertSimple> data = new ArrayList<AlertSimple>();
 		
-		// TODO IMEI filtering for dispatch messages -- not useful for testing
+		Date now = new Date();
 		
-		if(ids != null && !ids.isEmpty())
-		{
-			String[] id_list = ids.split(",");			
-
-			alerts = Alert.em().createQuery("FROM Alert alert WHERE alert.id in (?1)").setParameter(1, ConvetStringArrayToLongArray(id_list)).getResultList(); 
-		}
-		else if(type == null || type.isEmpty() || type.toLowerCase().equals("all"))
-			alerts = Alert.find("active = true").fetch();
-		else
-			alerts = Alert.find("type = ?", type.toLowerCase()).fetch();
+		if(imei != null && !imei.isEmpty()){
+			Phone phone = Phone.find("imei = ?", imei).first();
+			if(phone != null && phone.operator != null && phone.operator.name.equals("CITOM")) {
+				alerts = Alert.find("activeFrom <= ? and (activeTo is null or activeTo >= ?)", now, now).fetch();
 			
+				for(Alert alert : alerts)
+				{
+					data.add(new AlertSimple(alert, true));
+				}
+			}
+			
+		}
+		else {
+			alerts = Alert.find("activeFrom <= ? and (activeTo is null or activeTo >= ?) and publiclyVisible = true", now, now).fetch();
+			
+			for(Alert alert : alerts)
+			{
+				data.add(new AlertSimple(alert, false));
+			}
+		}
+			
+		
+		
+
+		
 		if(request.format == "xml")
-			renderXml(alerts);
+			renderXml(data);
 		else
-			renderJSON(alerts);
+			renderJSON(data);
 	}
 	
 

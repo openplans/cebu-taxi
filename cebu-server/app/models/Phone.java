@@ -2,6 +2,7 @@ package models;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -102,6 +103,36 @@ public class Phone extends Model {
 				e.printStackTrace();
 			}
     	}
+    }
+    
+    public static void updateAlerts()
+    {
+    	
+    	Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.HOUR, -12);
+		Date recentDate = cal.getTime();
+		
+		// find all active phones and send alertUpdate message
+		
+    	List<Phone> phones = Phone.find("lastUpdate > ?", recentDate).fetch();
+    	
+    	for(Phone p : phones) {
+    		
+    		if(p.gcmKey != null && p.gcmKey != "")
+        	{
+        		Sender sender = new Sender("AIzaSyDJKs_nzAsdvhtiAdRzQoiz6V_rNq0-Uq4");
+        		com.google.android.gcm.server.Message gcmMessage = new com.google.android.gcm.server.Message.Builder().addData("type", "alertUpdate").build();
+        
+        		try {
+    				Result result = sender.send(gcmMessage, p.gcmKey, 5);
+    				
+    			} catch (IOException e) {
+    				// TODO Auto-generated catch block
+    				e.printStackTrace();
+    			}
+        	}
+    	}
+    	
     }
     
     public void clearPanic()
