@@ -116,7 +116,7 @@ public class Api extends Controller {
 			
 			for(Alert alert : alerts)
 			{
-				data.add(new AlertSimple(alert, true));
+				data.add(new AlertSimple(alert, false));
 			}
 		}
 		else {
@@ -125,7 +125,7 @@ public class Api extends Controller {
 		
 			for(Alert alert : alerts)
 			{
-				data.add(new AlertSimple(alert, false));
+				data.add(new AlertSimple(alert, true));
 			}
 		}
 			
