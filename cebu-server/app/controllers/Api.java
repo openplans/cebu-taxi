@@ -280,7 +280,7 @@ public class Api extends Controller {
 			
 	}
 	
-	public static void register(String imei, Long operator)
+	public static void register(String imei, String phoneNumber, Long operator)
 	{
 		if(imei != null && !imei.isEmpty() && operator != null)
 		{
@@ -294,9 +294,8 @@ public class Api extends Controller {
 				Operator operatorObj = Operator.findById(new Long(1));			
 				phone.operator = operatorObj;
 				phone.imei = imei;
-				
+				phone.phoneNumber = phoneNumber;				
 	
-
 			}
 			
 			Operator operatorObj = Operator.findById(operator);
