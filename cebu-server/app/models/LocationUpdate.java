@@ -150,7 +150,7 @@ public class LocationUpdate extends Model {
 	    		
 	    		//Api.distanceCache.updateDistance(phone.imei, locationCoord, gpsError);
 	    		
-	    		DefaultHttpClient httpclient = new DefaultHttpClient();
+	    		/*DefaultHttpClient httpclient = new DefaultHttpClient();
 	        	HttpPost httpPost = new HttpPost("http://localhost:9001/application/sendData");
 	        	List <BasicNameValuePair> nvps = new ArrayList <BasicNameValuePair>();
 	        	nvps.add(new BasicNameValuePair("lat", lat.toString()));
@@ -163,8 +163,8 @@ public class LocationUpdate extends Model {
 	    			httpclient.execute(httpPost);
 	    		} catch (Exception e) {
 	    			e.printStackTrace();
-	    		}
-	    		
+	    		}*/
+	        	
 	    		LocationUpdate.natveInsert(LocationUpdate.em(), phone.imei, observation, observationTime, observationTime, timeReceived, true);
     		}
     		catch(Exception e)
