@@ -148,7 +148,7 @@ public class LocationUpdate extends Model {
 	    		Coordinate locationCoord = new Coordinate(lon, lat);
 	    		Observation observation = new Observation(phone.imei, observationTime, locationCoord, velocity, heading, gpsError);
 	    		
-	    		//Api.distanceCache.updateDistance(phone.imei, locationCoord, gpsError);
+	    		Api.distanceCache.updateDistance(phone.imei, locationCoord, gpsError);
 	    		
 	    		/*DefaultHttpClient httpclient = new DefaultHttpClient();
 	        	HttpPost httpPost = new HttpPost("http://localhost:9001/application/sendData");
