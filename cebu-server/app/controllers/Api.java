@@ -434,6 +434,13 @@ public class Api extends Controller {
 			
 			DataInputStream dataInputStream = new DataInputStream(new BufferedInputStream(new FileInputStream(data)));
 			
+			if(data.length() > 25000) {
+				
+				Logger.info("location update too large (" + (data.length() / 1024) + "kb), skipping..."); 
+				dataInputStream.close();
+				badRequest();	
+			}
+			
 			byte[] dataFrame = new byte[(int)data.length()];;
 			dataInputStream.read(dataFrame);
 			Ws.processPbFrame(dataFrame, "http " + request.headers.get("user-agent"));

@@ -142,7 +142,7 @@ public class LocationUpdate extends Model {
     		locations = locationUpdate.getLocationList();
     		
     	
-    	for(Location location : locations)
+    	for(Location location : locationUpdate.getLocationList())
     	{
    
     		try
