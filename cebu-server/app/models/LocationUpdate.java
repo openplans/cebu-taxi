@@ -216,8 +216,7 @@ public class LocationUpdate extends Model {
     			.setParameter(12,  received)
     			
     			.executeUpdate();
-  
-    	em.close();
+ 
     }
     
     static public void natveInsert(EntityManager em, String imei, Observation obs, Boolean charging, Double battery, Date original, Date sent, Date received, Boolean boot, Boolean shutdown, Boolean failedNetwork, Integer signal)
@@ -225,7 +224,6 @@ public class LocationUpdate extends Model {
     	Query idQuery = em().createNativeQuery("SELECT NEXTVAL('hibernate_sequence');");
     	BigInteger nextId = (BigInteger)idQuery.getSingleResult();
     	
-
     	em.createNativeQuery("INSERT INTO locationupdate (id, imei, adjustedtimestamp, lat, lon, velocity, heading, gpserror, shape, charging, battery, sent, received, boot, failednetwork, signal, shutdown, timestamp)" +
     			"  VALUES(?, ?, ?, ?, ?, ?, ?, ?, ST_GeomFromText( ?, 4326), ?, ?, ?, ?, ?, ?, ?, ?, ?);")
     			.setParameter(1,  nextId)
@@ -248,7 +246,6 @@ public class LocationUpdate extends Model {
     			.setParameter(18,  original)
     			.executeUpdate();
     	
-    	em.close();
     	
     }
     
@@ -272,9 +269,7 @@ public class LocationUpdate extends Model {
     			.setParameter(11,  original)
     			.setParameter(12,  adjusted)
     			.executeUpdate();
-		
-		em.close();
-    	
+	
     }
     
     public void calcAdjustedTime()
