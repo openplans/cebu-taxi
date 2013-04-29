@@ -117,7 +117,7 @@ public class Admin extends Controller {
 	
 	public static void vechicleStatus(String imei) {
 		
-		Integer visible;
+		/*Integer visible;
 		List<Phone> phones;
 		
 		if(imei == null)
@@ -131,7 +131,9 @@ public class Admin extends Controller {
 			visible = 1000;
 		}
 		
-		render(phones, visible);
+		render(phones, visible);*/
+		
+		systemStatus();
 	}
 
 }

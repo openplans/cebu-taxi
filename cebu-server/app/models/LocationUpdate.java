@@ -131,8 +131,18 @@ public class LocationUpdate extends Model {
     	Double lat = null;
     	Double lon = null;
     	
+    	List<Location> locations = null;
     	
-    	for(Location location : locationUpdate.getLocationList())
+    	if(locationUpdate.getLocationList().size() > 100) {
+    		Logger.info("Message buffer too large, clipping to 100");
+    		int index = locationUpdate.getLocationList().size() - 1;
+    		locations = locationUpdate.getLocationList().subList(index - 100, index);
+    	}
+    	else
+    		locations = locationUpdate.getLocationList();
+    		
+    	
+    	for(Location location : locations)
     	{
    
     		try
@@ -207,6 +217,7 @@ public class LocationUpdate extends Model {
     			
     			.executeUpdate();
   
+    	em.close();
     }
     
     static public void natveInsert(EntityManager em, String imei, Observation obs, Boolean charging, Double battery, Date original, Date sent, Date received, Boolean boot, Boolean shutdown, Boolean failedNetwork, Integer signal)
@@ -237,6 +248,8 @@ public class LocationUpdate extends Model {
     			.setParameter(18,  original)
     			.executeUpdate();
     	
+    	em.close();
+    	
     }
     
     static public void natveInsert(EntityManager em, String imei, Boolean charging, Double battery, Date original, Date adjusted, Date sent, Date received, Boolean boot, Boolean shutdown, Boolean failedNetwork, Integer signal)
@@ -259,6 +272,8 @@ public class LocationUpdate extends Model {
     			.setParameter(11,  original)
     			.setParameter(12,  adjusted)
     			.executeUpdate();
+		
+		em.close();
     	
     }
     
