@@ -79,7 +79,7 @@ public class DistanceCache {
 		else
 			vechiclePositions.put(vehicle, newCoord);
 	
-		flushDistances();
+		//flushDistances();
 		
 		return distance;
 	}
